@@ -1,0 +1,529 @@
+# Машиночитаемая база нормативных отступов для генератора озеленения.
+# ВАЖНО: поле verification у каждого источника обязательно к ручной сверке
+#        перед сдачей — см. docs/02-normative-verification-checklist.md
+#
+# Единицы: метры. Все расстояния измеряются в плане (по горизонтали).
+# measured_from — от какой геометрии препятствия;
+# measured_to   — до какой точки посадки (всегда ось ствола, см. docs/01-normative-base.md §2.2).
+#
+# severity:
+#   prohibitive  — посадка недопустима (жёсткое ограничение)
+#   conditional  — допустима только по письменному согласованию эксплуатирующей организации
+#   advisory     — рекомендация, не блокирует, попадает в отчёт как примечание
+#
+# resolution: при конкуренции норм применяется МАКСИМАЛЬНОЕ расстояние,
+#             конкурирующие значения сохраняются в competing для объяснения.
+
+meta:
+  version: "0.1.0"
+  updated: "2026-09-14"
+  conflict_resolution: max_of_applicable
+  crown_rule:
+    # Примечание 1 к табл. 9.1 СП 42.13330.2016: нормы даны для кроны <= 5 м
+    # и должны быть увеличены для деревьев с большей кроной.
+    # Норматив формулы не даёт — это наше явно декларируемое допущение.
+    base_crown_diameter_m: 5.0
+    formula: "d_final = d_table + max(0, (crown_d - 5.0) / 2)"
+    status: assumption
+    source_ref: sp42_t9_1_note1
+
+# ---------------------------------------------------------------------------
+# ПОДЗЕМНЫЕ И ВОЗДУШНЫЕ ИНЖЕНЕРНЫЕ СЕТИ
+# ---------------------------------------------------------------------------
+rules:
+
+  - id: gas_pipeline_tree
+    obstacle: gas_pipeline
+    target: tree
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: conditional
+    condition_ru: "без письменного согласования с эксплуатационной организацией"
+    source_ref: pp878_p7_p14
+    competing:
+      - source_ref: sp42_t9_1_gas_sewer
+        distance_m: 1.5
+    rationale_ru: >-
+      Охранная зона газораспределительной сети — 2 м с каждой стороны газопровода;
+      в её границах запрещается насаждать деревья и кустарники без согласования
+      с эксплуатационной организацией. Применено большее значение относительно
+      табличного отступа 1,5 м по СП 42.13330.2016.
+
+  - id: gas_pipeline_shrub
+    obstacle: gas_pipeline
+    target: shrub
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp878_p7_p14
+    competing:
+      - source_ref: sp42_t9_1_gas_sewer
+        distance_m: null          # прочерк в таблице: норма НЕ УСТАНОВЛЕНА (не ноль!)
+    rationale_ru: >-
+      Таблица 9.1 СП 42.13330.2016 не нормирует расстояние от газопровода до кустарника
+      (прочерк). Ограничение задаётся охранной зоной газораспределительной сети — 2 м.
+
+  - id: sewer_tree
+    obstacle: sewer
+    target: tree
+    distance_m: 1.5
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_gas_sewer
+    rationale_ru: "Расстояние от самотечной канализации до оси ствола дерева — не менее 1,5 м."
+
+  - id: sewer_shrub
+    obstacle: sewer
+    target: shrub
+    distance_m: null
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: advisory
+    source_ref: sp42_t9_1_gas_sewer
+    rationale_ru: >-
+      Норма расстояния от канализации до кустарника таблицей 9.1 не установлена (прочерк).
+      Посадка допустима; рекомендуется обеспечить доступ к сети для эксплуатации.
+
+  - id: water_supply_tree
+    obstacle: water_supply
+    target: tree
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_water_drainage
+    rationale_ru: "Расстояние от водопровода и дренажа до оси ствола дерева — не менее 2 м."
+
+  - id: water_supply_shrub
+    obstacle: water_supply
+    target: shrub
+    distance_m: null
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: advisory
+    source_ref: sp42_t9_1_water_drainage
+
+  - id: heating_network_tree
+    obstacle: heating_network
+    target: tree
+    distance_m: 3.0
+    measured_from: structure_edge     # от края строительных конструкций / оболочки
+    measured_to: trunk_axis
+    severity: conditional
+    condition_ru: "без письменного согласия предприятия, в ведении которого находится сеть"
+    source_ref: minstroy197_p4
+    competing:
+      - source_ref: sp42_t9_1_heating
+        distance_m: 2.0
+    rationale_ru: >-
+      Охранная зона тепловой сети — не менее 3 м в каждую сторону от края строительных
+      конструкций или наружной поверхности изолированного теплопровода при бесканальной
+      прокладке. Применено большее значение относительно табличных 2 м по СП 42.13330.2016.
+
+  - id: heating_network_shrub
+    obstacle: heating_network
+    target: shrub
+    distance_m: 3.0
+    measured_from: structure_edge
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: minstroy197_p4
+    competing:
+      - source_ref: sp42_t9_1_heating
+        distance_m: 1.0
+
+  - id: heating_soil_warming_advisory
+    obstacle: heating_network
+    target: tree
+    distance_m: 6.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: advisory
+    source_ref: tsn30_307_soil_warming
+    rationale_ru: >-
+      Зона среднего прогрева грунта простирается на 2–6 м от оси теплопровода
+      (интенсивный прогрев — до 2 м). В полосе до 6 м рекомендуется применять породы,
+      устойчивые к иссушению корнеобитаемого слоя, либо увеличивать отступ.
+
+  - id: power_cable_tree
+    obstacle: power_cable
+    target: tree
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_cable
+    competing:
+      - source_ref: pp160_cable
+        distance_m: 1.0
+    rationale_ru: >-
+      Расстояние от силового кабеля до оси ствола дерева — не менее 2 м (табл. 9.1),
+      что строже охранной зоны кабельной линии (1 м по ПП РФ № 160).
+
+  - id: power_cable_shrub
+    obstacle: power_cable
+    target: shrub
+    distance_m: 1.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_cable
+    competing:
+      - source_ref: sp42_t9_1_cable
+        distance_m: 0.7
+    rationale_ru: >-
+      Табличный отступ до кустарника — 0,7 м; охранная зона кабельной линии — 1 м
+      по обе стороны от крайних кабелей. Применено большее значение.
+
+  - id: comm_cable_tree
+    obstacle: communication_cable
+    target: tree
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp578_comm
+    competing:
+      - source_ref: sp42_t9_1_cable
+        distance_m: 2.0
+
+  - id: comm_cable_shrub
+    obstacle: communication_cable
+    target: shrub
+    distance_m: 2.0
+    measured_from: network_axis
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp578_comm
+    competing:
+      - source_ref: sp42_t9_1_cable
+        distance_m: 0.7
+    rationale_ru: >-
+      Охранная зона подземной кабельной линии связи — 2 м с каждой стороны;
+      посадка деревьев в её границах без согласия предприятия связи не допускается.
+      Трактовка распространена на кустарники консервативно — вопрос вынесен экспертам.
+
+  # --- Воздушные линии электропередачи: буфер задаётся только охранной зоной ---
+  - id: overhead_line_0_4kv
+    obstacle: overhead_line
+    voltage_kv_max: 1
+    target: [tree, shrub]
+    distance_m: 2.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_1_20kv
+    obstacle: overhead_line
+    voltage_kv_max: 20
+    target: [tree, shrub]
+    distance_m: 10.0
+    distance_m_sip_in_settlement: 5.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+    rationale_ru: >-
+      Охранная зона ВЛ 1–20 кВ — 10 м от крайних проводов
+      (5 м — для линий с самонесущими изолированными проводами в границах населённых пунктов).
+
+  - id: overhead_line_35kv
+    obstacle: overhead_line
+    voltage_kv_max: 35
+    target: [tree, shrub]
+    distance_m: 15.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_110kv
+    obstacle: overhead_line
+    voltage_kv_max: 110
+    target: [tree, shrub]
+    distance_m: 20.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_150_220kv
+    obstacle: overhead_line
+    voltage_kv_max: 220
+    target: [tree, shrub]
+    distance_m: 25.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_300_500kv
+    obstacle: overhead_line
+    voltage_kv_max: 500
+    target: [tree, shrub]
+    distance_m: 30.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_750kv
+    obstacle: overhead_line
+    voltage_kv_max: 750
+    target: [tree, shrub]
+    distance_m: 40.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: overhead_line_1150kv
+    obstacle: overhead_line
+    voltage_kv_max: 1150
+    target: [tree, shrub]
+    distance_m: 55.0
+    measured_from: outer_conductor
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp160_vl_table
+
+  - id: gas_regulator_point
+    obstacle: gas_regulator_point
+    target: [tree, shrub]
+    distance_m: 10.0
+    measured_from: object_boundary
+    measured_to: trunk_axis
+    severity: conditional
+    source_ref: pp878_p7_p14
+    rationale_ru: "Охранная зона вокруг отдельно стоящих газорегуляторных пунктов — 10 м от границ ГРП."
+
+# ---------------------------------------------------------------------------
+# ЗДАНИЯ, СООРУЖЕНИЯ, ЭЛЕМЕНТЫ БЛАГОУСТРОЙСТВА (табл. 9.1 СП 42.13330.2016)
+# ---------------------------------------------------------------------------
+
+  - id: building_wall_tree
+    obstacle: building_wall
+    target: tree
+    distance_m: 5.0
+    measured_from: outer_wall
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_building
+
+  - id: building_wall_shrub
+    obstacle: building_wall
+    target: shrub
+    distance_m: 1.5
+    measured_from: outer_wall
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_building
+
+  - id: school_kindergarten_wall_tree
+    obstacle: school_kindergarten_wall
+    target: tree
+    distance_m: 10.0
+    measured_from: outer_wall
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_school
+    verification: disputed      # строка есть не во всех редакциях — обязательна сверка
+
+  - id: sidewalk_edge_tree
+    obstacle: sidewalk_edge
+    target: tree
+    distance_m: 0.7
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_sidewalk
+
+  - id: sidewalk_edge_shrub
+    obstacle: sidewalk_edge
+    target: shrub
+    distance_m: 0.5
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_sidewalk
+
+  - id: carriageway_edge_tree
+    obstacle: carriageway_edge
+    target: tree
+    distance_m: 2.0
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_carriageway
+
+  - id: carriageway_edge_shrub
+    obstacle: carriageway_edge
+    target: shrub
+    distance_m: 1.0
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_carriageway
+
+  - id: tram_track_tree
+    obstacle: tram_track_axis
+    target: tree
+    distance_m: 5.0
+    measured_from: axis
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_tram
+
+  - id: tram_track_shrub
+    obstacle: tram_track_axis
+    target: shrub
+    distance_m: 3.0
+    measured_from: axis
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_tram
+
+  - id: lighting_pole_tree
+    obstacle: lighting_pole
+    target: tree
+    distance_m: 4.0
+    measured_from: object_center
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_pole
+
+  - id: slope_toe_tree
+    obstacle: slope_toe
+    target: tree
+    distance_m: 1.0
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_slope
+
+  - id: slope_toe_shrub
+    obstacle: slope_toe
+    target: shrub
+    distance_m: 0.5
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_slope
+
+  - id: retaining_wall_tree
+    obstacle: retaining_wall
+    target: tree
+    distance_m: 3.0
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_retaining
+
+  - id: retaining_wall_shrub
+    obstacle: retaining_wall
+    target: shrub
+    distance_m: 1.0
+    measured_from: edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    source_ref: sp42_t9_1_retaining
+
+# ---------------------------------------------------------------------------
+# ГОРОДСКАЯ СРЕДА: ВИДИМОСТЬ, ПОЖАРНЫЕ ПРОЕЗДЫ, ДОСТУПНОСТЬ
+# ---------------------------------------------------------------------------
+
+  - id: sight_triangle
+    obstacle: sight_triangle
+    target: [tree, shrub]
+    rule_type: zone_exclusion
+    height_threshold_m: 0.5
+    severity: prohibitive
+    source_ref: sp42_sight_triangle
+    verification: needs_check
+    rationale_ru: >-
+      В пределах треугольников видимости на нерегулируемых перекрёстках не допускается
+      размещение деревьев и кустарников высотой более 0,5 м.
+    params:
+      sizes_m: [[8, 40], [10, 50]]
+
+  - id: fire_lane_row_planting
+    obstacle: fire_lane
+    target: tree
+    rule_type: zone_exclusion
+    applies_to_pattern: row        # запрещена именно РЯДОВАЯ посадка
+    severity: prohibitive
+    source_ref: sp4_13130_fire_lane
+    verification: needs_check
+    rationale_ru: >-
+      В зоне противопожарного проезда (между проездом и стеной здания) не допускается
+      осуществлять рядовую посадку деревьев.
+
+  - id: pedestrian_clear_width
+    obstacle: sidewalk
+    target: [tree, shrub]
+    rule_type: residual_width
+    min_clear_width_m: 1.2
+    preferred_clear_width_m: 1.8
+    severity: prohibitive
+    source_ref: sp59_13330_width
+    rationale_ru: >-
+      После размещения посадки и приствольной лунки ширина свободного пути движения
+      должна оставаться не менее 1,2 м (рекомендуется 1,8 м для разъезда).
+
+  - id: pedestrian_clear_height
+    obstacle: sidewalk
+    target: tree
+    rule_type: vertical_clearance
+    min_clear_height_m: 2.1
+    severity: advisory
+    source_ref: sp59_13330_height
+    rationale_ru: >-
+      Высота свободного пространства над путём движения — не менее 2,1 м;
+      нижние ветви не должны свисать ниже этой отметки (обеспечивается формовкой кроны).
+
+  - id: soil_depth_over_underground_structure
+    obstacle: underground_structure_roof
+    target: tree
+    rule_type: soil_depth
+    min_soil_depth_m: 0.8
+    severity: prohibitive
+    source_ref: tsn30_307_soil_depth
+    rationale_ru: >-
+      Над перекрытиями подземных сооружений посадка дерева возможна только при
+      достаточной толщине слоя растительного грунта (для деревьев — от 0,6–0,8 м).
+
+# ---------------------------------------------------------------------------
+# ВЗАИМНОЕ РАЗМЕЩЕНИЕ ПОСАДОК (агротехника, не НПА-запрет)
+# ---------------------------------------------------------------------------
+
+  - id: tree_to_tree_spacing
+    obstacle: existing_or_proposed_tree
+    target: tree
+    rule_type: mutual_spacing
+    distance_m: 5.0
+    distance_m_by_crown: "max(5.0, crown_d_a/2 + crown_d_b/2 + 1.0)"
+    severity: advisory
+    source_ref: agro_practice
+    rationale_ru: >-
+      Расстояние между деревьями принимается исходя из проектного диаметра крон,
+      чтобы исключить конкуренцию за свет и почвенные ресурсы.
+
+  - id: shrub_to_shrub_spacing
+    obstacle: existing_or_proposed_shrub
+    target: shrub
+    rule_type: mutual_spacing
+    distance_m: 1.0
+    severity: advisory
+    source_ref: agro_practice
+
+  - id: invasive_species_ban
+    rule_type: assortment_filter
+    severity: prohibitive
+    source_ref: ppm369_invasive
+    rationale_ru: >-
+      Виды, включённые в перечень инвазивных растений города Москвы,
+      исключаются из подбираемого ассортимента.

@@ -1,0 +1,482 @@
+[
+ {
+  "name": "0",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "корневой барьер",
+  "color": 84,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Липа серебристная",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Defpoints",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_посадочный",
+  "color": 250,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_зеленые насаждения",
+  "color": 105,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_зелень_ОПС",
+  "color": 94,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "СП_дендроплан",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "СП_зеленые насаждения для ГП",
+  "color": 250,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Газон",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "крона",
+  "color": 84,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "крона1",
+  "color": 127,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "П_дерево",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "листья",
+  "color": 84,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "цветы",
+  "color": 211,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "можж китайский",
+  "color": 76,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Клен остролистный",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Вишня птичья",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "палки",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Озеленение_деревья и кустарники",
+  "color": 102,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Озеленение_деревья и кустарники_пути рассадки",
+  "color": 6,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$-ЛИНИЯ-СХЕМАТИЧНАЯ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$-ЛИНИЯ-РЕАЛИСТИЧНАЯ",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$-ЗАЛИВКА",
+  "color": 197,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$ДЕРЕН БЕЛЫЙ",
+  "color": 108,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$-ЛИНИЯ-СХЕМАТИЧНАЯ",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$-ЗАЛИВКА",
+  "color": 255,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$-ЛИНИЯ-РЕАЛИСТИЧНАЯ",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$КЛЕН ГИННАЛА",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$-ЛИНИЯ-РЕАЛИСТИЧНАЯ",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$-ЛИНИЯ-СХЕМАТИЧНАЯ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$-ЗАЛИВКА",
+  "color": 87,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$СИРЕНЬ ОБЫКНОВЕННАЯ",
+  "color": 61,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$КЛЕН ОСТРОЛИСТНЫЙ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$ЧУБУШНИК ВЕНЕЧНЫЙ (ГОРТЕНЗИЯ)",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$СНЕЖНОЯГОДНИК",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$ЧУБУШНИК ЛЕМУАНА",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$РЯБИННИК РЯБИНОЛИСТНЫЙ",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_ГП_МАФ_разбивка",
+  "color": 144,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_ГП_Озеленение_экспликация",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_ГП_Озеленение_экспликация 2 этап",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$БЕРЕСКЛЕТ ЕВРОПЕЙСКИЙ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$КИЗИЛЬНИК",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$-ЗАЛИВКА-РЕАЛИСТИЧНАЯ",
+  "color": 183,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$ДЕРЕН ОТПРЫСКОВЫЙ",
+  "color": 102,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$ЧЕРЕМУХА МААКА",
+  "color": 175,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$ЛИПА ЕВРОПЕЙСКАЯ",
+  "color": 80,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$РЯБИНА ДОДОНГ",
+  "color": 80,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$СМОРОДИНА ЗОЛОТИСТАЯ",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$КУСТЫ$РОЗА МОРЩИНИСТАЯ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$ЯБЛОНЯ НЕЗВЕДСКОГО",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$КЛЕН КРАСНЫЙ",
+  "color": 80,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$МИКРОБИОТА ПЕРЕКРЕСТНОПАРНАЯ",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$ДЕРЕН БЕЛЫЙ СИБИРИКА",
+  "color": 61,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$ЛИСТВЕННИЦА ЕВРОПЕЙСКАЯ",
+  "color": 80,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ЗЕЛЕНЬ$ДЕРЕВЬЯ$СОСНА ЧЕРНАЯ",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "-ГПт- 18кв. Озеленение дер.",
+  "color": 0,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "-ГПт- 18кв. Озеленение Текст куст.",
+  "color": 198,
+  "linetype": "CONTI"
+ },
+ {
+  "name": "Greens - Trees",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Озеленение_ размеры",
+  "color": 143,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Озеленение_древесное",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Покрытия_искусственное_бежево-серый",
+  "color": 164,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Благоустройство_КУСТ 3",
+  "color": 94,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Благоустройство_Деревья",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "- деревья_Ном._пера__62",
+  "color": 62,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "- деревья_Ном._пера__64",
+  "color": 64,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Деревья",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Благоустройство_КУСТ",
+  "color": 94,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Благоустройство_КУСТ 1",
+  "color": 94,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АГО_Деревья1",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП_Сети_Электрика_освещ_проект",
+  "color": 20,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ГП - Лист (таблица)",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_ГП_дороги",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_ГП_покрытие цветник",
+  "color": 221,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "PDF _PS_Таблицы",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "_4_ПОКР_ПРОЕЗД",
+  "color": 174,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "ДЕНДРОПАРК",
+  "color": 250,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Ком",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Номер_1",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "озел.денд",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Лиственница сибирская",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Псевдотсуга",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Сосна горная",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Генплан - текст озеленения",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Генплан - озеленение",
+  "color": 100,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Вяз мелколистный",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "штриховка",
+  "color": 80,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "!!!проектируемые деревья",
+  "color": 114,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "Ива",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "derevo",
+  "color": 250,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "1",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АЖФ Хвойные деревья",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АЖФ Лиственные деревья",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АЖФ Хвойные кустарники",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АЖФ Лиственные кустарники",
+  "color": 7,
+  "linetype": "Continuous"
+ },
+ {
+  "name": "АЖФ Многолетники",
+  "color": 7,
+  "linetype": "Continuous"
+ }
+]

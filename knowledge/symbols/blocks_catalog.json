@@ -1,0 +1,2180 @@
+[
+ {
+  "name": "Сосна черная",
+  "n_entities": 119,
+  "width": 8800.91,
+  "height": 8800.91,
+  "bbox": [
+   -4258.838,
+   -4259.629,
+   4542.072,
+   4541.281
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "LINE": 116,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Рябина Додонг",
+  "n_entities": 53,
+  "width": 7641.77,
+  "height": 3.13,
+  "bbox": [
+   -3820.884,
+   -2076.017,
+   3820.884,
+   -2072.886
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 51
+  }
+ },
+ {
+  "name": "Ель голубая",
+  "n_entities": 6,
+  "width": 5753.81,
+  "height": 5297.97,
+  "bbox": [
+   -2812.566,
+   -2620.807,
+   2941.248,
+   2677.16
+  ],
+  "entities": {
+   "LWPOLYLINE": 6
+  }
+ },
+ {
+  "name": "Боярышник",
+  "n_entities": 91,
+  "width": 3523.84,
+  "height": 3518.67,
+  "bbox": [
+   -1761.918,
+   -1759.334,
+   1761.918,
+   1759.334
+  ],
+  "entities": {
+   "LINE": 6,
+   "ARC": 84,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Форзиция",
+  "n_entities": 15,
+  "width": 3067.33,
+  "height": 3017.24,
+  "bbox": [
+   -1496.065,
+   -1546.913,
+   1571.269,
+   1470.328
+  ],
+  "entities": {
+   "LWPOLYLINE": 15
+  }
+ },
+ {
+  "name": "Лещина",
+  "n_entities": 15,
+  "width": 3067.33,
+  "height": 3017.24,
+  "bbox": [
+   -508.437,
+   -526.305,
+   2558.898,
+   2490.936
+  ],
+  "entities": {
+   "LWPOLYLINE": 15
+  }
+ },
+ {
+  "name": "Стефонандра",
+  "n_entities": 193,
+  "width": 3024.06,
+  "height": 3024.06,
+  "bbox": [
+   -1509.524,
+   -1494.839,
+   1514.54,
+   1529.224
+  ],
+  "entities": {
+   "LINE": 193
+  }
+ },
+ {
+  "name": "сб9",
+  "n_entities": 67,
+  "width": 3021.14,
+  "height": 2987.9,
+  "bbox": [
+   -1522.322,
+   -1497.615,
+   1498.818,
+   1490.288
+  ],
+  "entities": {
+   "LINE": 67
+  }
+ },
+ {
+  "name": "Актинидия",
+  "n_entities": 98,
+  "width": 2171.18,
+  "height": 3032.35,
+  "bbox": [
+   -1328.819,
+   -2148.492,
+   842.365,
+   883.858
+  ],
+  "entities": {
+   "ARC": 34,
+   "LINE": 64
+  }
+ },
+ {
+  "name": "Рододендрон Даурский",
+  "n_entities": 73,
+  "width": 1557.93,
+  "height": 1545.12,
+  "bbox": [
+   -785.968,
+   -784.285,
+   771.96,
+   760.84
+  ],
+  "entities": {
+   "ARC": 72,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Кизильник блестящий",
+  "n_entities": 53,
+  "width": 1348.88,
+  "height": 1348.03,
+  "bbox": [
+   -661.11,
+   -637.481,
+   687.766,
+   710.546
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Бархат Амурский",
+  "n_entities": 96,
+  "width": 1291.27,
+  "height": 1546.55,
+  "bbox": [
+   -518.753,
+   -1027.8,
+   772.518,
+   518.755
+  ],
+  "entities": {
+   "ARC": 34,
+   "LINE": 4,
+   "CIRCLE": 1,
+   "LWPOLYLINE": 18,
+   "HATCH": 39
+  }
+ },
+ {
+  "name": "Рябинник рябинолистный",
+  "n_entities": 53,
+  "width": 1277.31,
+  "height": 1277.38,
+  "bbox": [
+   -597.466,
+   -652.112,
+   679.841,
+   625.27
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Гортензия древовидная",
+  "n_entities": 72,
+  "width": 1086.43,
+  "height": 1093.98,
+  "bbox": [
+   -560.568,
+   -548.525,
+   525.86,
+   545.454
+  ],
+  "entities": {
+   "ARC": 72
+  }
+ },
+ {
+  "name": "Бирючина",
+  "n_entities": 36,
+  "width": 1000.0,
+  "height": 1000.0,
+  "bbox": [
+   -499.999,
+   -499.999,
+   499.999,
+   499.999
+  ],
+  "entities": {
+   "LINE": 36
+  }
+ },
+ {
+  "name": "Микробиота перекрестнопарнная",
+  "n_entities": 150,
+  "width": 951.07,
+  "height": 1099.78,
+  "bbox": [
+   -481.514,
+   -518.223,
+   469.559,
+   581.561
+  ],
+  "entities": {
+   "LINE": 149,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Вейела",
+  "n_entities": 59,
+  "width": 812.06,
+  "height": 812.54,
+  "bbox": [
+   -414.696,
+   -406.272,
+   397.362,
+   406.272
+  ],
+  "entities": {
+   "LINE": 58,
+   "ATTDEF": 1
+  }
+ },
+ {
+  "name": "дерен столонный1",
+  "n_entities": 79,
+  "width": 762.47,
+  "height": 762.47,
+  "bbox": [
+   -381.236,
+   -381.235,
+   381.236,
+   381.237
+  ],
+  "entities": {
+   "LINE": 78,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Ольха",
+  "n_entities": 257,
+  "width": 744.16,
+  "height": 711.76,
+  "bbox": [
+   -16.022,
+   -14.916,
+   728.139,
+   696.846
+  ],
+  "entities": {
+   "ARC": 226,
+   "LINE": 30,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Пихта",
+  "n_entities": 53,
+  "width": 575.35,
+  "height": 572.14,
+  "bbox": [
+   -292.269,
+   -229.969,
+   283.076,
+   342.175
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Акация (Робиния)",
+  "n_entities": 48,
+  "width": 524.16,
+  "height": 521.18,
+  "bbox": [
+   -231.389,
+   -251.453,
+   292.775,
+   269.726
+  ],
+  "entities": {
+   "INSERT": 15,
+   "LINE": 25,
+   "HATCH": 1,
+   "ARC": 7
+  }
+ },
+ {
+  "name": "Тополь",
+  "n_entities": 104,
+  "width": 131.58,
+  "height": 124.02,
+  "bbox": [
+   -64.966,
+   -62.48,
+   66.617,
+   61.54
+  ],
+  "entities": {
+   "LINE": 94,
+   "LWPOLYLINE": 7,
+   "HATCH": 3
+  }
+ },
+ {
+  "name": "Слива",
+  "n_entities": 118,
+  "width": 123.51,
+  "height": 118.07,
+  "bbox": [
+   -59.052,
+   -58.307,
+   64.462,
+   59.765
+  ],
+  "entities": {
+   "LINE": 94,
+   "LWPOLYLINE": 22,
+   "HATCH": 2
+  }
+ },
+ {
+  "name": "Гинкго",
+  "n_entities": 17,
+  "width": 121.5,
+  "height": 121.5,
+  "bbox": [
+   -60.682,
+   -60.637,
+   60.818,
+   60.863
+  ],
+  "entities": {
+   "LINE": 15,
+   "CIRCLE": 1,
+   "ATTDEF": 1
+  }
+ },
+ {
+  "name": "LAND1-G4",
+  "n_entities": 99,
+  "width": 112.51,
+  "height": 118.07,
+  "bbox": [
+   2592.976,
+   2303.264,
+   2705.487,
+   2421.336
+  ],
+  "entities": {
+   "LINE": 82,
+   "LWPOLYLINE": 17
+  }
+ },
+ {
+  "name": "Бересклет",
+  "n_entities": 77,
+  "width": 89.32,
+  "height": 93.88,
+  "bbox": [
+   -22.527,
+   -8.932,
+   66.795,
+   84.95
+  ],
+  "entities": {
+   "HATCH": 1,
+   "ARC": 75,
+   "LWPOLYLINE": 1
+  }
+ },
+ {
+  "name": "Вишня",
+  "n_entities": 256,
+  "width": 87.37,
+  "height": 65.49,
+  "bbox": [
+   -57.586,
+   -35.379,
+   29.784,
+   30.108
+  ],
+  "entities": {
+   "HATCH": 61,
+   "ARC": 134,
+   "CIRCLE": 61
+  }
+ },
+ {
+  "name": "Лох",
+  "n_entities": 11,
+  "width": 76.97,
+  "height": 75.93,
+  "bbox": [
+   -38.819,
+   -36.87,
+   38.147,
+   39.061
+  ],
+  "entities": {
+   "LWPOLYLINE": 8,
+   "ATTDEF": 1,
+   "HATCH": 2
+  }
+ },
+ {
+  "name": "Рябина_",
+  "n_entities": 345,
+  "width": 52.23,
+  "height": 47.51,
+  "bbox": [
+   -31.899,
+   -28.249,
+   20.334,
+   19.258
+  ],
+  "entities": {
+   "LWPOLYLINE": 21,
+   "ARC": 323,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Дуб",
+  "n_entities": 77,
+  "width": 26.76,
+  "height": 28.13,
+  "bbox": [
+   350.88,
+   -12925.927,
+   377.642,
+   -12897.799
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "ARC": 74
+  }
+ },
+ {
+  "name": "Клен",
+  "n_entities": 77,
+  "width": 26.02,
+  "height": 26.23,
+  "bbox": [
+   351.787,
+   -12949.808,
+   377.802,
+   -12923.581
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "ARC": 74
+  }
+ },
+ {
+  "name": "Береза_",
+  "n_entities": 77,
+  "width": 26.02,
+  "height": 26.23,
+  "bbox": [
+   2512.637,
+   1147.41,
+   2538.652,
+   1173.637
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "ARC": 74,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Клен остролистный 10",
+  "n_entities": 23,
+  "width": 12.85,
+  "height": 12.85,
+  "bbox": [
+   -6.427,
+   -6.427,
+   6.427,
+   6.427
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 21,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "З9",
+  "n_entities": 43,
+  "width": 12.52,
+  "height": 7.2,
+  "bbox": [
+   76932.458,
+   23733.556,
+   76944.976,
+   23740.757
+  ],
+  "entities": {
+   "LINE": 11,
+   "ARC": 19,
+   "HATCH": 13
+  }
+ },
+ {
+  "name": "Арония",
+  "n_entities": 131,
+  "width": 11.9,
+  "height": 11.9,
+  "bbox": [
+   -5.952,
+   -5.952,
+   5.952,
+   5.952
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 130
+  }
+ },
+ {
+  "name": "Лиственница",
+  "n_entities": 121,
+  "width": 11.06,
+  "height": 11.06,
+  "bbox": [
+   -5.53,
+   -5.53,
+   5.53,
+   5.53
+  ],
+  "entities": {
+   "LINE": 120,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Сосна горная 10",
+  "n_entities": 42,
+  "width": 10.73,
+  "height": 10.78,
+  "bbox": [
+   -5.367,
+   -5.367,
+   5.367,
+   5.413
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 39,
+   "CIRCLE": 1,
+   "ATTDEF": 1
+  }
+ },
+ {
+  "name": "Яблоня декоративная",
+  "n_entities": 1476,
+  "width": 10.48,
+  "height": 10.45,
+  "bbox": [
+   -5.217,
+   -5.205,
+   5.264,
+   5.245
+  ],
+  "entities": {
+   "HATCH": 2,
+   "ARC": 534,
+   "CIRCLE": 10,
+   "LINE": 927,
+   "POINT": 3
+  }
+ },
+ {
+  "name": "Вишня птичья 10",
+  "n_entities": 1476,
+  "width": 10.48,
+  "height": 10.45,
+  "bbox": [
+   -5.217,
+   -5.205,
+   5.264,
+   5.245
+  ],
+  "entities": {
+   "HATCH": 2,
+   "ARC": 534,
+   "CIRCLE": 10,
+   "LINE": 927,
+   "POINT": 3
+  }
+ },
+ {
+  "name": "Снежнеягодник_",
+  "n_entities": 272,
+  "width": 10.46,
+  "height": 10.48,
+  "bbox": [
+   -5.291,
+   -5.195,
+   5.173,
+   5.287
+  ],
+  "entities": {
+   "LINE": 152,
+   "ELLIPSE": 9,
+   "HATCH": 111
+  }
+ },
+ {
+  "name": "Псевдотсуга",
+  "n_entities": 124,
+  "width": 10.15,
+  "height": 10.16,
+  "bbox": [
+   -5.056,
+   -5.106,
+   5.098,
+   5.052
+  ],
+  "entities": {
+   "LINE": 106,
+   "HATCH": 9,
+   "LWPOLYLINE": 9
+  }
+ },
+ {
+  "name": "Вяз",
+  "n_entities": 1870,
+  "width": 10.06,
+  "height": 9.85,
+  "bbox": [
+   -5.388,
+   -4.846,
+   4.669,
+   5.004
+  ],
+  "entities": {
+   "LINE": 1869,
+   "ELLIPSE": 1
+  }
+ },
+ {
+  "name": "Вяз мелколистный 10",
+  "n_entities": 74,
+  "width": 9.99,
+  "height": 9.98,
+  "bbox": [
+   2861.48,
+   527.262,
+   2871.465,
+   537.245
+  ],
+  "entities": {
+   "LINE": 56,
+   "ARC": 5,
+   "LWPOLYLINE": 12,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Клен красный",
+  "n_entities": 120,
+  "width": 8.36,
+  "height": 8.36,
+  "bbox": [
+   -3829.227,
+   -2066.642,
+   -3820.863,
+   -2058.278
+  ],
+  "entities": {
+   "HATCH": 2,
+   "CIRCLE": 2,
+   "LINE": 116
+  }
+ },
+ {
+  "name": "Можжевельник",
+  "n_entities": 80,
+  "width": 8.02,
+  "height": 8.25,
+  "bbox": [
+   -0.181,
+   -2.57,
+   7.842,
+   5.676
+  ],
+  "entities": {
+   "LINE": 80
+  }
+ },
+ {
+  "name": "Туя западная",
+  "n_entities": 4,
+  "width": 8.0,
+  "height": 7.99,
+  "bbox": [
+   -3.998,
+   -3.997,
+   3.998,
+   3.997
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 3
+  }
+ },
+ {
+  "name": "Пузыреплодник калинолистный",
+  "n_entities": 29,
+  "width": 7.92,
+  "height": 8.66,
+  "bbox": [
+   -3.841,
+   -4.529,
+   4.083,
+   4.135
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 28
+  }
+ },
+ {
+  "name": "Клен остролистный",
+  "n_entities": 118,
+  "width": 7.89,
+  "height": 7.89,
+  "bbox": [
+   -3817.4,
+   -2066.337,
+   -3809.513,
+   -2058.45
+  ],
+  "entities": {
+   "LINE": 116,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Ель_",
+  "n_entities": 371,
+  "width": 7.55,
+  "height": 7.55,
+  "bbox": [
+   -3.77,
+   -3.775,
+   3.779,
+   3.777
+  ],
+  "entities": {
+   "LINE": 371
+  }
+ },
+ {
+  "name": "Липа европейская Pallida",
+  "n_entities": 119,
+  "width": 6.0,
+  "height": 6.0,
+  "bbox": [
+   -3806.826,
+   -2070.387,
+   -3800.826,
+   -2064.387
+  ],
+  "entities": {
+   "HATCH": 1,
+   "MTEXT": 1,
+   "LINE": 116,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Лиственница европейская",
+  "n_entities": 120,
+  "width": 6.0,
+  "height": 6.0,
+  "bbox": [
+   -3833.065,
+   -2045.919,
+   -3827.065,
+   -2039.919
+  ],
+  "entities": {
+   "MTEXT": 1,
+   "LINE": 116,
+   "HATCH": 2,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "A$C7AFA278F",
+  "n_entities": 404,
+  "width": 5.97,
+  "height": 7.78,
+  "bbox": [
+   -3.855,
+   2.013,
+   2.119,
+   9.792
+  ],
+  "entities": {
+   "HATCH": 15,
+   "LINE": 389
+  }
+ },
+ {
+  "name": "A$C53594103",
+  "n_entities": 280,
+  "width": 5.87,
+  "height": 7.31,
+  "bbox": [
+   -5.905,
+   -4.649,
+   -0.039,
+   2.662
+  ],
+  "entities": {
+   "ARC": 100,
+   "ELLIPSE": 180
+  }
+ },
+ {
+  "name": "аирап",
+  "n_entities": 3,
+  "width": 5.59,
+  "height": 5.8,
+  "bbox": [
+   2203388.63,
+   313343.374,
+   2203394.218,
+   313349.172
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "хвд",
+  "n_entities": 4,
+  "width": 5.32,
+  "height": 5.33,
+  "bbox": [
+   -2.677,
+   -2.599,
+   2.642,
+   2.734
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LWPOLYLINE": 1,
+   "HATCH": 2
+  }
+ },
+ {
+  "name": "Дерево_Х_Пр",
+  "n_entities": 6,
+  "width": 5.21,
+  "height": 4.82,
+  "bbox": [
+   -2.678,
+   -2.216,
+   2.534,
+   2.602
+  ],
+  "entities": {
+   "CIRCLE": 4,
+   "HATCH": 1,
+   "LWPOLYLINE": 1
+  }
+ },
+ {
+  "name": "Дерево_Х_С",
+  "n_entities": 9,
+  "width": 5.21,
+  "height": 4.82,
+  "bbox": [
+   -2.678,
+   -2.216,
+   2.534,
+   2.602
+  ],
+  "entities": {
+   "CIRCLE": 3,
+   "HATCH": 2,
+   "ATTDEF": 1,
+   "LWPOLYLINE": 3
+  }
+ },
+ {
+  "name": "длист",
+  "n_entities": 243,
+  "width": 5.13,
+  "height": 5.13,
+  "bbox": [
+   -2.568,
+   -2.623,
+   2.562,
+   2.506
+  ],
+  "entities": {
+   "LINE": 229,
+   "CIRCLE": 5,
+   "LWPOLYLINE": 8,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "ель",
+  "n_entities": 122,
+  "width": 4.9,
+  "height": 4.9,
+  "bbox": [
+   2194155.953,
+   446712.056,
+   2194160.855,
+   446716.955
+  ],
+  "entities": {
+   "LINE": 119,
+   "ELLIPSE": 1,
+   "HATCH": 1,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Дерево_Л_С",
+  "n_entities": 6,
+  "width": 4.88,
+  "height": 4.92,
+  "bbox": [
+   -2.459,
+   -2.452,
+   2.419,
+   2.467
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "HATCH": 2,
+   "ATTDEF": 1,
+   "LWPOLYLINE": 1
+  }
+ },
+ {
+  "name": "Каштан конский",
+  "n_entities": 552,
+  "width": 4.85,
+  "height": 4.68,
+  "bbox": [
+   3.169,
+   103.173,
+   8.016,
+   107.851
+  ],
+  "entities": {
+   "LINE": 549,
+   "ATTDEF": 3
+  }
+ },
+ {
+  "name": "Сосна",
+  "n_entities": 1111,
+  "width": 4.61,
+  "height": 4.58,
+  "bbox": [
+   -5938.444,
+   -10792.551,
+   -5933.838,
+   -10787.97
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 1110
+  }
+ },
+ {
+  "name": "Хеномелес",
+  "n_entities": 3,
+  "width": 4.53,
+  "height": 4.7,
+  "bbox": [
+   -7229.93,
+   -10647.167,
+   -7225.404,
+   -10642.471
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "Карагана",
+  "n_entities": 3,
+  "width": 4.53,
+  "height": 4.38,
+  "bbox": [
+   -5997.717,
+   -10809.546,
+   -5993.191,
+   -10805.17
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "акен",
+  "n_entities": 5,
+  "width": 4.28,
+  "height": 4.26,
+  "bbox": [
+   -6964.359,
+   -10056.709,
+   -6960.083,
+   -10052.453
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LWPOLYLINE": 4
+  }
+ },
+ {
+  "name": "A$C3AC663BE",
+  "n_entities": 1201,
+  "width": 4.28,
+  "height": 3.71,
+  "bbox": [
+   -0.35,
+   -2.967,
+   3.931,
+   0.74
+  ],
+  "entities": {
+   "HATCH": 37,
+   "LINE": 1164
+  }
+ },
+ {
+  "name": "Яблоня Недзвецкого",
+  "n_entities": 119,
+  "width": 4.24,
+  "height": 4.24,
+  "bbox": [
+   -3806.83,
+   -2059.436,
+   -3802.593,
+   -2055.199
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "LINE": 116,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Жимолость",
+  "n_entities": 518,
+  "width": 4.09,
+  "height": 3.52,
+  "bbox": [
+   -6357.309,
+   -10274.958,
+   -6353.216,
+   -10271.437
+  ],
+  "entities": {
+   "POINT": 256,
+   "LINE": 3,
+   "ELLIPSE": 256,
+   "LWPOLYLINE": 2,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Каштан",
+  "n_entities": 16,
+  "width": 4.09,
+  "height": 4.02,
+  "bbox": [
+   -2.037,
+   -1.977,
+   2.053,
+   2.046
+  ],
+  "entities": {
+   "LWPOLYLINE": 15,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Груша",
+  "n_entities": 3333,
+  "width": 3.96,
+  "height": 3.78,
+  "bbox": [
+   3.059,
+   82.417,
+   7.017,
+   86.197
+  ],
+  "entities": {
+   "LINE": 3305,
+   "SPLINE": 27,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "вепкав",
+  "n_entities": 4,
+  "width": 3.8,
+  "height": 3.8,
+  "bbox": [
+   -6289.491,
+   -10595.441,
+   -6285.691,
+   -10591.641
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "береза",
+  "n_entities": 118,
+  "width": 3.55,
+  "height": 3.37,
+  "bbox": [
+   2193971.689,
+   446706.068,
+   2193975.237,
+   446709.442
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 111,
+   "POINT": 6
+  }
+ },
+ {
+  "name": "Береза Жакмана",
+  "n_entities": 427,
+  "width": 3.5,
+  "height": 3.5,
+  "bbox": [
+   346.48,
+   -12923.365,
+   349.98,
+   -12919.865
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "LINE": 424
+  }
+ },
+ {
+  "name": "Черемуха Маака Prunus maackii",
+  "n_entities": 426,
+  "width": 3.5,
+  "height": 3.5,
+  "bbox": [
+   346.48,
+   -12923.365,
+   349.98,
+   -12919.865
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "LINE": 424
+  }
+ },
+ {
+  "name": "Клематис",
+  "n_entities": 120,
+  "width": 3.11,
+  "height": 3.14,
+  "bbox": [
+   -1.811,
+   -1.386,
+   1.296,
+   1.75
+  ],
+  "entities": {
+   "HATCH": 4,
+   "LINE": 116
+  }
+ },
+ {
+  "name": "Липа мелколистная",
+  "n_entities": 342,
+  "width": 3.0,
+  "height": 3.0,
+  "bbox": [
+   -3870.075,
+   16685.201,
+   -3867.074,
+   16688.202
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "LINE": 339
+  }
+ },
+ {
+  "name": "Ива пурпурная Нана",
+  "n_entities": 49,
+  "width": 2.98,
+  "height": 2.98,
+  "bbox": [
+   -1.477,
+   -1.496,
+   1.499,
+   1.486
+  ],
+  "entities": {
+   "LWPOLYLINE": 49
+  }
+ },
+ {
+  "name": "д3",
+  "n_entities": 323,
+  "width": 2.85,
+  "height": 2.79,
+  "bbox": [
+   -668.932,
+   424.571,
+   -666.084,
+   427.362
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 319,
+   "LWPOLYLINE": 3
+  }
+ },
+ {
+  "name": "Сирень",
+  "n_entities": 72,
+  "width": 2.65,
+  "height": 2.48,
+  "bbox": [
+   -1.481,
+   -1.167,
+   1.17,
+   1.318
+  ],
+  "entities": {
+   "HATCH": 2,
+   "LWPOLYLINE": 69,
+   "SPLINE": 1
+  }
+ },
+ {
+  "name": "Бересклет Euonymus europaeus",
+  "n_entities": 53,
+  "width": 2.61,
+  "height": 2.61,
+  "bbox": [
+   -3718.892,
+   -1926.63,
+   -3716.285,
+   -1924.023
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Спирея серая или пепельная",
+  "n_entities": 36,
+  "width": 2.54,
+  "height": 2.48,
+  "bbox": [
+   -1.255,
+   -1.292,
+   1.286,
+   1.192
+  ],
+  "entities": {
+   "LWPOLYLINE": 24,
+   "INSERT": 12
+  }
+ },
+ {
+  "name": "Барбарис_",
+  "n_entities": 291,
+  "width": 2.5,
+  "height": 2.5,
+  "bbox": [
+   -4314.766,
+   -8768.142,
+   -4312.266,
+   -8765.642
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "LINE": 288
+  }
+ },
+ {
+  "name": "Магония",
+  "n_entities": 247,
+  "width": 2.39,
+  "height": 2.35,
+  "bbox": [
+   2193985.278,
+   446680.939,
+   2193987.666,
+   446683.291
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 245,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Ракитник русский",
+  "n_entities": 78,
+  "width": 2.16,
+  "height": 2.16,
+  "bbox": [
+   -5996.592,
+   -10843.475,
+   -5994.432,
+   -10841.315
+  ],
+  "entities": {
+   "LINE": 77,
+   "INSERT": 1
+  }
+ },
+ {
+  "name": "Рябинник_",
+  "n_entities": 36,
+  "width": 2.06,
+  "height": 2.04,
+  "bbox": [
+   2201979.306,
+   443243.744,
+   2201981.362,
+   443245.784
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "ARC": 35
+  }
+ },
+ {
+  "name": "Sibirica",
+  "n_entities": 53,
+  "width": 2.03,
+  "height": 2.03,
+  "bbox": [
+   -125.941,
+   66.525,
+   -123.914,
+   68.552
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Syringa Красавица Москвы",
+  "n_entities": 53,
+  "width": 1.98,
+  "height": 1.99,
+  "bbox": [
+   40.338,
+   18.707,
+   42.319,
+   20.699
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 51,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Чубушник",
+  "n_entities": 36,
+  "width": 1.96,
+  "height": 1.96,
+  "bbox": [
+   13499.297,
+   14397.768,
+   13501.261,
+   14399.73
+  ],
+  "entities": {
+   "HATCH": 8,
+   "LWPOLYLINE": 28
+  }
+ },
+ {
+  "name": "ывсаыу",
+  "n_entities": 100,
+  "width": 1.84,
+  "height": 1.79,
+  "bbox": [
+   2203392.617,
+   313347.36,
+   2203394.458,
+   313349.146
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 98,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "ЖИ_С",
+  "n_entities": 65,
+  "width": 1.83,
+  "height": 0.9,
+  "bbox": [
+   -0.417,
+   -0.427,
+   1.417,
+   0.47
+  ],
+  "entities": {
+   "LINE": 52,
+   "LWPOLYLINE": 4,
+   "HATCH": 6,
+   "ATTDEF": 1,
+   "ARC": 2
+  }
+ },
+ {
+  "name": "Можевельник горизонтальный",
+  "n_entities": 96,
+  "width": 1.77,
+  "height": 1.73,
+  "bbox": [
+   -0.931,
+   -0.997,
+   0.84,
+   0.731
+  ],
+  "entities": {
+   "LWPOLYLINE": 96
+  }
+ },
+ {
+  "name": "Чубушник Лемуана Mont blan",
+  "n_entities": 53,
+  "width": 1.7,
+  "height": 1.7,
+  "bbox": [
+   2.724,
+   15.99,
+   4.422,
+   17.688
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 51,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Смородина золотистая",
+  "n_entities": 53,
+  "width": 1.69,
+  "height": 1.69,
+  "bbox": [
+   -3776.254,
+   -2047.517,
+   -3774.569,
+   -2045.831
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 51,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "барбарис",
+  "n_entities": 60,
+  "width": 1.58,
+  "height": 1.53,
+  "bbox": [
+   -0.825,
+   -0.745,
+   0.757,
+   0.787
+  ],
+  "entities": {
+   "CIRCLE": 2,
+   "HATCH": 2,
+   "ELLIPSE": 56
+  }
+ },
+ {
+  "name": "Salix Mayak",
+  "n_entities": 53,
+  "width": 1.56,
+  "height": 1.56,
+  "bbox": [
+   -0.803,
+   -0.706,
+   0.753,
+   0.85
+  ],
+  "entities": {
+   "HATCH": 1,
+   "LINE": 51,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Лапчатка",
+  "n_entities": 1866,
+  "width": 1.53,
+  "height": 1.56,
+  "bbox": [
+   0.0,
+   -0.0,
+   1.525,
+   1.557
+  ],
+  "entities": {
+   "LINE": 1866
+  }
+ },
+ {
+  "name": "Липа мелколистная ва",
+  "n_entities": 323,
+  "width": 1.52,
+  "height": 1.51,
+  "bbox": [
+   -0.0,
+   -0.0,
+   1.515,
+   1.512
+  ],
+  "entities": {
+   "LINE": 317,
+   "POINT": 2,
+   "LWPOLYLINE": 4
+  }
+ },
+ {
+  "name": "Кизильник",
+  "n_entities": 14,
+  "width": 1.5,
+  "height": 1.5,
+  "bbox": [
+   346.208,
+   -12919.417,
+   347.708,
+   -12917.917
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "HATCH": 1,
+   "LINE": 12
+  }
+ },
+ {
+  "name": "Роза морщинистая Alba",
+  "n_entities": 53,
+  "width": 1.5,
+  "height": 1.5,
+  "bbox": [
+   -26.279,
+   -83.499,
+   -24.778,
+   -81.997
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "кк",
+  "n_entities": 13,
+  "width": 1.46,
+  "height": 1.3,
+  "bbox": [
+   -0.748,
+   -0.602,
+   0.709,
+   0.7
+  ],
+  "entities": {
+   "LWPOLYLINE": 1,
+   "ARC": 12
+  }
+ },
+ {
+  "name": "Клен Гиннала",
+  "n_entities": 12,
+  "width": 1.4,
+  "height": 1.4,
+  "bbox": [
+   363.454,
+   -12934.828,
+   364.854,
+   -12933.428
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 10
+  }
+ },
+ {
+  "name": "Ирга",
+  "n_entities": 341,
+  "width": 1.4,
+  "height": 1.4,
+  "bbox": [
+   361.867,
+   -12934.743,
+   363.267,
+   -12933.343
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 339
+  }
+ },
+ {
+  "name": "Рябинник",
+  "n_entities": 11,
+  "width": 1.4,
+  "height": 1.4,
+  "bbox": [
+   2525.418,
+   1168.067,
+   2526.818,
+   1169.467
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 10
+  }
+ },
+ {
+  "name": "Гортензия или Чубушник",
+  "n_entities": 53,
+  "width": 1.38,
+  "height": 1.38,
+  "bbox": [
+   -3716.415,
+   -1944.973,
+   -3715.039,
+   -1943.598
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 51,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Снежнеягодник",
+  "n_entities": 53,
+  "width": 1.37,
+  "height": 1.37,
+  "bbox": [
+   -3708.154,
+   -1924.269,
+   -3706.783,
+   -1922.898
+  ],
+  "entities": {
+   "LINE": 51,
+   "CIRCLE": 1,
+   "HATCH": 1
+  }
+ },
+ {
+  "name": "Ком",
+  "n_entities": 2,
+  "width": 1.35,
+  "height": 1.35,
+  "bbox": [
+   -24.425,
+   212.984,
+   -23.074,
+   214.335
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "Куст_Л_С",
+  "n_entities": 6,
+  "width": 1.3,
+  "height": 1.3,
+  "bbox": [
+   -0.65,
+   -0.65,
+   0.65,
+   0.65
+  ],
+  "entities": {
+   "CIRCLE": 3,
+   "ATTDEF": 1,
+   "HATCH": 1,
+   "LWPOLYLINE": 1
+  }
+ },
+ {
+  "name": "Дерен белый Сибирика",
+  "n_entities": 53,
+  "width": 1.26,
+  "height": 1.26,
+  "bbox": [
+   5.679,
+   14.306,
+   6.938,
+   15.566
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "HATCH": 1,
+   "LINE": 51
+  }
+ },
+ {
+  "name": "_Dot",
+  "n_entities": 2,
+  "width": 1.25,
+  "height": 0.0,
+  "bbox": [
+   -1.0,
+   0.0,
+   0.25,
+   0.0
+  ],
+  "entities": {
+   "LWPOLYLINE": 1,
+   "LINE": 1
+  }
+ },
+ {
+  "name": "Дерен отпрысковый",
+  "n_entities": 53,
+  "width": 1.21,
+  "height": 1.2,
+  "bbox": [
+   44.091,
+   -62.316,
+   45.299,
+   -61.115
+  ],
+  "entities": {
+   "LINE": 51,
+   "HATCH": 1,
+   "CIRCLE": 1
+  }
+ },
+ {
+  "name": "_ArchTick",
+  "n_entities": 1,
+  "width": 1.0,
+  "height": 1.0,
+  "bbox": [
+   -0.5,
+   -0.5,
+   0.5,
+   0.5
+  ],
+  "entities": {
+   "LWPOLYLINE": 1
+  }
+ },
+ {
+  "name": "_Oblique",
+  "n_entities": 1,
+  "width": 1.0,
+  "height": 1.0,
+  "bbox": [
+   -0.5,
+   -0.5,
+   0.5,
+   0.5
+  ],
+  "entities": {
+   "LINE": 1
+  }
+ },
+ {
+  "name": "T11",
+  "n_entities": 144,
+  "width": 1.0,
+  "height": 1.0,
+  "bbox": [
+   -0.499,
+   -0.499,
+   0.499,
+   0.499
+  ],
+  "entities": {
+   "LINE": 144
+  }
+ },
+ {
+  "name": "Калина гордовина",
+  "n_entities": 27,
+  "width": 0.93,
+  "height": 0.93,
+  "bbox": [
+   2201639.53,
+   443506.332,
+   2201640.462,
+   443507.264
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2,
+   "LINE": 24
+  }
+ },
+ {
+  "name": "Девичий виноград",
+  "n_entities": 362,
+  "width": 0.84,
+  "height": 1.18,
+  "bbox": [
+   -0.411,
+   -0.626,
+   0.428,
+   0.552
+  ],
+  "entities": {
+   "HATCH": 12,
+   "LINE": 350
+  }
+ },
+ {
+  "name": "Гортензия",
+  "n_entities": 3,
+  "width": 0.8,
+  "height": 0.8,
+  "bbox": [
+   11904.916,
+   8594.528,
+   11905.716,
+   8595.328
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 2
+  }
+ },
+ {
+  "name": "Роза",
+  "n_entities": 269,
+  "width": 0.71,
+  "height": 0.71,
+  "bbox": [
+   -0.35,
+   -0.351,
+   0.355,
+   0.357
+  ],
+  "entities": {
+   "HATCH": 108,
+   "LINE": 152,
+   "ELLIPSE": 9
+  }
+ },
+ {
+  "name": "Дерен столонный",
+  "n_entities": 4,
+  "width": 0.6,
+  "height": 0.6,
+  "bbox": [
+   -4312.41,
+   -8764.134,
+   -4311.81,
+   -8763.534
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 2
+  }
+ },
+ {
+  "name": "Спирея",
+  "n_entities": 16,
+  "width": 0.6,
+  "height": 0.6,
+  "bbox": [
+   11975.393,
+   8516.377,
+   11975.993,
+   8516.977
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 12,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "Ива Маяк",
+  "n_entities": 4,
+  "width": 0.6,
+  "height": 0.6,
+  "bbox": [
+   2202020.067,
+   443418.88,
+   2202020.667,
+   443419.48
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 2
+  }
+ },
+ {
+  "name": "Спирея Аргута",
+  "n_entities": 16,
+  "width": 0.6,
+  "height": 0.6,
+  "bbox": [
+   2202264.908,
+   443628.793,
+   2202265.508,
+   443629.393
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 12,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "Дерен белый",
+  "n_entities": 4,
+  "width": 0.6,
+  "height": 0.6,
+  "bbox": [
+   -4254.218,
+   16810.39,
+   -4253.618,
+   16810.99
+  ],
+  "entities": {
+   "HATCH": 1,
+   "CIRCLE": 1,
+   "LINE": 2
+  }
+ },
+ {
+  "name": "_DetailCallout",
+  "n_entities": 4,
+  "width": 0.5,
+  "height": 0.5,
+  "bbox": [
+   -0.25,
+   -0.25,
+   0.25,
+   0.25
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "LINE": 1,
+   "ATTDEF": 2
+  }
+ },
+ {
+  "name": "Бузина",
+  "n_entities": 4,
+  "width": 0.5,
+  "height": 0.5,
+  "bbox": [
+   -5946.715,
+   -10806.892,
+   -5946.215,
+   -10806.392
+  ],
+  "entities": {
+   "HATCH": 1,
+   "INSERT": 1,
+   "LWPOLYLINE": 2
+  }
+ },
+ {
+  "name": "Ива",
+  "n_entities": 36,
+  "width": 0.43,
+  "height": 0.43,
+  "bbox": [
+   -0.213,
+   -0.213,
+   0.213,
+   0.213
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "SPLINE": 35
+  }
+ },
+ {
+  "name": "_TagCircle",
+  "n_entities": 2,
+  "width": 0.25,
+  "height": 0.25,
+  "bbox": [
+   -0.125,
+   -0.125,
+   0.125,
+   0.125
+  ],
+  "entities": {
+   "CIRCLE": 1,
+   "ATTDEF": 1
+  }
+ },
+ {
+  "name": "BRANCHT",
+  "n_entities": 37,
+  "width": 0.2,
+  "height": 0.27,
+  "bbox": [
+   1.511,
+   0.414,
+   1.71,
+   0.684
+  ],
+  "entities": {
+   "LINE": 37
+  }
+ },
+ {
+  "name": "BRANCHD",
+  "n_entities": 12,
+  "width": 0.08,
+  "height": 0.25,
+  "bbox": [
+   0.931,
+   0.504,
+   1.008,
+   0.754
+  ],
+  "entities": {
+   "LINE": 12
+  }
+ },
+ {
+  "name": "_None",
+  "n_entities": 0,
+  "width": null,
+  "height": null,
+  "bbox": null,
+  "entities": {}
+ },
+ {
+  "name": "A$C44f8542e",
+  "n_entities": 1,
+  "width": 0.0,
+  "height": 0.0,
+  "bbox": [
+   587.08,
+   403.552,
+   587.08,
+   403.552
+  ],
+  "entities": {
+   "INSERT": 1
+  }
+ },
+ {
+  "name": "Микробиота",
+  "n_entities": 128,
+  "width": null,
+  "height": null,
+  "bbox": null,
+  "entities": {
+   "3DFACE": 128
+  }
+ },
+ {
+  "name": "A$2BB6",
+  "n_entities": 0,
+  "width": null,
+  "height": null,
+  "bbox": null,
+  "entities": {}
+ },
+ {
+  "name": "A$3A8A",
+  "n_entities": 0,
+  "width": null,
+  "height": null,
+  "bbox": null,
+  "entities": {}
+ }
+]
