@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
@@ -5,6 +6,8 @@ import pytest
 from greenplan.domain.site import SiteModel
 from greenplan.explain.report_builder import ReportBuilder
 from greenplan.explain.report_model import PlantingReport
+from greenplan.export.plan_exporter import ExportSummary, PlanExporter
+from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.placement.planting_plan import PlantingPlan, PlantingPlanComposer
 from greenplan.recognition.site_model_builder import SiteModelBuilder
 from greenplan.species.species_selector import SpeciesOutcome, SpeciesSelectorFactory
@@ -45,3 +48,29 @@ def bagritskogo_report(
 ) -> PlantingReport:
     builder = ReportBuilder.from_knowledge(knowledge_root)
     return builder.build("Улица Багрицкого", bagritskogo_site, bagritskogo_plan, bagritskogo_species)
+
+
+@dataclass(frozen=True)
+class ExportedPilot:
+    source: Path
+    output: Path
+    summary: ExportSummary
+
+
+@pytest.fixture(scope="session")
+def bagritskogo_export(
+    bagritskogo: LoadedPilotObject,
+    bagritskogo_site: SiteModel,
+    bagritskogo_plan: PlantingPlan,
+    bagritskogo_report: PlantingReport,
+    dwg2dxf_path: Path,
+    repository_root: Path,
+    knowledge_root: Path,
+    tmp_path_factory: pytest.TempPathFactory,
+) -> ExportedPilot:
+    converter = LibreDwgConverter(dwg2dxf_path, repository_root / "data" / "cache" / "converted")
+    source = converter.convert(bagritskogo.drawing_set.main.path)
+    output = tmp_path_factory.mktemp("bagritskogo_export") / "bagritskogo_greenplan.dxf"
+    exporter = PlanExporter.from_knowledge(knowledge_root)
+    summary = exporter.export(source, output, bagritskogo_site, bagritskogo_plan, bagritskogo_report, "test")
+    return ExportedPilot(source, output, summary)

@@ -1,40 +1,31 @@
-from pathlib import Path
-
 import ezdxf
 import pytest
 
 from greenplan.domain.site import SiteModel
 from greenplan.explain.report_model import PlantingReport
 from greenplan.export.entity_fingerprint import EntityFingerprinter
-from greenplan.export.plan_exporter import PlanExporter
-from greenplan.ingest.dwg_converter import LibreDwgConverter
-from greenplan.placement.planting_plan import PlantingPlan
-
-from fixtures.pilot_objects import LoadedPilotObject
+from greenplan.verify.plan_verifier import PlanVerifier
 
 pytestmark = [pytest.mark.realdata, pytest.mark.converter, pytest.mark.slow]
 
 
 def test_export_keeps_source_entities_and_adds_every_plant(
-    bagritskogo: LoadedPilotObject,
-    bagritskogo_site: SiteModel,
-    bagritskogo_plan: PlantingPlan,
-    bagritskogo_report: PlantingReport,
-    dwg2dxf_path: Path,
-    repository_root: Path,
-    knowledge_root: Path,
-    tmp_path: Path,
+    bagritskogo_export, bagritskogo_report: PlantingReport
 ) -> None:
-    converter = LibreDwgConverter(dwg2dxf_path, repository_root / "data" / "cache" / "converted")
-    source = converter.convert(bagritskogo.drawing_set.main.path)
-    output = tmp_path / "bagritskogo_greenplan.dxf"
-    exporter = PlanExporter.from_knowledge(knowledge_root)
-    summary = exporter.export(source, output, bagritskogo_site, bagritskogo_plan, bagritskogo_report, "test")
     fingerprinter = EntityFingerprinter()
-    before = fingerprinter.modelspace_fingerprints(ezdxf.readfile(source))
-    after = fingerprinter.modelspace_fingerprints(ezdxf.readfile(output))
-    plant_layers = sum(
-        count for layer, count in summary.entities_by_layer.items() if layer.startswith("AI_PL_")
-    )
+    before = fingerprinter.modelspace_fingerprints(ezdxf.readfile(bagritskogo_export.source))
+    after = fingerprinter.modelspace_fingerprints(ezdxf.readfile(bagritskogo_export.output))
+    counts = bagritskogo_export.summary.entities_by_layer
+    plant_entities = sum(count for layer, count in counts.items() if layer.startswith("AI_PL_"))
     assert fingerprinter.compare(before, after).is_intact
-    assert plant_layers == len(bagritskogo_report.plants)
+    assert plant_entities == len(bagritskogo_report.plants)
+
+
+def test_exported_plan_passes_independent_verification(
+    bagritskogo_export, bagritskogo_site: SiteModel, bagritskogo_report: PlantingReport, knowledge_root
+) -> None:
+    verifier = PlanVerifier.from_knowledge(knowledge_root)
+    report = verifier.verify(bagritskogo_export.source, bagritskogo_export.output, bagritskogo_site)
+    assert report.plants_checked == len(bagritskogo_report.plants)
+    assert report.integrity.is_intact
+    assert report.violations == ()
