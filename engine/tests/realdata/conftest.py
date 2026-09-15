@@ -5,6 +5,7 @@ import pytest
 from greenplan.domain.site import SiteModel
 from greenplan.placement.planting_plan import PlantingPlan, PlantingPlanComposer
 from greenplan.recognition.site_model_builder import SiteModelBuilder
+from greenplan.species.species_selector import SpeciesOutcome, SpeciesSelectorFactory
 
 from fixtures.pilot_objects import BAGRITSKOGO_MAIN, LoadedPilotObject, load_pilot_object
 
@@ -23,3 +24,11 @@ def bagritskogo_site(bagritskogo: LoadedPilotObject, knowledge_root: Path) -> Si
 @pytest.fixture(scope="session")
 def bagritskogo_plan(bagritskogo_site: SiteModel, knowledge_root: Path) -> PlantingPlan:
     return PlantingPlanComposer.from_knowledge(knowledge_root).compose(bagritskogo_site)
+
+
+@pytest.fixture(scope="session")
+def bagritskogo_species(
+    bagritskogo_site: SiteModel, bagritskogo_plan: PlantingPlan, knowledge_root: Path
+) -> SpeciesOutcome:
+    selector = SpeciesSelectorFactory.from_knowledge(knowledge_root).for_site(bagritskogo_site)
+    return selector.assign(bagritskogo_plan.trees + bagritskogo_plan.shrubs)

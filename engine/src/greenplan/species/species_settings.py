@@ -1,0 +1,22 @@
+from dataclasses import dataclass
+
+from greenplan.domain.norms import TREE
+
+
+@dataclass(frozen=True, slots=True)
+class SpeciesSettings:
+    carriageway_context_distance_m: float = 6.0
+    heating_context_distance_m: float = 4.0
+    bus_stop_context_distance_m: float = 10.0
+    overhead_line_context_distance_m: float = 3.0
+    allow_conditional_species: bool = False
+    tree_grouping_distance_m: float = 8.0
+    shrub_grouping_distance_m: float = 3.0
+    prefer_bonus: float = 10.0
+    limited_penalty: float = 5.0
+    crown_class_bonus: float = 3.0
+    reference_usage_weight: float = 1.0
+    diversity_penalty: float = 8.0
+
+    def grouping_distance_m(self, target: str) -> float:
+        return self.tree_grouping_distance_m if target == TREE else self.shrub_grouping_distance_m

@@ -14,6 +14,7 @@ OUTSIDE_PLANTABLE_SURFACE = "outside_plantable_surface"
 OUTSIDE_SITE_BOUNDARY = "outside_site_boundary"
 TOO_CLOSE_TO_EXISTING_TREE = "too_close_to_existing_tree"
 TOO_CLOSE_TO_PLANNED_PLANT = "too_close_to_planned_plant"
+NO_SUITABLE_SPECIES = "no_suitable_species"
 
 BLOCKING_SEVERITIES = frozenset({PROHIBITIVE})
 CONDITION_SEVERITIES = frozenset({CONDITIONAL, CONDITIONAL_MEASURE})
