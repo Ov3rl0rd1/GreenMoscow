@@ -18,7 +18,7 @@ from greenplan.domain.decisions import (
     SiteViolation,
     decision_status,
 )
-from greenplan.domain.norms import TREE, Requirement
+from greenplan.domain.norms import Requirement
 from greenplan.domain.site import Obstacle, SiteModel
 
 
@@ -77,11 +77,7 @@ class CandidateEvaluator:
     def _existing_tree_violations(self, candidate: PlantCandidate) -> list[SiteViolation]:
         if self._kept_tree_index is None:
             return []
-        required = (
-            self._design.min_tree_distance_to_existing_tree_m
-            if candidate.target == TREE
-            else self._design.min_shrub_distance_to_existing_tree_m
-        )
+        required = self._design.existing_tree_clearance_m(candidate.target)
         nearest = self._kept_tree_positions[int(self._kept_tree_index.nearest(candidate.position))]
         actual = candidate.position.distance(nearest)
         return [SiteViolation(TOO_CLOSE_TO_EXISTING_TREE, actual, required)] if actual < required else []
@@ -96,3 +92,15 @@ class CandidateEvaluator:
             ):
                 tightest_satisfied[key] = clearance
         return tuple(violated) + tuple(tightest_satisfied.values())
+
+
+class CandidateEvaluatorFactory:
+    def __init__(
+        self, resolver: RequirementResolver, meter: ClearanceMeter, design: DesignConstraints
+    ) -> None:
+        self._resolver = resolver
+        self._meter = meter
+        self._design = design
+
+    def for_site(self, site: SiteModel) -> CandidateEvaluator:
+        return CandidateEvaluator(self._resolver, self._meter, site, self._design)

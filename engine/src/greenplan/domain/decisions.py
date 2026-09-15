@@ -84,6 +84,13 @@ def unsatisfied_with_severity(
     )
 
 
+def primary_rejection_reason(decision: PlantingDecision) -> str:
+    if decision.site_violations:
+        return decision.site_violations[0].code
+    blocking = decision.blocking_clearances
+    return blocking[0].requirement.rule_id if blocking else ""
+
+
 def decision_status(clearances: Sequence[Clearance], site_violations: Sequence[SiteViolation]) -> str:
     if site_violations or unsatisfied_with_severity(clearances, BLOCKING_SEVERITIES):
         return REJECTED

@@ -1,22 +1,8 @@
-from pathlib import Path
-
 import pytest
 
 from greenplan.domain.site import SiteModel
-from greenplan.recognition.site_model_builder import SiteModelBuilder
-
-from fixtures.pilot_objects import BAGRITSKOGO_MAIN, load_pilot_object
 
 pytestmark = [pytest.mark.realdata, pytest.mark.converter, pytest.mark.slow]
-
-
-@pytest.fixture(scope="module")
-def bagritskogo_site(
-    pilot_objects_root: Path, dwg2dxf_path: Path, repository_root: Path, knowledge_root: Path
-) -> SiteModel:
-    loaded = load_pilot_object(pilot_objects_root, BAGRITSKOGO_MAIN, dwg2dxf_path, repository_root)
-    builder = SiteModelBuilder.from_knowledge(knowledge_root)
-    return builder.build(loaded.content, loaded.drawing_set.unresolved_references)
 
 
 def test_underground_networks_are_recognized(bagritskogo_site: SiteModel) -> None:

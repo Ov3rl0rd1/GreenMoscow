@@ -1,0 +1,76 @@
+import math
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any
+
+from shapely.geometry import Point
+
+from greenplan.domain.errors import ConfigurationError
+from greenplan.domain.site import SiteModel
+from greenplan.knowledge.norms_repository import NormsRepository
+from greenplan.placement.placement_settings import PlacementSettings
+
+PER_KILOMETER = "1 км"
+PER_HECTARE = "1 га"
+OTHER_CONTEXT = "other"
+UPPER_BOUND = "upper"
+METERS_IN_KILOMETER = 1000.0
+SQUARE_METERS_IN_HECTARE = 10_000.0
+
+
+@dataclass(frozen=True, slots=True)
+class PlantingLimits:
+    tree_spacing_m: float
+    shrub_spacing_m: float
+    max_trees: int
+    max_shrubs: int
+    density_measure: float
+    density_unit: str
+    rule_ids: tuple[str, ...]
+
+
+class PlantingLimitsResolver:
+    def __init__(self, repository: NormsRepository, settings: PlacementSettings) -> None:
+        self._repository = repository
+        self._settings = settings
+
+    def resolve(self, site: SiteModel) -> PlantingLimits:
+        settings = self._settings
+        spacing = self._repository.rule(settings.spacing_rule_id).parameters["spacing_m"]
+        density = self._repository.rule(settings.density_rule_id).parameters
+        unit = _density_unit(density["per"], settings.density_context)
+        measure = _density_measure(site, unit)
+        caps = density["max_count"][settings.density_context]
+        return PlantingLimits(
+            tree_spacing_m=self._bound(spacing[settings.tree_spacing_key]),
+            shrub_spacing_m=self._bound(spacing[settings.shrub_spacing_key]),
+            max_trees=math.floor(self._bound(caps["trees"]) * measure),
+            max_shrubs=math.floor(self._bound(caps["shrubs"]) * measure),
+            density_measure=measure,
+            density_unit=unit,
+            rule_ids=(settings.spacing_rule_id, settings.density_rule_id),
+        )
+
+    def _bound(self, value: Any) -> float:
+        if isinstance(value, Sequence) and not isinstance(value, str):
+            return float(value[-1] if self._settings.range_bound == UPPER_BOUND else value[0])
+        return float(value)
+
+
+def _density_unit(per: Mapping[str, str], context: str) -> str:
+    return per.get(context, per[OTHER_CONTEXT])
+
+
+def _density_measure(site: SiteModel, unit: str) -> float:
+    if unit == PER_KILOMETER:
+        return street_length_m(site) / METERS_IN_KILOMETER
+    if unit == PER_HECTARE:
+        return site.plantable_surface.area / SQUARE_METERS_IN_HECTARE
+    raise ConfigurationError(f"unsupported density unit '{unit}'")
+
+
+def street_length_m(site: SiteModel) -> float:
+    if site.street_axes:
+        return sum(axis.length for axis in site.street_axes)
+    corners = list(site.boundary.minimum_rotated_rectangle.exterior.coords)
+    return max(Point(start).distance(Point(end)) for start, end in zip(corners, corners[1:], strict=False))

@@ -1,15 +1,8 @@
-from pathlib import Path
-
 import pytest
 
-from fixtures.pilot_objects import BAGRITSKOGO_MAIN, LoadedPilotObject, load_pilot_object
+from fixtures.pilot_objects import LoadedPilotObject
 
 pytestmark = [pytest.mark.realdata, pytest.mark.converter, pytest.mark.slow]
-
-
-@pytest.fixture(scope="module")
-def bagritskogo(pilot_objects_root: Path, dwg2dxf_path: Path, repository_root: Path) -> LoadedPilotObject:
-    return load_pilot_object(pilot_objects_root, BAGRITSKOGO_MAIN, dwg2dxf_path, repository_root)
 
 
 def test_main_drawing_resolves_mosgeotrest_tiles(bagritskogo: LoadedPilotObject) -> None:

@@ -1,0 +1,25 @@
+from pathlib import Path
+
+import pytest
+
+from greenplan.domain.site import SiteModel
+from greenplan.placement.planting_plan import PlantingPlan, PlantingPlanComposer
+from greenplan.recognition.site_model_builder import SiteModelBuilder
+
+from fixtures.pilot_objects import BAGRITSKOGO_MAIN, LoadedPilotObject, load_pilot_object
+
+
+@pytest.fixture(scope="session")
+def bagritskogo(pilot_objects_root: Path, dwg2dxf_path: Path, repository_root: Path) -> LoadedPilotObject:
+    return load_pilot_object(pilot_objects_root, BAGRITSKOGO_MAIN, dwg2dxf_path, repository_root)
+
+
+@pytest.fixture(scope="session")
+def bagritskogo_site(bagritskogo: LoadedPilotObject, knowledge_root: Path) -> SiteModel:
+    builder = SiteModelBuilder.from_knowledge(knowledge_root)
+    return builder.build(bagritskogo.content, bagritskogo.drawing_set.unresolved_references)
+
+
+@pytest.fixture(scope="session")
+def bagritskogo_plan(bagritskogo_site: SiteModel, knowledge_root: Path) -> PlantingPlan:
+    return PlantingPlanComposer.from_knowledge(knowledge_root).compose(bagritskogo_site)

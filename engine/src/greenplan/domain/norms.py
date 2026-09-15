@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 TREE = "tree"
 SHRUB = "shrub"
@@ -60,6 +61,7 @@ class NormRule:
     condition_ru: str
     rationale_ru: str
     is_assumption: bool
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     def distance_for(self, target: str) -> float | None:
         return next((distance for key, distance in self.distances if key == target), None)

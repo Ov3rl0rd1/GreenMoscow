@@ -64,7 +64,7 @@ class SiteModelBuilder:
                 NetworkAnnotationParser.from_file(layers_file), effective
             ),
             boundary_extractor=SiteBoundaryExtractor(effective.minimum_boundary_area_m2),
-            tree_extractor=ExistingTreeExtractor(clusterer, effective.tree_duplicate_distance_m),
+            tree_extractor=ExistingTreeExtractor(clusterer, effective.survey_coverage_radius_m),
             symbol_clusterer=clusterer,
             settings=effective,
         )

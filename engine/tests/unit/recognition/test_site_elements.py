@@ -76,21 +76,33 @@ def test_large_drawings_are_not_symbols() -> None:
     assert clusterer.symbol_positions([LineString([(0, 0), (20, 0)])]) == []
 
 
-def test_existing_trees_combine_dendro_blocks_and_topographic_symbols(dictionary: LayerDictionary) -> None:
+def tree_symbol(x: float, handle: str) -> LayerGeometry:
+    return LayerGeometry("Отдельно стоящее дерево", "ARC", Point(x, 0).buffer(0.21).exterior, "tp", handle)
+
+
+def extract_trees(dictionary: LayerDictionary, symbols, blocks):
+    classifications = {item.layer: dictionary.classify(item.layer) for item in [*symbols, *blocks]}
+    extractor = ExistingTreeExtractor(SymbolClusterer(0.25, 3.0), survey_coverage_radius_m=10.0)
+    return extractor.extract(symbols, blocks, classifications)
+
+
+def test_existing_trees_combine_dendro_blocks_and_symbols_outside_survey(dictionary: LayerDictionary) -> None:
     dendro = BlockReference("!!!_1. Дендра_сохранить", "*U135", Point(0, 0), 1.0, 0.0, (), "dendro")
     removed = BlockReference("!!!_1. Дендра_вырубка", "*U136", Point(5, 0), 1.0, 0.0, (), "dendro")
-    duplicate_symbol = LayerGeometry(
-        "Отдельно стоящее дерево", "ARC", Point(0.3, 0).buffer(0.21).exterior, "tp", "C"
-    )
-    new_symbol = LayerGeometry(
-        "Отдельно стоящее дерево", "ARC", Point(20, 0).buffer(0.21).exterior, "tp", "D"
-    )
-    geometries = [duplicate_symbol, new_symbol]
-    layers = [*geometries, dendro, removed]
-    classifications = {item.layer: dictionary.classify(item.layer) for item in layers}
-    extractor = ExistingTreeExtractor(SymbolClusterer(0.25, 3.0), duplicate_distance_m=1.0)
-    trees = extractor.extract(geometries, [dendro, removed], classifications)
+    symbols = [tree_symbol(0.3, "C"), tree_symbol(20, "D")]
+    trees = extract_trees(dictionary, symbols, [dendro, removed])
     assert len(trees) == 3
     assert sorted(tree.status for tree in trees) == ["keep", "keep", "remove"]
     assert isinstance(trees[0].position, Point)
     assert not any(isinstance(tree.position, Polygon) for tree in trees)
+
+
+def test_topographic_symbols_inside_dendro_survey_are_ignored(dictionary: LayerDictionary) -> None:
+    dendro = BlockReference("!!!_1. Дендра_сохранить", "*U135", Point(0, 0), 1.0, 0.0, (), "dendro")
+    trees = extract_trees(dictionary, [tree_symbol(3.0, "C"), tree_symbol(9.0, "D")], [dendro])
+    assert [tree.layer for tree in trees] == ["!!!_1. Дендра_сохранить"]
+
+
+def test_topographic_symbols_are_used_when_there_is_no_dendro_survey(dictionary: LayerDictionary) -> None:
+    trees = extract_trees(dictionary, [tree_symbol(3.0, "C"), tree_symbol(9.0, "D")], [])
+    assert len(trees) == 2

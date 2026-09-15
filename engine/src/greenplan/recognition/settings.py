@@ -13,6 +13,6 @@ class RecognitionSettings:
     dashed_alignment_cosine: float = 0.97
     symbol_cluster_gap_m: float = 0.25
     max_symbol_size_m: float = 3.0
-    tree_duplicate_distance_m: float = 1.0
+    survey_coverage_radius_m: float = 25.0
     include_projected_networks: bool = True
     minimum_boundary_area_m2: float = 25.0
