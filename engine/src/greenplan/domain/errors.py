@@ -20,3 +20,11 @@ class ConfigurationError(GreenPlanError):
 
 class ExportError(GreenPlanError):
     pass
+
+
+class InvalidUploadError(GreenPlanError):
+    pass
+
+
+class JobNotFoundError(GreenPlanError):
+    pass
