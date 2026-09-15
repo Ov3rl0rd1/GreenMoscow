@@ -10,7 +10,7 @@ from greenplan.domain.decisions import ACCEPTED, CONDITIONALLY_ACCEPTED, PlantCa
 from greenplan.domain.site import SiteModel
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.planting_profile import PlantingProfile
-from greenplan.placement.planting_zones import PlantingZoneBuilder
+from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
 from greenplan.placement.raster import SiteRaster
 from greenplan.placement.site_rasterizer import SiteRasterizer
 
@@ -20,6 +20,7 @@ class PlacementOutcome:
     decisions: tuple[PlantingDecision, ...]
     raster: SiteRaster
     score: np.ndarray
+    zones: PlantingZones
 
 
 class PlannedPlantGuard:
@@ -81,4 +82,4 @@ class PlantPlacementPlanner:
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
         )
         self._selector.select(raster.grid, score, eligible, profile.spacing_m, profile.max_count, admission)
-        return PlacementOutcome(tuple(admission.decisions), raster, score)
+        return PlacementOutcome(tuple(admission.decisions), raster, score, zones)

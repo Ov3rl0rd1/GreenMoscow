@@ -18,7 +18,7 @@ from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.plant_placement_planner import PlantPlacementPlanner
 from greenplan.placement.planting_limits import PlantingLimits, PlantingLimitsResolver
 from greenplan.placement.planting_profile import PlantingProfile
-from greenplan.placement.planting_zones import PlantingZoneBuilder
+from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
 from greenplan.placement.raster import SiteRaster
 from greenplan.placement.rejection_sampler import RejectionSampler
 from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
@@ -37,6 +37,7 @@ class PlantingPlan:
     limits: PlantingLimits
     tree_raster: SiteRaster
     tree_score: np.ndarray
+    tree_zones: PlantingZones
 
 
 class PlantingPlanComposer:
@@ -104,6 +105,7 @@ class PlantingPlanComposer:
             limits=limits,
             tree_raster=trees.raster,
             tree_score=trees.score,
+            tree_zones=trees.zones,
         )
 
     def _tree_profile(self, limits: PlantingLimits) -> PlantingProfile:

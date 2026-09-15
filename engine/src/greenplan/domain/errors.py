@@ -16,3 +16,7 @@ class KnowledgeValidationError(GreenPlanError):
 
 class ConfigurationError(GreenPlanError):
     pass
+
+
+class ExportError(GreenPlanError):
+    pass
