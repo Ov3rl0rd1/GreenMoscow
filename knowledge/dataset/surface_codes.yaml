@@ -1,0 +1,13 @@
+meta:
+  version: "0.1.0"
+  updated: "2026-09-15"
+  layer_pattern: '^_(?P<existing>[^-]+?)\s*-\s*(?P<target>[^(]+?)\s*(\(.*\))?$'
+
+surface_classes:
+  lawn: ["ГЗН"]
+  carriageway: ["АБ ПЧ", "ЩМА ПЧ", "ПЧ"]
+  sidewalk: ["АБ ТР", "ПЛ ТР", "Резин.КР", "ТР"]
+  slope: ["Укрепление откоса", "Откос до укрепления"]
+
+fallback_green_area_layers:
+  - "Леса и газоны"

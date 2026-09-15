@@ -13,7 +13,9 @@ def locate_dwg2dxf() -> Path | None:
     configured = os.environ.get("GREENPLAN_DWG2DXF")
     if configured and Path(configured).is_file():
         return Path(configured)
-    bundled = REPOSITORY_ROOT / "tools" / "bin" / "libredwg" / ("dwg2dxf.exe" if os.name == "nt" else "dwg2dxf")
+    bundled = (
+        REPOSITORY_ROOT / "tools" / "bin" / "libredwg" / ("dwg2dxf.exe" if os.name == "nt" else "dwg2dxf")
+    )
     if bundled.is_file():
         return bundled
     on_path = shutil.which("dwg2dxf")

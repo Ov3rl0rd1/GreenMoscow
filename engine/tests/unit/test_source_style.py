@@ -40,7 +40,9 @@ def is_string_expression(statement: ast.stmt) -> bool:
     )
 
 
-@pytest.mark.parametrize("path", python_source_files(), ids=lambda path: str(path.relative_to(REPOSITORY_ROOT)))
+@pytest.mark.parametrize(
+    "path", python_source_files(), ids=lambda path: str(path.relative_to(REPOSITORY_ROOT))
+)
 def test_python_source_has_no_comments_or_docstrings(path: Path) -> None:
     source = path.read_text(encoding="utf-8")
     assert comment_lines(source) == [], f"comments found in {path}"

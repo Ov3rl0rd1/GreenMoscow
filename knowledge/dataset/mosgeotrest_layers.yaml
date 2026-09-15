@@ -33,7 +33,7 @@ meta:
     gas_pressure_low: 'н\.д\.'
     cable_count: '^(\d+)к\.'
     pipe_count: '^(\d+)тр\.'
-    casing_diameter_mm: 'ф-р\s*d\s*=\s*(\d+)'
+    casing_diameter_mm: 'ф-р\s*d\s*=\s*(?:(\d+)\s*[xх]\s*)?(\d+)'
     depth_m: 'гл\.\s*(\d+[.,]\d+)'
     channel_section_mm: '(\d{3,4})\s*[xх]\s*(\d{3,4})'
 
