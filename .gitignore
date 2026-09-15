@@ -6,4 +6,7 @@ out/
 data/
 *.dxf
 *.dwg
+*.zip
+*.rar
+*.7z
 !knowledge/symbols/*.json

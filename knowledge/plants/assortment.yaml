@@ -1,55 +1,57 @@
 # Ассортимент зелёных насаждений для генератора.
 #
 # ИСТОЧНИКИ:
-#  1. Библиотека условных знаков заказчика "Шаблоны значков.dwg" (133 блока,
-#     102 с русскими названиями) — knowledge/symbols/blocks_catalog.json.
-#     Это фактический ассортимент, которым оперируют проектировщики заказчика.
-#  2. ППМ № 515-ПП (рекомендуемый ассортимент растений) — ТРЕБУЕТ СВЕРКИ.
-#  3. ППМ № 369-ПП от 03.03.2026 — перечень инвазивных видов, ОБЯЗАТЕЛЕН К ИСКЛЮЧЕНИЮ.
+#  1. Библиотека условных знаков заказчика «Шаблоны значков.dwg» (133 блока, 102 с русскими
+#     названиями) — knowledge/symbols/blocks_catalog.json.
+#  2. Эталонные планы посадок датасета «Пилотный проект 20 улиц» (15.09.2026) — фактически
+#     применяемые породы и сорта (см. reference_usage ниже, docs/13-pilot-dataset.md §9.4).
+#  3. ТСН 30-307-2002, табл. В.6 — рекомендации пород по категориям насаждений (выгружено частично).
+#  4. 369-ПП / Приказ Минприроды № 77 — фильтр инвазивных: knowledge/plants/invasive_moscow.yaml.
 #
-# ВНИМАНИЕ: значения crown_d_m / height_m — проектные ориентиры для взрослого
-# растения в городских условиях Москвы. Статус: ТРЕБУЮТ ПРОВЕРКИ по дендрологическим
-# справочникам и каталогам питомников перед сдачей. Они влияют на:
-#   - масштабирование нормативного отступа (примечание 1 к табл. 9.1 СП 42.13330.2016)
-#   - минимальные расстояния между посадками
-#   - размер условного знака в DXF
+# ВНИМАНИЕ: crown_d_m / height_m — проектные ориентиры для взрослого растения; НЕ сверены
+# с дендрологическими справочниками. Влияют на увеличение отступа (прим. 1 к табл. 9.1
+# СП 42.13330.2016), шаг посадки и масштаб условного знака.
 
 meta:
-  version: "0.1.0"
-  updated: "2026-09-14"
-  crown_values_status: needs_verification
-  invasive_filter_source: ppm369_invasive
+  version: "0.2.0"
+  updated: "2026-09-15"
+  crown_values_status: assumption
+  invasive_filter: knowledge/plants/invasive_moscow.yaml
 
 # ---------------------------------------------------------------------------
-# ТИПЫ ПОСАДОК (соответствуют категориям ТЗ и категориям слоёв заказчика)
+# ТИПЫ ПОСАДОК → слои результата (принцип заказчика «порода = слой = блок», префикс AI_)
 # ---------------------------------------------------------------------------
 plant_types:
   tree:
     ru: "Дерево"
-    dxf_layer: GREEN_AI_TREES
+    dxf_layer_pattern: "AI_PL_TREES_{species}"
+    spacing_ref: ppm743_p3_6_4_t3_6_2       # в ряд 5–6 м, в два ряда 7–8 м, группа 5–7 м
     default_spacing_m: 6.0
   large_shrub:
     ru: "Крупный кустарник"
-    # у заказчика есть отдельная категория: слои "ЗЕЛЕНЬ$БОЛЬШИЕ КУСТЫ$..."
-    dxf_layer: GREEN_AI_SHRUBS
-    default_spacing_m: 2.0
+    dxf_layer_pattern: "AI_PL_BUSH_{species}"
+    default_spacing_m: 1.0                  # высокие (> 1,8 м) в ряд 0,5–1 м
   shrub:
     ru: "Кустарник"
-    dxf_layer: GREEN_AI_SHRUBS
-    default_spacing_m: 1.0
+    dxf_layer_pattern: "AI_PL_BUSH_{species}"
+    default_spacing_m: 0.4                  # средние и низкие в ряд 0,3–0,4 м
   hedge:
     ru: "Живая изгородь"
-    dxf_layer: GREEN_AI_SHRUBS_GROUP
-    default_spacing_m: 0.4
+    dxf_layer_pattern: "AI_PL_HEDGE_{species}"
+    default_spacing_m: 0.3
   groundcover:
     ru: "Травянистое покрытие / газон"
-    dxf_layer: GREEN_AI_GROUNDCOVER
+    dxf_layer_pattern: "AI_PL_LAWN"
   flowerbed:
     ru: "Цветник"
-    dxf_layer: GREEN_AI_GROUNDCOVER
+    dxf_layer_pattern: "AI_PL_FLWR_{name}"
 
 # ---------------------------------------------------------------------------
-# ДЕРЕВЬЯ
+# ВИДЫ
+# heating_min_axis_m — ТСН 30-307-2002 п. 4.2.8 (от оси теплотрассы, рекомендация):
+#   липа, клён, сирень, жимолость — 2 м; тополь, боярышник, кизильник, дёрен, лиственница,
+#   берёза — 3–4 м (берём 4).
+# invasive_status — см. invasive_moscow.yaml
 # ---------------------------------------------------------------------------
 species:
 
@@ -57,105 +59,143 @@ species:
     ru: "Липа мелколистная"
     latin: "Tilia cordata"
     type: tree
-    deciduous: true
+    crown_class: wide
     crown_d_m: 10.0
     height_m: 20.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Липа мелколистная", "Липа мелколистная ва"]
-    salt_tolerance: medium
-    gas_tolerance: medium
-    shade_tolerance: medium
     street_suitable: true
-    notes_ru: "Классическая уличная порода Москвы. Хорошо переносит формовку кроны."
+    notes_ru: "Широкая крона: у жилых помещений — не ближе 10 м (743-ПП, прим. 3 к табл. 3.6.1)."
 
   - key: tilia_europaea_pallida
-    ru: "Липа европейская «Паллида»"
+    ru: "Липа европейская 'Pallida'"
     latin: "Tilia × europaea 'Pallida'"
     type: tree
+    crown_class: wide
     crown_d_m: 8.0
     height_m: 18.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Липа европейская Pallida"]
     street_suitable: true
+    reference_usage: {"5. Багрицкого": 51, "9. Измайловская": 15}
 
   - key: acer_platanoides
     ru: "Клён остролистный"
     latin: "Acer platanoides"
     type: tree
+    crown_class: wide
     crown_d_m: 10.0
     height_m: 20.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Клен остролистный", "Клен остролистный 10", "Клен"]
-    salt_tolerance: medium
     street_suitable: true
+    reference_usage: {"5. Багрицкого": 22, "10. Старый Гай": "сорта 'Drummondii', 'Globosum'"}
 
   - key: acer_rubrum
     ru: "Клён красный"
     latin: "Acer rubrum"
     type: tree
+    crown_class: medium
     crown_d_m: 8.0
     height_m: 15.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Клен красный"]
     street_suitable: true
-    notes_ru: "Декоративная осенняя окраска."
+    reference_usage: {"5. Багрицкого": 42, "1. Олимпийская": 150}
 
   - key: acer_ginnala
     ru: "Клён Гиннала (приречный)"
     latin: "Acer tataricum subsp. ginnala"
     type: large_shrub
+    crown_class: narrow
     crown_d_m: 5.0
     height_m: 6.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Клен Гиннала"]
-    notes_ru: "У заказчика проходит по категории «большие кусты»."
+    reference_usage: {"5. Багрицкого": 51, "10. Старый Гай": 17}
+
+  - key: crataegus_pauls_scarlet
+    ru: "Боярышник 'Paul's Scarlet'"
+    latin: "Crataegus laevigata 'Paul's Scarlet'"
+    type: tree
+    crown_class: narrow
+    crown_d_m: 5.0
+    height_m: 6.0
+    heating_min_axis_m: 4.0
+    block_candidates: ["Боярышник"]
+    reference_usage: {"5. Багрицкого": 35}
 
   - key: betula_pendula
     ru: "Берёза повислая"
     latin: "Betula pendula"
     type: tree
+    crown_class: medium
     crown_d_m: 8.0
     height_m: 20.0
+    heating_min_axis_m: 4.0
     block_candidates: ["Береза_", "береза", "Береза Жакмана"]
-    street_suitable: false
-    notes_ru: "Плохо переносит уплотнение почвы и реагенты; для улиц не рекомендуется."
+    street_suitable: limited
+    notes_ru: "ТСН табл. В.6: для улиц и дорог — «+ только ул., с огр.»."
 
   - key: quercus_robur
     ru: "Дуб черешчатый"
     latin: "Quercus robur"
     type: tree
+    crown_class: wide
     crown_d_m: 15.0
     height_m: 25.0
     block_candidates: ["Дуб"]
     street_suitable: false
-    notes_ru: "Крупная крона — требует увеличенных отступов (прим. 1 к табл. 9.1)."
+    notes_ru: "Не путать с дубом красным (Quercus rubra) — III группа 369-ПП по вторичным источникам."
 
   - key: sorbus_aucuparia
     ru: "Рябина обыкновенная"
     latin: "Sorbus aucuparia"
     type: tree
+    crown_class: narrow
     crown_d_m: 5.0
     height_m: 10.0
     block_candidates: ["Рябина_", "Рябина Додонг"]
     street_suitable: true
+    reference_usage: {"5. Багрицкого": 23, "1. Олимпийская": 162}
 
   - key: prunus_maackii
     ru: "Черёмуха Маака"
     latin: "Prunus maackii"
     type: tree
+    crown_class: medium
     crown_d_m: 6.0
     height_m: 12.0
     block_candidates: ["Черемуха Маака Prunus maackii"]
     street_suitable: true
+    reference_usage: {"1. Олимпийская": 100}
 
-  - key: malus_niedzwetzkyana
-    ru: "Яблоня Недзвецкого"
-    latin: "Malus niedzwetzkyana"
+  - key: malus_decorative
+    ru: "Яблоня Недзвецкого / декоративная"
+    latin: "Malus niedzwetzkyana, Malus spp."
     type: tree
+    crown_class: narrow
     crown_d_m: 5.0
     height_m: 8.0
     block_candidates: ["Яблоня Недзвецкого", "Яблоня декоративная"]
     street_suitable: true
+    reference_usage: {"1. Олимпийская": 338, "5. Багрицкого": "19 ('Rudolph')", "9. Измайловская": "47 ('Эверест')"}
+
+  - key: prunus_cerasus_domestica
+    ru: "Вишня обыкновенная, слива 'Венгерка'"
+    latin: "Prunus cerasus, Prunus domestica"
+    type: tree
+    crown_class: narrow
+    crown_d_m: 4.0
+    height_m: 5.0
+    block_candidates: ["Вишня", "Слива"]
+    reference_usage: {"1. Олимпийская": "160 + 150"}
 
   - key: ulmus_parvifolia
     ru: "Вяз мелколистный"
     latin: "Ulmus parvifolia"
     type: tree
+    crown_class: medium
     crown_d_m: 8.0
     height_m: 15.0
     block_candidates: ["Вяз мелколистный 10", "Вяз"]
@@ -164,44 +204,43 @@ species:
     ru: "Каштан конский"
     latin: "Aesculus hippocastanum"
     type: tree
+    crown_class: wide
     crown_d_m: 12.0
     height_m: 20.0
     block_candidates: ["Каштан конский", "Каштан"]
-
-  - key: phellodendron_amurense
-    ru: "Бархат амурский"
-    latin: "Phellodendron amurense"
-    type: tree
-    crown_d_m: 10.0
-    height_m: 15.0
-    block_candidates: ["Бархат Амурский"]
 
   - key: larix_decidua
     ru: "Лиственница европейская"
     latin: "Larix decidua"
     type: tree
     coniferous: true
+    crown_class: narrow
     crown_d_m: 6.0
     height_m: 25.0
+    heating_min_axis_m: 4.0
     block_candidates: ["Лиственница европейская", "Лиственница"]
 
-  - key: pinus_nigra
-    ru: "Сосна чёрная"
-    latin: "Pinus nigra"
+  - key: picea_abies
+    ru: "Ель обыкновенная"
+    latin: "Picea abies"
     type: tree
     coniferous: true
-    crown_d_m: 8.0
-    height_m: 20.0
-    block_candidates: ["Сосна черная", "Сосна"]
-
-  - key: picea_pungens
-    ru: "Ель голубая"
-    latin: "Picea pungens"
-    type: tree
-    coniferous: true
+    crown_class: narrow
     crown_d_m: 5.0
-    height_m: 15.0
-    block_candidates: ["Ель голубая", "Ель_"]
+    height_m: 20.0
+    block_candidates: ["Ель_", "Ель голубая"]
+    reference_usage: {"5. Багрицкого": 32, "1. Олимпийская": 46}
+
+  - key: pinus_sylvestris
+    ru: "Сосна обыкновенная (крупномер)"
+    latin: "Pinus sylvestris"
+    type: tree
+    coniferous: true
+    crown_class: medium
+    crown_d_m: 6.0
+    height_m: 20.0
+    block_candidates: ["Сосна"]
+    reference_usage: {"10. Старый Гай": 24}
 
   - key: thuja_occidentalis
     ru: "Туя западная"
@@ -212,49 +251,92 @@ species:
     height_m: 5.0
     block_candidates: ["Туя западная"]
 
-# ---------------------------------------------------------------------------
-# КУСТАРНИКИ
-# ---------------------------------------------------------------------------
-  - key: syringa_vulgaris
-    ru: "Сирень обыкновенная"
-    latin: "Syringa vulgaris"
+  # ------------------------------ КУСТАРНИКИ ------------------------------
+  - key: syringa
+    ru: "Сирень (обыкновенная, Мейера 'Palibin')"
+    latin: "Syringa vulgaris, Syringa meyeri"
     type: large_shrub
-    crown_d_m: 3.0
-    height_m: 4.0
+    crown_d_m: 2.5
+    height_m: 3.0
+    heating_min_axis_m: 2.0
     block_candidates: ["Сирень", "Syringa Красавица Москвы"]
+    reference_usage: {"5. Багрицкого": "119 Мейера + 42 обыкн.", "1. Олимпийская": "902 'Michel Buchner'"}
 
   - key: cornus_alba
-    ru: "Дёрен белый"
+    ru: "Дёрен белый (сорта 'Elegantissima', 'Kesselringii', 'Ivory Halo', 'Aurea', 'Сибирика')"
     latin: "Cornus alba"
     type: shrub
     crown_d_m: 2.0
     height_m: 2.5
-    block_candidates: ["Дерен белый", "Дерен белый Сибирика", "Дерен отпрысковый", "Дерен столонный"]
-    notes_ru: "Массово применяется заказчиком — 4 отдельных блока и несколько слоёв."
+    heating_min_axis_m: 4.0
+    block_candidates: ["Дерен белый", "Дерен белый Сибирика"]
+    invasive_status: conflicting_group_III
+    reference_usage: {"1. Олимпийская": 1099, "5. Багрицкого": 137, "10. Старый Гай": "3 сорта"}
+    notes_ru: "По вторичным источникам — III группа 369-ПП. До ответа экспертов: «условно, проверить по 369-ПП»."
 
-  - key: spiraea
-    ru: "Спирея"
-    latin: "Spiraea spp."
-    type: shrub
-    crown_d_m: 1.5
-    height_m: 1.5
-    block_candidates: ["Спирея", "Спирея Аргута", "Спирея серая или пепельная"]
-
-  - key: physocarpus_opulifolius
-    ru: "Пузыреплодник калинолистный"
-    latin: "Physocarpus opulifolius"
-    type: shrub
-    crown_d_m: 2.5
-    height_m: 2.5
-    block_candidates: ["Пузыреплодник калинолистный"]
-
-  - key: sorbaria_sorbifolia
-    ru: "Рябинник рябинолистный"
-    latin: "Sorbaria sorbifolia"
+  - key: cornus_sericea
+    ru: "Дёрен отпрысковый 'Flaviramea'"
+    latin: "Cornus sericea"
     type: shrub
     crown_d_m: 2.0
     height_m: 2.0
-    block_candidates: ["Рябинник рябинолистный", "Рябинник", "Рябинник_"]
+    heating_min_axis_m: 4.0
+    block_candidates: ["Дерен отпрысковый", "Дерен столонный"]
+    reference_usage: {"9. Измайловская": 89}
+
+  - key: spiraea
+    ru: "Спирея (японская 'Darts Red', Вангутта, серая 'Грефшайм', берёзолистная 'Tor')"
+    latin: "Spiraea spp."
+    type: shrub
+    crown_d_m: 1.2
+    height_m: 1.5
+    block_candidates: ["Спирея", "Спирея Аргута", "Спирея серая или пепельная"]
+    reference_usage: {"5. Багрицкого": "699 японская + 397 Вангутта", "1. Олимпийская": "1325 Вангутта"}
+
+  - key: physocarpus_opulifolius
+    ru: "Пузыреплодник калинолистный ('Andre', 'Aurea', 'Red Baron', 'Luteus')"
+    latin: "Physocarpus opulifolius"
+    type: shrub
+    crown_d_m: 2.0
+    height_m: 2.5
+    block_candidates: ["Пузыреплодник калинолистный"]
+    reference_usage: {"10. Старый Гай": "≈530", "16. Берзарина": "≈750"}
+
+  - key: symphoricarpos
+    ru: "Снежноягодник (Доренбоза, белый)"
+    latin: "Symphoricarpos × doorenbosii, S. albus"
+    type: shrub
+    crown_d_m: 1.5
+    height_m: 1.5
+    block_candidates: ["Снежнеягодник", "Снежнеягодник_"]
+    reference_usage: {"1. Олимпийская": 1504, "5. Багрицкого": 210}
+
+  - key: hydrangea_paniculata
+    ru: "Гортензия метельчатая ('Limelight', 'Candlelight', 'Levana', 'Vanilla Fraise')"
+    latin: "Hydrangea paniculata"
+    type: shrub
+    crown_d_m: 1.5
+    height_m: 1.5
+    block_candidates: ["Гортензия"]
+    reference_usage: {"1. Олимпийская": 1060, "5. Багрицкого": 257}
+
+  - key: hydrangea_arborescens
+    ru: "Гортензия древовидная 'Annabelle'"
+    latin: "Hydrangea arborescens"
+    type: shrub
+    crown_d_m: 1.5
+    height_m: 1.5
+    block_candidates: ["Гортензия древовидная"]
+
+  - key: cotoneaster_lucidus
+    ru: "Кизильник блестящий"
+    latin: "Cotoneaster lucidus"
+    type: hedge
+    crown_d_m: 1.0
+    height_m: 2.0
+    heating_min_axis_m: 4.0
+    block_candidates: ["Кизильник блестящий", "Кизильник"]
+    notes_ru: "Основная порода живых изгородей; у теплотрасс — не ближе 3–4 м от оси (ТСН п. 4.2.8)."
 
   - key: philadelphus
     ru: "Чубушник"
@@ -263,31 +345,54 @@ species:
     crown_d_m: 2.0
     height_m: 2.5
     block_candidates: ["Чубушник", "Чубушник Лемуана Mont blan", "Гортензия или Чубушник"]
+    reference_usage: {"1. Олимпийская": 911}
 
-  - key: symphoricarpos
-    ru: "Снежноягодник"
-    latin: "Symphoricarpos albus"
-    type: shrub
-    crown_d_m: 1.5
-    height_m: 1.5
-    block_candidates: ["Снежнеягодник", "Снежнеягодник_"]
-
-  - key: cotoneaster_lucidus
-    ru: "Кизильник блестящий"
-    latin: "Cotoneaster lucidus"
-    type: hedge
-    crown_d_m: 1.0
-    height_m: 2.0
-    block_candidates: ["Кизильник блестящий", "Кизильник"]
-    notes_ru: "Основная порода для живых изгородей в Москве."
-
-  - key: euonymus_europaeus
-    ru: "Бересклет европейский"
-    latin: "Euonymus europaeus"
+  - key: viburnum_opulus_roseum
+    ru: "Калина обыкновенная 'Roseum'"
+    latin: "Viburnum opulus 'Roseum'"
     type: large_shrub
     crown_d_m: 2.5
     height_m: 3.0
-    block_candidates: ["Бересклет Euonymus europaeus", "Бересклет"]
+    block_candidates: ["Калина гордовина"]
+    reference_usage: {"1. Олимпийская": 369, "5. Багрицкого": 56}
+
+  - key: berberis
+    ru: "Барбарис (Тунберга 'Cabernet', оттавский 'Superba')"
+    latin: "Berberis thunbergii, B. × ottawensis"
+    type: shrub
+    crown_d_m: 1.0
+    height_m: 1.5
+    block_candidates: ["Барбарис_", "барбарис"]
+    reference_usage: {"5. Багрицкого": "101 + 38"}
+
+  - key: juniperus_sabina
+    ru: "Можжевельник казацкий ('Arcadia', 'Рокери Джем')"
+    latin: "Juniperus sabina"
+    type: groundcover
+    coniferous: true
+    crown_d_m: 1.5
+    height_m: 0.5
+    block_candidates: ["Можжевельник", "Можевельник горизонтальный"]
+    reference_usage: {"9. Измайловская": 378, "5. Багрицкого": 67}
+
+  - key: pinus_mugo_mops
+    ru: "Сосна горная 'Mops'"
+    latin: "Pinus mugo 'Mops'"
+    type: shrub
+    coniferous: true
+    crown_d_m: 1.0
+    height_m: 1.0
+    block_candidates: ["Сосна горная 10"]
+    reference_usage: {"9. Измайловская": 255, "5. Багрицкого": 24}
+
+  - key: dasiphora_fruticosa
+    ru: "Лапчатка кустарниковая 'Mount Everest'"
+    latin: "Dasiphora fruticosa"
+    type: shrub
+    crown_d_m: 0.8
+    height_m: 0.8
+    block_candidates: ["Лапчатка"]
+    reference_usage: {"9. Измайловская": 297, "1. Олимпийская": 226}
 
   - key: rosa_rugosa
     ru: "Роза морщинистая"
@@ -296,30 +401,8 @@ species:
     crown_d_m: 1.5
     height_m: 1.5
     block_candidates: ["Роза морщинистая Alba", "Роза"]
-
-  - key: ribes_aureum
-    ru: "Смородина золотистая"
-    latin: "Ribes aureum"
-    type: shrub
-    crown_d_m: 1.5
-    height_m: 2.0
-    block_candidates: ["Смородина золотистая"]
-
-  - key: berberis
-    ru: "Барбарис"
-    latin: "Berberis thunbergii"
-    type: shrub
-    crown_d_m: 1.0
-    height_m: 1.0
-    block_candidates: ["Барбарис_", "барбарис"]
-
-  - key: hydrangea_arborescens
-    ru: "Гортензия древовидная"
-    latin: "Hydrangea arborescens"
-    type: shrub
-    crown_d_m: 1.5
-    height_m: 1.5
-    block_candidates: ["Гортензия древовидная", "Гортензия"]
+    invasive_status: conflicting_group_III
+    notes_ru: "По вторичным источникам — III группа 369-ПП; в Приказе МПР № 77 — только для СЗФО. Не предлагать без ответа экспертов."
 
   - key: microbiota_decussata
     ru: "Микробиота перекрёстнопарная"
@@ -330,69 +413,52 @@ species:
     height_m: 0.5
     block_candidates: ["Микробиота перекрестнопарнная", "Микробиота"]
 
-  - key: juniperus_horizontalis
-    ru: "Можжевельник горизонтальный"
-    latin: "Juniperus horizontalis"
-    type: groundcover
-    coniferous: true
-    crown_d_m: 1.5
-    height_m: 0.4
-    block_candidates: ["Можевельник горизонтальный", "Можжевельник"]
-
-# ---------------------------------------------------------------------------
-# ИНВАЗИВНЫЕ ВИДЫ — ИСКЛЮЧАЮТСЯ ИЗ ПОДБОРА
-# ---------------------------------------------------------------------------
-# ВНИМАНИЕ: перечень ниже — ОЖИДАЕМЫЙ состав, основанный на общеизвестных
-# инвазивных видах средней полосы. ФАКТИЧЕСКИЙ перечень должен быть
-# взят из приложения к ППМ № 369-ПП от 03.03.2026 и заменить этот список.
-# Статус: needs_verification — см. docs/02-normative-verification-checklist.md п. 2.3
-invasive_excluded:
-  verification: needs_check
-  source_ref: ppm369_invasive
-  species:
-    - ru: "Клён ясенелистный"
-      latin: "Acer negundo"
-    - ru: "Борщевик Сосновского"
-      latin: "Heracleum sosnowskyi"
-    - ru: "Золотарник канадский"
-      latin: "Solidago canadensis"
-    - ru: "Ясень пенсильванский"
-      latin: "Fraxinus pennsylvanica"
-  note_ru: >-
-    Список подлежит замене на официальный перечень из ППМ № 369-ПП.
-    До верификации фильтр применяется, но в объяснении указывается
-    обобщённая формулировка без номера пункта.
-
 # ---------------------------------------------------------------------------
 # ПРАВИЛА ПОДБОРА (таблица решений)
 # ---------------------------------------------------------------------------
 selection_rules:
-  - context: street_carriageway_adjacent      # вдоль проезжей части
-    prefer: [tilia_cordata, acer_platanoides, sorbus_aucuparia, ulmus_parvifolia]
-    avoid: [betula_pendula, quercus_robur]
-    reason_ru: "Требуется устойчивость к противогололёдным реагентам, загазованности и уплотнению почвы."
+  - context: street_carriageway_adjacent
+    prefer: [tilia_europaea_pallida, acer_platanoides, acer_rubrum, sorbus_aucuparia, crataegus_pauls_scarlet]
+    avoid: [quercus_robur]
+    limited: [betula_pendula]
+    reason_ru: "Устойчивость к реагентам, загазованности и уплотнению почвы; породы из эталонных уличных проектов пилота."
 
-  - context: narrow_sidewalk                  # узкий тротуар, мало места
-    prefer: [acer_ginnala, sorbus_aucuparia, malus_niedzwetzkyana]
-    max_crown_d_m: 6.0
-    reason_ru: "Ограниченная ширина свободного прохода (СП 59.13330.2020) и малый отступ до края тротуара."
+  - context: narrow_sidewalk
+    prefer: [acer_ginnala, sorbus_aucuparia, malus_decorative, crataegus_pauls_scarlet]
+    max_crown_d_m: 5.0
+    reason_ru: "Остаточная ширина пути для МГН не менее 2,0 м, в стеснённых условиях — 1,2 м с карманами (СП 59.13330.2020, п. 5.1.7)."
+    source_ref: sp59_p5_1_7
 
-  - context: courtyard                        # двор
-    prefer: [tilia_cordata, acer_platanoides, prunus_maackii, malus_niedzwetzkyana]
-    reason_ru: "Декоративность и теневой комфорт при отсутствии солевой нагрузки."
+  - context: residential_windows
+    avoid_crown_class: wide
+    min_distance_wide_crown_m: 10.0
+    reason_ru: "Деревья с широкой кроной, затеняющие жилые помещения, — не ближе 10 м от здания (743-ПП, прим. 3 к табл. 3.6.1)."
+    source_ref: ppm743_t3_6_1_note3
 
-  - context: near_heating_network             # зона прогрева грунта 2-6 м
-    avoid_all_trees: false
-    prefer: [acer_ginnala, cotoneaster_lucidus, physocarpus_opulifolius]
+  - context: near_heating_network
+    rule: "исключить виды, для которых расстояние до оси теплотрассы < heating_min_axis_m"
+    prefer_species_without_restriction: [spiraea, physocarpus_opulifolius, symphoricarpos, hydrangea_paniculata, philadelphus]
     reason_ru: >-
-      В зоне среднего прогрева грунта от теплотрассы (2-6 м по ТСН 30-307-2002)
-      предпочтительны породы, устойчивые к иссушению корнеобитаемого слоя.
+      У теплотрасс не следует размещать липу, клён, сирень, жимолость ближе 2 м, а тополь, боярышник,
+      кизильник, дёрен, лиственницу, берёзу — ближе 3–4 м; учитывать прогрев почвы 0–2/2–6/6–10 м.
+    source_ref: tsn_p4_2_8
+
+  - context: bus_stop
+    prefer_crown_class: narrow
+    min_distance_from_shelter_side_m: 2.0
+    reason_ru: "Деревья с компактной кроной, не ближе 2,0 м от боковых конструкций павильона."
+    source_ref: tsn_p4_10_4
 
   - context: hedge_along_fence
     prefer: [cotoneaster_lucidus, spiraea, physocarpus_opulifolius]
     plant_type: hedge
 
-  - context: under_overhead_line              # под ВЛ (вне охранной зоны)
+  - context: noise_protection
+    rule: "однорядные/многорядные посадки ≥ 7 м, шаг по кроне 8–10 / 5–6 / 3–4 м, подкроновое пространство — кустарник"
+    source_ref: tsn_p4_2_9_2
+
+  - context: under_overhead_line
     max_height_m: 4.0
-    prefer: [acer_ginnala, syringa_vulgaris, cotoneaster_lucidus]
-    reason_ru: "Ограничение по высоте взрослого растения во избежание приближения к проводам."
+    prefer: [acer_ginnala, syringa, spiraea]
+    reason_ru: "Посадка в охранной зоне ВЛ — только при соблюдении условий согласования (ПП РФ № 160, п. 11 «з»); высота взрослого растения ограничена."
+    source_ref: pp160_p11z

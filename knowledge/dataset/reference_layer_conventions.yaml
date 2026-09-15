@@ -1,0 +1,98 @@
+# Соглашения об именовании слоёв в эталонных планах посадок («Проектное решение»)
+# датасета «Пилотный проект 20 улиц». Используется для выгрузки обучающих данных
+# (точки посадок с породой) и для сравнения нашего плана с проектом.
+#
+# Проверено на объектах 1, 4, 5, 9, 10, 14, 16, 20 (15.09.2026). См. docs/13 §9.
+# Порядок схем важен: первая совпавшая схема определяет тип.
+# Группа (?P<species>...) — порода с сортом, как в проекте.
+
+meta:
+  version: "0.1.0"
+  updated: "2026-09-15"
+  principle: "одна порода (сорт) = один слой = один блок с тем же именем; кустарники ставятся поштучно"
+
+schemes:
+
+  - id: pl_prefix
+    seen_in: ["5. Багрицкого улица"]
+    rules:
+      - {regex: '^PL_TREES_(?P<species>.+)$',   type: tree,        status: proposed}
+      - {regex: '^PL_BUSH_I_(?P<species>.+)$',  type: hedge,       status: proposed, note: "I — вероятно, живая изгородь/рядовая"}
+      - {regex: '^PL_BUSH_(?P<species>.+)$',    type: shrub,       status: proposed}
+      - {regex: '^PL_FLWR_(?P<species>.+)$',    type: flowerbed,   status: proposed}
+      - {regex: '^PL_0_C?[Сс]ущ\.?\s*лиственные деревья', type: tree,  status: existing}
+      - {regex: '^PL_0_C?[Сс]ущ\.?\s*хвойные деревья',    type: tree,  status: existing, coniferous: true}
+      - {regex: '^PL_0_C?[Сс]ущ\.?\s*лиственные кустарники', type: shrub, status: existing}
+      - {regex: '^PL_0_Пересадка\s*(?P<species>.+)$',     type: mixed, status: transplanted}
+    annotation_layers: ['^#04_размеры посадочный', '^#04_ВЫНОСКИ', '^#04_координаты', '^#04_линии построения', '^#04_контур борта', '^#04_Контуры цветника', '^#04_Размеры цветников']
+
+  - id: plnt_prefix
+    seen_in: ["1. Олимпийская деревня"]
+    rules:
+      - {regex: '^PLNT_TREE_(?P<species>.+)$', type: tree,  status: proposed}
+      - {regex: '^PLNT_BUSH_(?P<species>.+)$', type: shrub, status: proposed}
+    annotation_layers: ['^WOW_LAND_Выноски', '^Размеры посадка']
+
+  - id: dendro_prefix
+    seen_in: ["9. Измайловская площадь_", "1. Олимпийская деревня (частично)"]
+    rules:
+      - {regex: '^DENDRO_TREE_(?P<species>.+)$', type: tree,  status: proposed}
+      - {regex: '^DENDRO_BUSH_(?P<species>.+)$', type: shrub, status: proposed}
+      - {regex: '^DENDRO_Существующие деревья',   type: tree,  status: existing}
+      - {regex: '^DENDRO_Вырубаемые',            type: tree,  status: removed}
+    annotation_layers: ['^WOW_LAND_Выноски', '^#04_размеры посадочный']
+
+  - id: gp_parentheses
+    seen_in: ["4. Харьковская улица", "10. Старый Гай ул"]
+    rules:
+      - {regex: '^\(ГП\)(?!Посадочн|Разбивочн|\s?Привязк)(?P<species>.+)$', type: shrub_or_tree, status: proposed, note: "тип уточнять по ассортиментной ведомости"}
+      - {regex: '^_ГП_Оз_Посадки проектируемые', type: mixed, status: proposed}
+      - {regex: '^! ПР ДЕРЕВЬЯ',                 type: tree,  status: proposed}
+      - {regex: '^! ПР (?P<species>.+)$',        type: shrub, status: proposed}
+    annotation_layers: ['^\(ГП\)Посадочное место', '^\(ГП\)\s?Привязка', '^\(ГП\)Разбивочная сетка', '^\(ГП\)Посадочный_Выноски', '^! ПОСАДОЧНЫЙ ВЫНОСКИ']
+    blocks: {"пм": "посадочное место (яма)"}
+
+  - id: dp_numbered
+    seen_in: ["16. улица Берзарина"]
+    rules:
+      - {regex: '^06_ДП_(?P<species>.+?)_план$', type: shrub, status: proposed}
+      - {regex: '^Дендро_деревья',               type: tree,  status: proposed}
+      - {regex: '^!Посадки$',                    type: mixed, status: proposed}
+    annotation_layers: ['^Посадочный_Выноски', '^!Размер', '^_Размеры', '^Сетка', '^01_План_Отступы', '^07_ДП_ВЫНОСКИ']
+    blocks: {"дер": "дерево", "пм": "посадочное место"}
+    note: "есть слой 01_План_Отступы — проектировщик чертит зоны отступов"
+
+  - id: dendroplan_numbered
+    seen_in: ["20. Макеева С. ул (xref_растительность.dwg)"]
+    rules:
+      - {regex: '^04 Дендроплан \(растения\)',        type: mixed,       status: proposed, note: "порода — по имени блока"}
+      - {regex: '^04 Дендроплан \(живые изгороди\)',  type: hedge,       status: proposed}
+      - {regex: '^08-травянистые',                    type: groundcover, status: proposed}
+      - {regex: '^5[05] (Площади \(многолетники\)|травянистые)', type: flowerbed, status: proposed}
+      - {regex: '^50 Дендроплан - Деревья вырубаемые', type: tree,       status: removed}
+    annotation_layers: ['^04 Дендроплан \(ямы\)', '^50 Дендроплан \(ямы\)', '^04 Дендроплан \(ОСИ\)']
+    related_xrefs: ["xref_барьер.dwg (корневые барьеры)", "xref_ДП.dwg", "xref_geo.dwg"]
+
+  - id: reexported_pen
+    seen_in: ["14. Куликовская улица (РЧ посадок линейный.dwg)"]
+    normalizers:
+      - {pattern: '^Новый_', replace: ''}
+      - {pattern: '_Ном\._пера__\d+$', replace: ''}
+    rules:
+      - {regex: '^Новый_РЧ ОЗ', type: mixed, status: proposed, note: "породы не в слоях; блоки дерево, дерево_2..5"}
+
+# Слои дендроизысканий (существующие деревья) — общие для большинства объектов
+dendro_survey_layers:
+  - {regex: '^!!!_1\.\s?Дендра_сохранить$',        status: keep}
+  - {regex: '^!!!_1\.\s?Дендра_вырубка$',          status: remove}
+  - {regex: '^!!!_1\.\s?Дендра_выноски_(сохранить|вырубка)', status: annotation}
+  - {regex: '^!!!_1\.\s?Дендра_номера[_ ](сохранить|вырубка)', status: annotation}
+  - {regex: '^!!!_1\.\s?Дендра_Аварийка',          status: hazardous}
+  - {regex: '^!!!_Дендрология учтено ранее',       status: keep_previous}
+  - {regex: '^!!!_1\.\s?Дендра_отсутствуют',       status: absent}
+  - {regex: '^!!!_1\.\s?ГРАНИЦА ДЕНДРОИЗЫСКАНИЙ',  status: survey_boundary}
+  - {regex: '^point02$',                            status: tree_number_text, note: "MTEXT номера = строки перечётной ведомости"}
+
+# Слой замечаний экспертизы ДПиООС
+review_layers:
+  - {regex: '^ЗАМЕЧАНИЯ_\d{2}\.\d{2}\.\d{2}$', note: "замечания ДПиООС с датой — потенциальная разметка «что отклоняют»"}

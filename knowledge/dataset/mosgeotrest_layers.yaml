@@ -1,0 +1,119 @@
+# Словарь слоёв геоподосновы Мосгеотреста (ИТП) → тип объекта для нормативного движка.
+#
+# Источник: прямое чтение тайлов датасета «Пилотный проект 20 улиц»
+# (5. Багрицкого, заявки 3ДЖКХ-24_02615 / 24_02619 / 25_05352 / 25_05352_1), 15.09.2026.
+# См. docs/13-pilot-dataset.md §6.
+#
+# obstacle — ключ, используемый в knowledge/rules/norms.yaml
+# geometry — как интерпретировать примитивы слоя
+# status   — existing (существующее) | projected (проектируемое)
+# confidence — 1.0 для канонических имён тайлов (тип закодирован именем слоя)
+
+meta:
+  version: "0.1.0"
+  updated: "2026-09-15"
+  tile_suffixes:
+    tp:  "топография"
+    up:  "подземные коммуникации (существующие)"
+    pp:  "проектируемые коммуникации"
+    kl:  "красные линии, технические и водоохранные зоны"
+    brd: "рамки планшетов и граница заказа"
+    edge: "служебные краевые файлы (не разбирались)"
+  filename_regex: '^(?:цвет_)?output\[[\d\-]+\]_(?:3_)?ДЖКХ(?:пр)?-\d{2}_?\d+(?:_\d+)?(tp|up|pp|kl)\.dwg$|^(?:цвет_)?output\[[\d\-]+\]_(brd|edge\d+)\.dwg$'
+  # нормализация имён слоёв в переэкспортированных подосновах (объекты уровня B)
+  layer_name_normalizers:
+    - {pattern: '^Новый_', replace: ''}
+    - {pattern: '_Ном\._пера__\d+$', replace: ''}
+    - {pattern: '^цвет_', replace: ''}
+    - {pattern: '\s+', replace: ' '}
+  # подписи сетей в слое up: разбор диаметра/материала/числа труб
+  annotation_regex:
+    diameter_mm: 'd\s*=\s*(?:(\d+)\s*[xх]\s*)?(\d+)'
+    material: '(ст\.|ж\.б\.|п/э|пэ|вчшг|ац\.|кер\.|б\.к\.)'
+    gas_pressure_low: 'н\.д\.'
+    cable_count: '^(\d+)к\.'
+    pipe_count: '^(\d+)тр\.'
+    casing_diameter_mm: 'ф-р\s*d\s*=\s*(\d+)'
+    depth_m: 'гл\.\s*(\d+[.,]\d+)'
+    channel_section_mm: '(\d{3,4})\s*[xх]\s*(\d{3,4})'
+
+layers:
+
+  # -------------------- up: подземные коммуникации (существующие) --------------------
+  - {layer: "Газопровод",               suffix: up, obstacle: gas_pipeline,        geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Водопровод",               suffix: up, obstacle: water_supply,        geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Промводопровод",           suffix: up, obstacle: water_supply,        geometry: polyline_axis, status: existing, confidence: 0.9, note: "технический водопровод; применяем нормы водопровода"}
+  - {layer: "Канализация самотёчная",   suffix: up, obstacle: sewer,               geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Канализация напорная",     suffix: up, obstacle: sewer_pressure,      geometry: polyline_axis, status: existing, confidence: 1.0, note: "в табл. 9.1 — «канализация»; в табл. 12.5 — вместе с водопроводом"}
+  - {layer: "Водосток",                 suffix: up, obstacle: sewer,               geometry: polyline_axis, status: existing, confidence: 0.9, note: "дождевая канализация; табл. 12.5 объединяет с самотёчной бытовой"}
+  - {layer: "Дренаж",                   suffix: up, obstacle: drainage,            geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Теплосеть",                suffix: up, obstacle: heating_network,     geometry: polyline_axis, status: existing, confidence: 1.0, note: "ширина канала — из подписи «d=2x250 1720х1100»"}
+  - {layer: "Кабель электрический",     suffix: up, obstacle: power_cable,         geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Кабель связи",             suffix: up, obstacle: communication_cable, geometry: polyline_axis, status: existing, confidence: 1.0}
+  - {layer: "Кабели",                   suffix: up, obstacle: cable_unknown,       geometry: polyline_axis, status: existing, confidence: 0.6, note: "тип кабеля не указан — применять строже из силового/связи"}
+  - {layer: "Кабель защиты",            suffix: up, obstacle: power_cable,         geometry: polyline_axis, status: existing, confidence: 0.7, note: "кабель электрохимической защиты; трактовать как силовой"}
+  - {layer: "Общий коллектор",          suffix: up, obstacle: utility_tunnel,      geometry: polyline_axis, status: existing, confidence: 1.0, note: "коммуникационный тоннель; табл. 12.5 «Каналы, коммуникационные тоннели»"}
+  - {layer: "Подземные коммуникации",   suffix: up, obstacle: network_unknown,     geometry: mixed,         status: existing, confidence: 0.4, note: "обобщённый слой — консервативный буфер"}
+
+  # -------------------- pp: проектируемые коммуникации --------------------
+  - {layer: "Газопровод проектный",               suffix: pp, obstacle: gas_pipeline,        geometry: polyline_axis, status: projected, confidence: 1.0}
+  - {layer: "Водопровод проектный",               suffix: pp, obstacle: water_supply,        geometry: polyline_axis, status: projected, confidence: 1.0}
+  - {layer: "Водосток проектный",                 suffix: pp, obstacle: sewer,               geometry: polyline_axis, status: projected, confidence: 0.9}
+  - {layer: "Канализация самотёчная проектная",   suffix: pp, obstacle: sewer,               geometry: polyline_axis, status: projected, confidence: 1.0}
+  - {layer: "Кабель электрический проектный",     suffix: pp, obstacle: power_cable,         geometry: polyline_axis, status: projected, confidence: 1.0}
+  - {layer: "Кабель связи проектный",             suffix: pp, obstacle: communication_cable, geometry: polyline_axis, status: projected, confidence: 1.0}
+  - {layer: "Кабели проектные",                   suffix: pp, obstacle: cable_unknown,       geometry: polyline_axis, status: projected, confidence: 0.6}
+
+  # -------------------- tp: топография --------------------
+  - {layer: "Здания",                         suffix: tp, obstacle: building_wall,       geometry: polygon_outline, confidence: 1.0}
+  - {layer: "Части зданий",                   suffix: tp, obstacle: building_wall,       geometry: polygon_outline, confidence: 0.9}
+  - {layer: "Крыльца",                        suffix: tp, obstacle: building_wall,       geometry: polygon_outline, confidence: 0.7, note: "выступающие части; можно трактовать как стену"}
+  - {layer: "Бортовой камень",                suffix: tp, obstacle: carriageway_edge,    geometry: polyline_edge,   confidence: 0.8, note: "борт отделяет проезжую часть; уточнять по заливкам _АБ ПЧ"}
+  - {layer: "Граница улицы",                  suffix: tp, obstacle: street_boundary,     geometry: polyline_edge,   confidence: 0.6, note: "контуры покрытий/тротуаров; семантику уточнять"}
+  - {layer: "Ограды",                         suffix: tp, obstacle: fence,               geometry: polyline_edge,   confidence: 1.0}
+  - {layer: "Откосы",                         suffix: tp, obstacle: slope_toe,           geometry: polyline_edge,   confidence: 0.7}
+  - {layer: "Отдельно стоящее дерево",        suffix: tp, obstacle: existing_tree,       geometry: symbol_point,    confidence: 0.9, note: "условные знаки из дуг/окружностей; центр = центр знака"}
+  - {layer: "Полоса деревьев",                suffix: tp, obstacle: existing_tree_row,   geometry: polyline_edge,   confidence: 0.8}
+  - {layer: "Леса и газоны",                  suffix: tp, obstacle: green_area,          geometry: polygon_outline, confidence: 0.7, note: "не препятствие — потенциальная зона посадки"}
+  - {layer: "Граница растительности и грунта", suffix: tp, obstacle: green_area_boundary, geometry: polyline_edge,  confidence: 0.6}
+  - {layer: "Колодцы",                        suffix: tp, obstacle: manhole,             geometry: symbol_point,    confidence: 1.0}
+  - {layer: "Люки",                           suffix: tp, obstacle: manhole,             geometry: symbol_point,    confidence: 1.0}
+  - {layer: "Фонари",                         suffix: tp, obstacle: lighting_pole,       geometry: symbol_point,    confidence: 1.0}
+  - {layer: "Светофоры",                      suffix: tp, obstacle: traffic_light_pole,  geometry: symbol_point,    confidence: 1.0}
+  - {layer: "Столбы",                         suffix: tp, obstacle: lighting_pole,       geometry: symbol_point,    confidence: 0.7}
+  - {layer: "Опоры контакной сети",           suffix: tp, obstacle: lighting_pole,       geometry: symbol_point,    confidence: 0.9, note: "табл. 9.1: «опора осветительной сети, трамвая»"}
+  - {layer: "ЛЭП",                            suffix: tp, obstacle: overhead_line,       geometry: polyline_axis,   confidence: 0.8, note: "класс напряжения — из подписей или консервативно"}
+  - {layer: "Указатель подз коммуникаций",    suffix: tp, obstacle: network_marker,      geometry: symbol_point,    confidence: 0.8}
+  - {layer: "Подземный переход",              suffix: tp, obstacle: underground_structure_roof, geometry: polygon_outline, confidence: 0.8}
+  - {layer: "Трубы под дорогами",             suffix: tp, obstacle: network_unknown,     geometry: polyline_axis,   confidence: 0.5}
+  - {layer: "Мосты",                          suffix: tp, obstacle: bridge_support,      geometry: polygon_outline, confidence: 0.8}
+  - {layer: "Навесы",                         suffix: tp, obstacle: structure,           geometry: polygon_outline, confidence: 0.7}
+  - {layer: "Фонтаны",                        suffix: tp, obstacle: structure,           geometry: polygon_outline, confidence: 0.7}
+  - {layer: "Памятники",                      suffix: tp, obstacle: structure,           geometry: symbol_point,    confidence: 0.5}
+  - {layer: "Горизонтали",                    suffix: tp, obstacle: null,                geometry: contour,         confidence: 1.0, note: "рельеф; не препятствие"}
+  - {layer: "Геодезические пункты",           suffix: tp, obstacle: survey_point,        geometry: symbol_point,    confidence: 1.0}
+  - {layer: "Номер дома",                     suffix: tp, obstacle: null,                geometry: text,            confidence: 1.0}
+
+  # -------------------- kl: красные линии и зоны --------------------
+  - {layer: "Красные линии", suffix: kl, obstacle: red_line, geometry: polyline_edge, confidence: 1.0,
+     text_subtypes: {"КРАСНАЯ": red_line, "ЛИНИЯ ЗАСТРОЙКИ": building_line, "ТЕХЗОНА": technical_zone, "ВОДООХРАННАЯ ЗОНА": water_protection_zone, "БЕРЕГОВАЯ ПОЛОСА": shore_strip}}
+
+  # -------------------- brd: рамки --------------------
+  - {layer: "Граница заказа",       suffix: brd, obstacle: survey_boundary, geometry: polygon_outline, confidence: 1.0, note: "граница съёмки — за её пределами данных нет"}
+  - {layer: "Рамки",                suffix: brd, obstacle: null, geometry: polygon_outline, confidence: 1.0}
+  - {layer: "Координатные кресты",  suffix: brd, obstacle: null, geometry: cross, confidence: 1.0}
+  - {layer: "Подписи рамок",        suffix: brd, obstacle: null, geometry: text, confidence: 1.0}
+
+# Вспомогательные xref главного чертежа проектировщика (не Мосгеотрест, но стабильные)
+auxiliary_layers:
+  - {layer_regex: 'Граница работ',             obstacle: site_boundary,  note: "замкнутый контур участка — внешняя граница допустимой зоны"}
+  - {layer_regex: '^C-ROAD-LINE$',             obstacle: street_axis,    note: "ось улицы из файла *_Ось.dwg"}
+  - {layer_regex: '^(БР|ГП)\s?\d',             obstacle: curb,           note: "бортовые камни проекта (БР 1000 300 150 и т.п.)"}
+  - {layer_regex: '^_ГЗН-ГЗН',                 obstacle: lawn_surface,   note: "HATCH заливки газона — зона возможной посадки"}
+  - {layer_regex: '^_АБ ПЧ',                   obstacle: carriageway_surface}
+  - {layer_regex: '^_(АБ|ПЛ) ТР',              obstacle: sidewalk_surface}
+  - {layer_regex: 'ДВ_ГП_П_МАФ',               obstacle: street_furniture}
+  - {layer_regex: 'ДВ_ГП_П_Павильон_ООТ',      obstacle: bus_shelter,    note: "ТСН 30-307-2002 п. 4.10.4: 2,0 м от боковых конструкций павильона до ствола"}
+  - {layer_regex: '(ИОТ\d_Сущ опора|ИОС_опора|опора НО)', obstacle: lighting_pole}
+  - {layer_regex: '^!!!_1\.\s?Дендра_сохранить', obstacle: existing_tree, note: "сохраняемые деревья (дендроплан)"}
+  - {layer_regex: '^!!!_1\.\s?Дендра_вырубка',   obstacle: tree_to_remove, note: "вырубаемые — не препятствие для новой посадки"}
