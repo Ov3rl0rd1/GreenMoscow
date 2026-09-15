@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from greenplan.domain.site import SiteModel
+from greenplan.explain.report_builder import ReportBuilder
+from greenplan.explain.report_model import PlantingReport
 from greenplan.placement.planting_plan import PlantingPlan, PlantingPlanComposer
 from greenplan.recognition.site_model_builder import SiteModelBuilder
 from greenplan.species.species_selector import SpeciesOutcome, SpeciesSelectorFactory
@@ -32,3 +34,14 @@ def bagritskogo_species(
 ) -> SpeciesOutcome:
     selector = SpeciesSelectorFactory.from_knowledge(knowledge_root).for_site(bagritskogo_site)
     return selector.assign(bagritskogo_plan.trees + bagritskogo_plan.shrubs)
+
+
+@pytest.fixture(scope="session")
+def bagritskogo_report(
+    bagritskogo_site: SiteModel,
+    bagritskogo_plan: PlantingPlan,
+    bagritskogo_species: SpeciesOutcome,
+    knowledge_root: Path,
+) -> PlantingReport:
+    builder = ReportBuilder.from_knowledge(knowledge_root)
+    return builder.build("Улица Багрицкого", bagritskogo_site, bagritskogo_plan, bagritskogo_species)

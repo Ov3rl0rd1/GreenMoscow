@@ -106,7 +106,8 @@ layers:
 
 # Вспомогательные xref главного чертежа проектировщика (не Мосгеотрест, но стабильные)
 auxiliary_layers:
-  - {layer_regex: 'Граница работ',             obstacle: site_boundary,  note: "замкнутый контур участка — внешняя граница допустимой зоны"}
+  - {layer_regex: '(?i)граница\s*(работ|благоустройства|проектирования)', obstacle: site_boundary, note: "контур участка — внешняя граница допустимой зоны; в датасете бывает незамкнутым или из кусков (RingAssembler: сшивка кусков до 2 м, замыкание до max(2 м, 0,1 % длины))"}
+  - {layer_regex: '(?i)^граница\s*заказа$',    obstacle: survey_boundary, note: "граница заказа с нестандартным регистром (Нижние Поля)"}
   - {layer_regex: '^C-ROAD-LINE$',             obstacle: street_axis,    note: "ось улицы из файла *_Ось.dwg"}
   - {layer_regex: '^(БР|ГП)\s?\d',             obstacle: curb,           note: "бортовые камни проекта (БР 1000 300 150 и т.п.)"}
   - {layer_regex: '^_ГЗН-ГЗН',                 obstacle: lawn_surface,   note: "HATCH заливки газона — зона возможной посадки"}

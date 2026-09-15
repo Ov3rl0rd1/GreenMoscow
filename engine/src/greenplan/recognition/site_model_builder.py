@@ -15,6 +15,7 @@ from greenplan.domain.obstacle_kinds import (
     UNDERGROUND_NETWORK_KINDS,
 )
 from greenplan.domain.site import PROJECTED_STATUS, Obstacle, SiteDiagnostics, SiteModel
+from greenplan.geometry.ring_assembler import RingAssembler
 from greenplan.geometry.shapes import linear_parts, polygonal_parts
 from greenplan.knowledge.layer_dictionary import LayerClassification, LayerDictionary
 from greenplan.knowledge.surface_codes import SurfaceCodeCatalog
@@ -22,7 +23,7 @@ from greenplan.recognition.existing_tree_extractor import ExistingTreeExtractor
 from greenplan.recognition.network_annotation_parser import NetworkAnnotationParser
 from greenplan.recognition.network_builder import NetworkBuilder
 from greenplan.recognition.settings import RecognitionSettings
-from greenplan.recognition.site_boundary_extractor import SiteBoundaryExtractor
+from greenplan.recognition.site_boundary_extractor import SiteBoundary, SiteBoundaryExtractor
 from greenplan.recognition.surface_classifier import SurfaceClassifier, SurfaceMap
 from greenplan.recognition.symbol_clusterer import SymbolClusterer
 
@@ -63,7 +64,14 @@ class SiteModelBuilder:
             network_builder=NetworkBuilder.from_settings(
                 NetworkAnnotationParser.from_file(layers_file), effective
             ),
-            boundary_extractor=SiteBoundaryExtractor(effective.minimum_boundary_area_m2),
+            boundary_extractor=SiteBoundaryExtractor(
+                effective.minimum_boundary_area_m2,
+                RingAssembler(
+                    effective.boundary_closure_tolerance_m,
+                    effective.boundary_contact_tolerance_m,
+                    effective.boundary_relative_closure_fraction,
+                ),
+            ),
             tree_extractor=ExistingTreeExtractor(clusterer, effective.survey_coverage_radius_m),
             symbol_clusterer=clusterer,
             settings=effective,
@@ -76,9 +84,7 @@ class SiteModelBuilder:
         obstacles = self._collect_obstacles(content, classifications, surfaces)
         trees = self._tree_extractor.extract(content.geometries, content.block_references, classifications)
         plantable = surfaces.lawn.intersection(boundary.area) if not surfaces.lawn.is_empty else boundary.area
-        diagnostics = self._diagnostics(
-            classifications, obstacles, unresolved_references, boundary.source, surfaces
-        )
+        diagnostics = self._diagnostics(classifications, obstacles, unresolved_references, boundary, surfaces)
         return SiteModel(
             boundary=boundary.area,
             plantable_surface=_as_areal(plantable),
@@ -171,7 +177,7 @@ class SiteModelBuilder:
         classifications: dict[str, LayerClassification],
         obstacles: Sequence[Obstacle],
         unresolved_references: Sequence[str],
-        boundary_source: str,
+        boundary: SiteBoundary,
         surfaces: SurfaceMap,
     ) -> SiteDiagnostics:
         networks = [obstacle for obstacle in obstacles if obstacle.kind in UNDERGROUND_NETWORK_KINDS]
@@ -185,7 +191,8 @@ class SiteModelBuilder:
                 sorted(layer for layer, item in classifications.items() if not item.is_known)
             ),
             unresolved_references=tuple(unresolved_references),
-            boundary_source=boundary_source,
+            boundary_source=boundary.source,
+            boundary_repairs=boundary.repairs,
             lawn_source=surfaces.lawn_source,
             annotated_network_share=annotated_length / total_length if total_length > 0 else 0.0,
         )

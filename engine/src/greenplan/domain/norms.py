@@ -97,3 +97,4 @@ class NormsDefaults:
     unknown_pipe_outer_diameter_m: float
     unknown_heating_channel_width_m: float
     trunk_diameter_at_planting_m: float
+    crown_rule_source_ref: str = ""

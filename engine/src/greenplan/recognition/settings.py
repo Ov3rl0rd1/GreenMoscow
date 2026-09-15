@@ -16,3 +16,6 @@ class RecognitionSettings:
     survey_coverage_radius_m: float = 25.0
     include_projected_networks: bool = True
     minimum_boundary_area_m2: float = 25.0
+    boundary_closure_tolerance_m: float = 2.0
+    boundary_contact_tolerance_m: float = 0.05
+    boundary_relative_closure_fraction: float = 0.001

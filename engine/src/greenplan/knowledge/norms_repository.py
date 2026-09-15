@@ -62,4 +62,5 @@ def _defaults_from(meta: dict) -> NormsDefaults:
         unknown_pipe_outer_diameter_m=float(defaults["unknown_pipe_outer_diameter_m"]),
         unknown_heating_channel_width_m=float(defaults["unknown_heating_channel_width_m"]),
         trunk_diameter_at_planting_m=float(defaults["trunk_diameter_at_planting_m"]),
+        crown_rule_source_ref=meta["crown_rule"]["source_ref"],
     )

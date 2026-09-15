@@ -7,6 +7,9 @@ EXISTING_STATUS = "existing"
 PROJECTED_STATUS = "projected"
 KEEP_TREE_STATUS = "keep"
 REMOVE_TREE_STATUS = "remove"
+BOUNDARY_GAP_CLOSED = "boundary_gap_closed"
+BOUNDARY_PIECES_JOINED = "boundary_pieces_joined"
+BOUNDARY_SELF_INTERSECTION_FIXED = "boundary_self_intersection_fixed"
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +33,12 @@ class ExistingTree:
 
 
 @dataclass(frozen=True, slots=True)
+class BoundaryRepair:
+    code: str
+    distance_m: float
+
+
+@dataclass(frozen=True, slots=True)
 class SiteDiagnostics:
     obstacle_counts: dict[str, int] = field(default_factory=dict)
     unknown_layers: tuple[str, ...] = ()
@@ -38,6 +47,7 @@ class SiteDiagnostics:
     lawn_source: str = ""
     annotated_network_share: float = 0.0
     warnings: tuple[str, ...] = ()
+    boundary_repairs: tuple[BoundaryRepair, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
