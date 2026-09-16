@@ -52,11 +52,22 @@ class TargetMetrics:
 
 
 @dataclass(frozen=True, slots=True)
+class ProposalQuality:
+    source: str
+    target: str
+    expected: int
+    predicted: int
+    count_ratio: float
+    chamfer_m: float
+
+
+@dataclass(frozen=True, slots=True)
 class ObjectEvaluation:
     object_id: str
     level: str
     metrics: tuple[TargetMetrics, ...]
     crown_mae_m: float
+    quality: tuple[ProposalQuality, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,29 +117,34 @@ class ModelEvaluator:
         raster = raster_from_features(features, np.asarray(stored.masks), grid, meta)
         heatmaps = self._model.predict(features)
         metrics: list[TargetMetrics] = []
+        quality: list[ProposalQuality] = []
         for target in (TREE, SHRUB):
             expected = meta.plantings_of(target)
             if not expected:
                 continue
             heat = heatmaps[self._model.channel_index(HEATMAP_CHANNEL_BY_TARGET[target])]
-            rule_score = self._rules[target].score(raster, RULE_SITE)
-            metrics.extend(self._metrics(MODEL_SOURCE, target, grid, heat, raster, expected))
-            metrics.extend(self._metrics(BASELINE_SOURCE, target, grid, rule_score, raster, expected))
+            scores = ((MODEL_SOURCE, heat), (BASELINE_SOURCE, self._rules[target].score(raster, RULE_SITE)))
+            for source, score in scores:
+                points = self._peaks(target, grid, score, raster, len(expected))
+                metrics.extend(self._metrics(source, target, expected, points))
+                quality.append(proposal_quality(source, target, expected, points))
         return ObjectEvaluation(
-            meta.object_id, meta.level, tuple(metrics), self._crown_error(stored, heatmaps, grid)
+            meta.object_id,
+            meta.level,
+            tuple(metrics),
+            self._crown_error(stored, heatmaps, grid),
+            tuple(quality),
         )
 
-    def _metrics(
-        self,
-        source: str,
-        target: str,
-        grid: RasterGrid,
-        score: np.ndarray,
-        raster: SiteRaster,
-        expected: Sequence[PlantingMeta],
-    ) -> list[TargetMetrics]:
+    def _peaks(
+        self, target: str, grid: RasterGrid, score: np.ndarray, raster: SiteRaster, limit: int
+    ) -> list[Point]:
         eligible = raster.allowed & (score > self._settings.minimum_score)
-        points = self._selector.select(grid, score, eligible, self._spacing(target), len(expected))
+        return self._selector.select(grid, score, eligible, self._spacing(target), limit)
+
+    def _metrics(
+        self, source: str, target: str, expected: Sequence[PlantingMeta], points: Sequence[Point]
+    ) -> list[TargetMetrics]:
         return [
             _scored(source, target, tolerance, expected, points, matched_count(points, expected, tolerance))
             for tolerance in self._settings.tolerances_m
@@ -189,6 +205,28 @@ def matched_count(points: Sequence[Point], expected: Sequence[PlantingMeta], tol
     return matched
 
 
+def proposal_quality(
+    source: str, target: str, expected: Sequence[PlantingMeta], points: Sequence[Point]
+) -> ProposalQuality:
+    return ProposalQuality(
+        source=source,
+        target=target,
+        expected=len(expected),
+        predicted=len(points),
+        count_ratio=round(len(points) / len(expected), 4) if expected else 0.0,
+        chamfer_m=round(chamfer_distance(points, expected), 3),
+    )
+
+
+def chamfer_distance(points: Sequence[Point], expected: Sequence[PlantingMeta]) -> float:
+    if not points or not expected:
+        return 0.0
+    predicted = np.array([[point.x, point.y] for point in points], dtype=float)
+    reference = np.array([[item.x, item.y] for item in expected], dtype=float)
+    distances = np.linalg.norm(predicted[:, None, :] - reference[None, :, :], axis=2)
+    return float((distances.min(axis=1).mean() + distances.min(axis=0).mean()) / 2)
+
+
 def totals_of(evaluations: Sequence[ObjectEvaluation]) -> tuple[TargetMetrics, ...]:
     grouped: dict[tuple[str, str, float], list[TargetMetrics]] = {}
     for evaluation in evaluations:
@@ -211,7 +249,22 @@ def render_markdown(report: EvaluationReport) -> str:
         lines.append(f"Средняя ошибка диаметра кроны: {evaluation.crown_mae_m:.2f} м")
         lines.append("")
         lines.extend(_markdown_table(evaluation.metrics))
+        if evaluation.quality:
+            lines.extend(["", *_quality_table(evaluation.quality)])
     return "\n".join(lines) + "\n"
+
+
+def _quality_table(quality: Sequence[ProposalQuality]) -> list[str]:
+    header = [
+        "| источник | цель | эталон | предложено | доля от эталона | среднее расхождение, м |",
+        "|---|---|---|---|---|---|",
+    ]
+    rows = [
+        f"| {item.source} | {item.target} | {item.expected} | {item.predicted} | "
+        f"{item.count_ratio:.2f} | {item.chamfer_m:.2f} |"
+        for item in quality
+    ]
+    return header + rows
 
 
 def _markdown_table(metrics: Sequence[TargetMetrics]) -> list[str]:

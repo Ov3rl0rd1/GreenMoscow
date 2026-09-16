@@ -17,6 +17,7 @@ from greenplan_ml.sample_store import stored_objects
 EXIT_OK = 0
 EXIT_ERROR = 1
 DEFAULT_OBJECTS_FILE = Path("knowledge/dataset/pilot_objects.yaml")
+DEFAULT_SAMPLES = SampleSettings()
 
 
 class Command(Protocol):
@@ -37,8 +38,8 @@ class BuildDatasetCommand:
         parser.add_argument("--objects", type=Path, default=DEFAULT_OBJECTS_FILE, help="YAML со списком пар")
         parser.add_argument("--levels", nargs="*", help="уровни объектов, например A")
         parser.add_argument("--only", nargs="*", help="id объектов, по умолчанию все выбранные")
-        parser.add_argument("--crop-size", type=int, default=SampleSettings.crop_size)
-        parser.add_argument("--stride", type=int, default=SampleSettings.stride)
+        parser.add_argument("--crop-size", type=int, default=DEFAULT_SAMPLES.crop_size)
+        parser.add_argument("--stride", type=int, default=DEFAULT_SAMPLES.stride)
         add_environment_arguments(parser)
         parser.set_defaults(command=self)
 
@@ -70,6 +71,7 @@ class TrainCommand:
         parser.add_argument("--profile", default="rtx3050", help="smoke, rtx3050 или gpu_large")
         parser.add_argument("--validation", nargs="*", default=(), help="id объектов для валидации")
         parser.add_argument("--epochs", type=int, help="переопределить число эпох профиля")
+        parser.add_argument("--batch-size", type=int, help="переопределить размер пакета профиля")
         parser.add_argument("--device", help="cuda, cpu")
         parser.add_argument("--seed", type=int, default=0)
         parser.set_defaults(command=self)
@@ -95,8 +97,15 @@ class TrainCommand:
         profile = PROFILES[arguments.profile]
         if arguments.epochs is not None:
             profile = replace(profile, epochs=arguments.epochs)
+        if arguments.batch_size is not None:
+            profile = replace(profile, batch_size=arguments.batch_size)
+        crop_size = objects[0].meta.crop_size
+        if crop_size != profile.crop_size:
+            print(f"Внимание: окна датасета {crop_size} px, профиль рассчитан на {profile.crop_size} px")
         seed_everything(arguments.seed)
         train, validation = split_objects(objects, arguments.validation)
+        if len(objects) == 1:
+            print("Внимание: один объект — он же используется для контроля, метрика валидации завышена")
         device = select_device(arguments.device)
         trainer = Trainer(HeatmapUNet(profile.unet_settings()), profile, device)
         history = trainer.fit(

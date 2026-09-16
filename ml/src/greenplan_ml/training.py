@@ -37,8 +37,8 @@ class TrainingProfile:
 
 PROFILES = {
     "smoke": TrainingProfile("smoke", 128, 2, 2, 3e-3, 16, 2, False, 0),
-    "rtx3050": TrainingProfile("rtx3050", 256, 4, 40, 1e-3, 32, 3, True, 2),
-    "gpu_large": TrainingProfile("gpu_large", 384, 16, 80, 1e-3, 48, 4, True, 6),
+    "rtx3050": TrainingProfile("rtx3050", 256, 8, 40, 1e-3, 32, 3, True, 2),
+    "gpu_large": TrainingProfile("gpu_large", 512, 32, 80, 1e-3, 48, 4, True, 6),
 }
 
 
@@ -200,6 +200,8 @@ def data_loader(dataset: CropDataset, profile: TrainingProfile, shuffle: bool) -
 def split_objects(
     objects: Sequence[StoredObject], validation_ids: Sequence[str]
 ) -> tuple[list[StoredObject], list[StoredObject]]:
+    if len(objects) == 1:
+        return list(objects), list(objects)
     wanted = set(validation_ids)
     validation = [item for item in objects if item.meta.object_id in wanted]
     train = [item for item in objects if item.meta.object_id not in wanted]

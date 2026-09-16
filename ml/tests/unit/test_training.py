@@ -88,6 +88,13 @@ def test_last_object_is_held_out_when_nothing_is_named(tmp_path: Path) -> None:
     assert [item.meta.object_id for item in validation] == ["second"]
 
 
+def test_single_object_is_used_for_both_training_and_validation(tmp_path: Path) -> None:
+    objects = [store_object(tmp_path, "only")]
+    train, validation = split_objects(objects, [])
+    assert [item.meta.object_id for item in train] == ["only"]
+    assert [item.meta.object_id for item in validation] == ["only"]
+
+
 def test_perfect_prediction_has_almost_no_loss() -> None:
     target = torch.zeros((1, TARGET_CHANNEL_COUNT, 8, 8))
     target[0, TREE_CHANNEL_INDEX, 4, 4] = 1.0
@@ -102,6 +109,24 @@ def test_missing_a_peak_costs_more_than_a_false_positive() -> None:
     invented = target.clone()
     invented[0, TREE_CHANNEL_INDEX, 6, 6] = 1.0
     assert float(loss(missed, target)) > float(loss(invented, target))
+
+
+def test_loss_falls_over_epochs_on_a_tiny_set(tmp_path: Path) -> None:
+    from greenplan_ml.model import HeatmapUNet
+    from greenplan_ml.training import seed_everything
+
+    seed_everything(0)
+    objects = [store_object(tmp_path / "data", "first", 3), store_object(tmp_path / "data", "second")]
+    train, validation = split_objects(objects, ["second"])
+    profile = replace(PROFILE, epochs=5)
+    trainer = Trainer(HeatmapUNet(profile.unet_settings()), profile, select_device("cpu"))
+    history = trainer.fit(
+        data_loader(CropDataset(train), profile, True),
+        data_loader(CropDataset(validation), profile, False),
+        tmp_path / "run",
+        0.5,
+    )
+    assert history.epochs[-1].train_loss < history.epochs[0].train_loss
 
 
 def test_training_writes_weights_and_history(tmp_path: Path) -> None:

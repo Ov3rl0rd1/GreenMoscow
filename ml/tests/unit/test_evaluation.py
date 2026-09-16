@@ -1,3 +1,4 @@
+import pytest
 from shapely.geometry import Point
 
 from greenplan.domain.norms import SHRUB, TREE
@@ -7,7 +8,9 @@ from greenplan_ml.evaluation import (
     EvaluationReport,
     ObjectEvaluation,
     TargetMetrics,
+    chamfer_distance,
     matched_count,
+    proposal_quality,
     render_markdown,
     totals_of,
 )
@@ -62,6 +65,30 @@ def test_totals_keep_sources_and_targets_apart() -> None:
         (BASELINE_SOURCE, TREE),
         (MODEL_SOURCE, SHRUB),
     }
+
+
+def test_identical_sets_have_no_chamfer_distance() -> None:
+    points = [Point(0.0, 0.0), Point(4.0, 0.0)]
+    assert chamfer_distance(points, reference((0.0, 0.0), (4.0, 0.0))) == pytest.approx(0.0)
+
+
+def test_chamfer_grows_with_the_offset() -> None:
+    near = chamfer_distance([Point(1.0, 0.0)], reference((0.0, 0.0)))
+    far = chamfer_distance([Point(5.0, 0.0)], reference((0.0, 0.0)))
+    assert near == pytest.approx(1.0)
+    assert far > near
+
+
+def test_chamfer_sees_a_missed_reference_even_when_one_point_is_exact() -> None:
+    distance = chamfer_distance([Point(0.0, 0.0)], reference((0.0, 0.0), (10.0, 0.0)))
+    assert distance == pytest.approx(2.5)
+
+
+def test_quality_reports_how_much_of_the_reference_was_filled() -> None:
+    quality = proposal_quality(MODEL_SOURCE, TREE, reference((0.0, 0.0), (5.0, 0.0)), [Point(0.0, 0.0)])
+    assert quality.expected == 2
+    assert quality.predicted == 1
+    assert quality.count_ratio == 0.5
 
 
 def test_markdown_report_lists_objects_and_totals() -> None:
