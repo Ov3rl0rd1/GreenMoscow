@@ -1,4 +1,5 @@
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -49,12 +50,16 @@ class PlanningPipeline:
         self._config = config
 
     def recognize(
-        self, input_path: Path, search_root: Path | None, timer: StageTimer | None = None
+        self,
+        input_path: Path,
+        search_root: Path | None,
+        timer: StageTimer | None = None,
+        overlays: Sequence[Path] = (),
     ) -> RecognizedSite:
         stages = timer or StageTimer()
         components = self._components
         with stages.stage(READ_STAGE):
-            drawing_set = components.drawing_set_builder.build(input_path, search_root)
+            drawing_set = components.drawing_set_builder.build(input_path, search_root, overlays)
             content = components.content_reader.read(drawing_set)
         with stages.stage(RECOGNIZE_STAGE):
             site = components.site_builder.build(content, drawing_set.unresolved_references)
@@ -69,7 +74,7 @@ class PlanningPipeline:
         generated_at = request.generated_at or current_timestamp()
         directory = request.output_directory
         directory.mkdir(parents=True, exist_ok=True)
-        recognized = self.recognize(request.input_path, request.search_root, timer)
+        recognized = self.recognize(request.input_path, request.search_root, timer, request.overlay_paths)
         site = recognized.site
         with timer.stage(PLACE_STAGE):
             plan = components.composer.compose(site)

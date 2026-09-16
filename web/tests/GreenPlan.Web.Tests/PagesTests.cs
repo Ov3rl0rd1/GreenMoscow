@@ -55,6 +55,25 @@ public sealed class PagesTests
     }
 
     [Fact]
+    public async Task SeveralDrawingsReachTheEngineTogether()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        var baseDrawing = new ByteArrayContent(Encoding.UTF8.GetBytes("0\nEOF"));
+        baseDrawing.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        content.Add(baseDrawing, "Form.Drawing", "base.dxf");
+        using var response = await client.PostAsync("/", content);
+        var submission = factory.Engine.LastSubmission;
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal(["street.dxf", "base.dxf"], submission?.FileNames);
+        Assert.Equal(["0\nSECTION", "0\nEOF"], submission?.Contents);
+    }
+
+    [Fact]
     public async Task UploadWithoutDrawingShowsValidationMessage()
     {
         using var factory = new GreenPlanWebFactory();

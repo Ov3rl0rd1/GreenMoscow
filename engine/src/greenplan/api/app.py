@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from greenplan import __version__
 from greenplan.api.job_repository import JobRepository
-from greenplan.api.job_service import JobService
+from greenplan.api.job_service import JobService, UploadedFile
 from greenplan.api.norms_view import norms_payload
 from greenplan.api.schemas import HealthResponse, JobResponse
 from greenplan.api.upload_storage import UploadStorage
@@ -57,15 +57,20 @@ def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: boo
     @app.post(f"{API_PREFIX}/jobs", response_model=JobResponse, status_code=HTTP_ACCEPTED, tags=["jobs"])
     async def create_job(
         background_tasks: BackgroundTasks,
-        drawing: Annotated[UploadFile, File(description="главный .dxf/.dwg или .zip папки объекта")],
+        drawing: Annotated[
+            list[UploadFile],
+            File(description="один или несколько .dxf/.dwg (генплан, подоснова) либо .zip папки объекта"),
+        ],
         title: Annotated[str, Form()] = DEFAULT_TITLE,
-        main_file: Annotated[str | None, Form(description="путь главного чертежа внутри .zip")] = None,
+        main_file: Annotated[
+            str | None, Form(description="главный чертёж; без него выбирается по имени и размеру")
+        ] = None,
         config: Annotated[UploadFile | None, File(description="YAML с настройками прогона")] = None,
     ) -> JobResponse:
-        content = await drawing.read()
+        uploads = [UploadedFile(item.filename or "", await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
-            record = service.create(drawing.filename or "", content, title, main_file, config_text)
+            record = service.create(uploads, title, main_file, config_text)
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
         background_tasks.add_task(service.execute, record.job_id)

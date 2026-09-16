@@ -75,18 +75,39 @@ def zipped(entries: dict[str, bytes]) -> bytes:
     return buffer.getvalue()
 
 
-def test_zip_upload_requires_main_file_when_several_drawings(
+def test_zip_upload_picks_the_main_drawing_or_takes_the_given_one(
     client: TestClient, drawing_bytes: bytes, tmp_path: Path
 ) -> None:
     extra = create_document()
     add_line(extra, "Борт", (0, 0), (1, 0))
     extra_bytes = save_document(extra, tmp_path / "extra.dxf").read_bytes()
     archive = zipped({"объект/главный.dxf": drawing_bytes, "объект/ссылки/борт.dxf": extra_bytes})
-    rejected = submit(client, {"drawing": ("объект.zip", archive)})
-    accepted = submit(client, {"drawing": ("объект.zip", archive)}, {"main_file": "объект/главный.dxf"})
-    assert rejected.status_code == 400
-    assert accepted.status_code == 202
-    assert client.get(f"{JOBS}/{accepted.json()['job_id']}").json()["status"] == SUCCEEDED
+    guessed = submit(client, {"drawing": ("объект.zip", archive)})
+    given = submit(client, {"drawing": ("объект.zip", archive)}, {"main_file": "объект/ссылки/борт.dxf"})
+    assert guessed.status_code == 202
+    assert guessed.json()["main_file"] == "объект/главный.dxf"
+    assert guessed.json()["overlay_files"] == []
+    assert given.json()["main_file"] == "объект/ссылки/борт.dxf"
+    assert client.get(f"{JOBS}/{guessed.json()['job_id']}").json()["status"] == SUCCEEDED
+
+
+def test_separate_general_plan_and_base_drawing_run_as_one_site(
+    client: TestClient, drawing_bytes: bytes, tmp_path: Path
+) -> None:
+    base = create_document()
+    add_line(base, "Водопровод", (-10, 12), (110, 12))
+    base_bytes = save_document(base, tmp_path / "base.dxf").read_bytes()
+    files = [
+        ("drawing", ("Геоподоснова.dxf", base_bytes)),
+        ("drawing", ("Генплан.dxf", drawing_bytes)),
+    ]
+    created = client.post(JOBS, files=files, data={"title": "Два файла"})
+    assert created.status_code == 202
+    assert created.json()["main_file"] == "Генплан.dxf"
+    assert created.json()["overlay_files"] == ["Геоподоснова.dxf"]
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == SUCCEEDED, job["error"]
+    assert job["summary"]["verification_valid"] is True
 
 
 @pytest.mark.parametrize(

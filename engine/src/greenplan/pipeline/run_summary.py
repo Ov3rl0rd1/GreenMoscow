@@ -32,6 +32,7 @@ class RunSummary:
             "generated_at": self.generated_at,
             "title": self.request.title,
             "input": str(self.request.input_path),
+            "overlays": [str(path) for path in self.request.overlay_paths],
             "output_dxf": str(self.output_dxf),
             "timings_s": self.timings_s,
             "total_s": round(sum(self.timings_s.values()), TIMING_DECIMALS),

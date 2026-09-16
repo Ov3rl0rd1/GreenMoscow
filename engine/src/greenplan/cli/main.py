@@ -6,6 +6,7 @@ from greenplan import __version__
 from greenplan.cli.commands import (
     EXIT_ERROR,
     Command,
+    ConvertCommand,
     InspectCommand,
     RunCommand,
     ServeCommand,
@@ -28,7 +29,7 @@ def build_parser(commands: Sequence[Command]) -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    commands = (RunCommand(), VerifyCommand(), InspectCommand(), ServeCommand())
+    commands = (RunCommand(), VerifyCommand(), InspectCommand(), ConvertCommand(), ServeCommand())
     arguments = build_parser(commands).parse_args(argv)
     try:
         return arguments.command.execute(arguments)

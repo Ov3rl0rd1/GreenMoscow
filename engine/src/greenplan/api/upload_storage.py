@@ -3,6 +3,7 @@ import zipfile
 from pathlib import Path
 
 from greenplan.domain.errors import InvalidUploadError
+from greenplan.ingest.input_selection import choose_main, prefer_dxf
 
 DRAWING_SUFFIXES = frozenset({".dxf", ".dwg"})
 ARCHIVE_SUFFIX = ".zip"
@@ -32,9 +33,9 @@ class UploadStorage:
             if candidate.suffix.lower() not in DRAWING_SUFFIXES:
                 raise InvalidUploadError(f"main_file must be a .dxf or .dwg drawing: {main_file}")
             return candidate
-        if len(drawings) == 1:
-            return drawings[0]
-        raise InvalidUploadError(f"main_file is required: the upload contains {len(drawings)} drawings")
+        if not drawings:
+            raise InvalidUploadError("the upload contains no .dxf or .dwg drawings")
+        return choose_main(prefer_dxf(drawings))
 
     def _extract(self, directory: Path, content: bytes) -> None:
         root = directory.resolve()
@@ -50,6 +51,10 @@ class UploadStorage:
                     target.write_bytes(archive.read(member))
         except zipfile.BadZipFile as error:
             raise InvalidUploadError(f"broken zip archive: {error}") from error
+
+
+def is_archive(file_name: str) -> bool:
+    return Path(file_name).suffix.lower() == ARCHIVE_SUFFIX
 
 
 def member_name(member: zipfile.ZipInfo) -> str:

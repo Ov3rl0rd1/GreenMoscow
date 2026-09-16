@@ -15,6 +15,7 @@ class JobResponse(BaseModel):
     upload_name: str
     main_file: str
     error: str | None
+    overlay_files: list[str] = []
     artifacts: list[str]
     summary: dict[str, Any]
 

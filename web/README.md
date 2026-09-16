@@ -7,7 +7,7 @@
 
 | Путь | Что это |
 |---|---|
-| `src/GreenPlan.Web/Pages/Index` | форма загрузки (.dxf/.dwg/.zip, название, главный чертёж в архиве, YAML настроек) и список расчётов |
+| `src/GreenPlan.Web/Pages/Index` | форма загрузки (один или несколько .dxf/.dwg — генплан, подоснова — или .zip; название; главный чертёж, если не выбирать автоматически; YAML настроек) и список расчётов |
 | `src/GreenPlan.Web/Pages/Jobs/Details` | статус с автообновлением, итоги, время этапов, превью, файлы |
 | `src/GreenPlan.Web/Services/EngineClient` | типизированный `HttpClient` к движку; ошибки сервиса → `EngineRequestException` |
 | `src/GreenPlan.Web/Endpoints/ArtifactEndpoints` | прокси файлов результата `/jobs/{id}/artifacts/{name}` |

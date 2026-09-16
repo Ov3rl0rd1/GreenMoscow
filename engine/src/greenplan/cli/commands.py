@@ -8,6 +8,9 @@ import uvicorn
 
 from greenplan.domain.errors import ConfigurationError
 from greenplan.domain.norms import TREE
+from greenplan.ingest.dwg_converter import LibreDwgConverter
+from greenplan.ingest.folder_converter import FolderConverter
+from greenplan.ingest.input_selection import DrawingInputs, DrawingInputSelector
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.pipeline.pipeline_request import PipelineRequest
@@ -47,8 +50,13 @@ class RunCommand:
 
     def execute(self, arguments: argparse.Namespace) -> int:
         pipeline = build_pipeline(arguments)
+        inputs = select_inputs(arguments)
         request = PipelineRequest(
-            arguments.input, arguments.output, arguments.title or arguments.input.stem, arguments.search_root
+            inputs.main,
+            arguments.output,
+            arguments.title or inputs.main.stem,
+            inputs.search_root,
+            overlay_paths=inputs.overlays,
         )
         result = pipeline.run(request)
         print_run(result)
@@ -67,8 +75,9 @@ class VerifyCommand:
 
     def execute(self, arguments: argparse.Namespace) -> int:
         pipeline = build_pipeline(arguments)
+        inputs = select_inputs(arguments)
         report = pipeline.verify_output(
-            pipeline.recognize(arguments.input, arguments.search_root), arguments.dxf
+            pipeline.recognize(inputs.main, inputs.search_root, overlays=inputs.overlays), arguments.dxf
         )
         if arguments.report_dir is not None:
             write_verification_json(report, arguments.report_dir)
@@ -86,10 +95,14 @@ class InspectCommand:
         parser.set_defaults(command=self)
 
     def execute(self, arguments: argparse.Namespace) -> int:
-        recognized = build_pipeline(arguments).recognize(arguments.input, arguments.search_root)
+        inputs = select_inputs(arguments)
+        recognized = build_pipeline(arguments).recognize(
+            inputs.main, inputs.search_root, overlays=inputs.overlays
+        )
         site = recognized.site
         payload = {
             "main": str(recognized.drawing_set.main.path),
+            "overlays": [str(path) for path in inputs.overlays],
             "references": [str(drawing.path) for drawing in recognized.drawing_set.references],
             "unresolved_references": list(recognized.drawing_set.unresolved_references),
             "boundary_area_m2": round(site.boundary.area, 1),
@@ -99,6 +112,33 @@ class InspectCommand:
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return EXIT_OK
+
+
+class ConvertCommand:
+    name = "convert"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(
+            self.name, help="перевести папку объекта из DWG в DXF с сохранением структуры"
+        )
+        parser.add_argument("--input", required=True, type=Path, help="папка с DWG/DXF")
+        parser.add_argument("--output", required=True, type=Path, help="куда положить DXF")
+        parser.add_argument("--knowledge", type=Path, help="каталог knowledge/")
+        parser.add_argument("--cache", type=Path, help="кеш сконвертированных DXF")
+        parser.add_argument("--dwg2dxf", type=Path, help="путь к dwg2dxf")
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        knowledge_root = locate_knowledge_root(arguments.knowledge)
+        executable = locate_dwg2dxf(arguments.dwg2dxf, knowledge_root)
+        if executable is None:
+            raise ConfigurationError("dwg2dxf не найден: укажите --dwg2dxf или GREENPLAN_DWG2DXF")
+        converter = LibreDwgConverter(executable, resolve_cache_directory(arguments.cache, knowledge_root))
+        result = FolderConverter(converter).convert(arguments.input, arguments.output)
+        print(f"Сконвертировано: {len(result.converted)}, скопировано DXF: {len(result.copied)}")
+        for source, reason in result.failed.items():
+            print(f"Ошибка: {source}: {reason}")
+        return EXIT_OK if not result.failed else EXIT_ERROR
 
 
 class ServeCommand:
@@ -122,7 +162,14 @@ class ServeCommand:
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:
     parser.set_defaults(model=None, no_ml=False)
-    parser.add_argument("--input", required=True, type=Path, help="главный DWG/DXF объекта")
+    parser.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        nargs="+",
+        help="чертежи объекта: один или несколько DXF/DWG либо каталог (генплан, подоснова и т. п.)",
+    )
+    parser.add_argument("--main", type=Path, help="главный чертёж, если во входе их несколько")
     parser.add_argument(
         "--search-root", type=Path, help="где искать внешние ссылки (по умолчанию — папка входа)"
     )
@@ -130,6 +177,13 @@ def add_environment_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--knowledge", type=Path, help="каталог knowledge/")
     parser.add_argument("--cache", type=Path, help="кеш сконвертированных DXF")
     parser.add_argument("--dwg2dxf", type=Path, help="путь к dwg2dxf")
+
+
+def select_inputs(arguments: argparse.Namespace) -> DrawingInputs:
+    inputs = DrawingInputSelector().select(arguments.input, arguments.main)
+    if arguments.search_root is None:
+        return inputs
+    return DrawingInputs(inputs.main, inputs.overlays, arguments.search_root)
 
 
 def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:

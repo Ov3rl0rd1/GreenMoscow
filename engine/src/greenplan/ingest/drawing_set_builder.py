@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -30,12 +31,24 @@ class DrawingSetBuilder:
         self._reference_reader = reference_reader
         self._max_xref_depth = max_xref_depth
 
-    def build(self, main_path: Path, search_root: Path | None = None) -> DrawingSet:
+    def build(
+        self, main_path: Path, search_root: Path | None = None, overlays: Sequence[Path] = ()
+    ) -> DrawingSet:
         locator = XrefFileLocator(search_root or main_path.parent)
         main = LoadedDrawing(main_path.stem, main_path, self._opener.open(main_path), Matrix44(), True)
         state = _TraversalState(visited_paths={main_path.resolve()})
         self._load_references_of(main, locator, state, depth=1)
+        for overlay_path in overlays:
+            self._load_overlay(overlay_path, locator, state)
         return DrawingSet(main, tuple(state.loaded), tuple(state.unresolved))
+
+    def _load_overlay(self, path: Path, locator: XrefFileLocator, state: _TraversalState) -> None:
+        if path.resolve() in state.visited_paths:
+            return
+        state.visited_paths.add(path.resolve())
+        overlay = LoadedDrawing(path.stem, path, self._opener.open(path), Matrix44(), False)
+        state.loaded.append(overlay)
+        self._load_references_of(overlay, locator, state, depth=1)
 
     def _load_references_of(
         self, parent: LoadedDrawing, locator: XrefFileLocator, state: _TraversalState, depth: int

@@ -9,3 +9,4 @@ class PipelineRequest:
     title: str
     search_root: Path | None = None
     generated_at: str | None = None
+    overlay_paths: tuple[Path, ...] = ()

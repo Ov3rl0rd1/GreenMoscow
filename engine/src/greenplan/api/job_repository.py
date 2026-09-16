@@ -25,6 +25,7 @@ class JobRecord:
     upload_name: str
     main_file: str
     error: str | None = None
+    overlay_files: list[str] = field(default_factory=list)
     artifacts: list[str] = field(default_factory=list)
     summary: dict[str, Any] = field(default_factory=dict)
 

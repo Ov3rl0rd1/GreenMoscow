@@ -14,8 +14,11 @@ public sealed class EngineClientTests
     private static EngineClient ClientFor(FakeHttpMessageHandler handler) =>
         new(new HttpClient(handler) { BaseAddress = EngineAddress });
 
+    private static UploadedDrawing Drawing(string fileName) =>
+        new(new MemoryStream(Encoding.UTF8.GetBytes("0\nSECTION")), fileName);
+
     private static JobSubmission Submission(string? mainFile = null, string? config = null) =>
-        new(new MemoryStream(Encoding.UTF8.GetBytes("0\nSECTION")), "street.dxf", "Улица", mainFile, config);
+        new([Drawing("street.dxf")], "Улица", mainFile, config);
 
     [Fact]
     public async Task CreateJobSendsEveryFormFieldAndReadsJob()
@@ -35,6 +38,24 @@ public sealed class EngineClientTests
         Assert.Contains("cell_size_m", request.Body);
         Assert.Equal(TestJobs.SucceededId, job.JobId);
     }
+
+    [Fact]
+    public async Task SeveralDrawingsAreSentAsRepeatedParts()
+    {
+        var handler = FakeHttpMessageHandler.Returning(HttpStatusCode.Accepted, TestJobs.SucceededJson);
+        var submission = new JobSubmission(
+            [Drawing("plan.dxf"), Drawing("base.dxf")], "Улица", null, null);
+
+        await ClientFor(handler).CreateJobAsync(submission, CancellationToken.None);
+        var body = handler.Requests.Single().Body ?? string.Empty;
+
+        Assert.Equal(2, CountOccurrences(body, "name=drawing"));
+        Assert.Contains("plan.dxf", body);
+        Assert.Contains("base.dxf", body);
+    }
+
+    private static int CountOccurrences(string text, string fragment) =>
+        (text.Length - text.Replace(fragment, string.Empty, StringComparison.Ordinal).Length) / fragment.Length;
 
     [Fact]
     public async Task JobSummaryKeepsSnakeCaseNumbersAndFlags()

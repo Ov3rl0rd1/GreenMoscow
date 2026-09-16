@@ -1,13 +1,14 @@
 import shutil
 import uuid
-from collections.abc import Callable
-from dataclasses import replace
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 from greenplan.api.job_repository import FAILED, QUEUED, RUNNING, SUCCEEDED, JobRecord, JobRepository
-from greenplan.api.upload_storage import UploadStorage
-from greenplan.domain.errors import GreenPlanError, JobNotFoundError
+from greenplan.api.upload_storage import UploadStorage, is_archive
+from greenplan.domain.errors import GreenPlanError, InvalidUploadError, JobNotFoundError
+from greenplan.ingest.input_selection import prefer_dxf, unique_paths
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
 from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
@@ -18,6 +19,18 @@ CONFIG_FILE_NAME = "config.yaml"
 
 PipelineFactory = Callable[[RunConfig], PlanningPipeline]
 Clock = Callable[[], str]
+
+
+@dataclass(frozen=True, slots=True)
+class UploadedFile:
+    name: str
+    content: bytes
+
+
+@dataclass(frozen=True, slots=True)
+class StoredInputs:
+    main: Path
+    overlays: tuple[Path, ...]
 
 
 class JobService:
@@ -36,14 +49,20 @@ class JobService:
         self._clock = clock
 
     def create(
-        self, upload_name: str, content: bytes, title: str, main_file: str | None, config_text: str | None
+        self,
+        uploads: Sequence[UploadedFile],
+        title: str,
+        main_file: str | None,
+        config_text: str | None,
     ) -> JobRecord:
+        if not uploads:
+            raise InvalidUploadError("no drawings were uploaded")
         job_id = uuid.uuid4().hex
         directory = self._repository.directory(job_id)
         input_directory = directory / INPUT_DIRECTORY
         input_directory.mkdir(parents=True)
         try:
-            main = self._stored_main(input_directory, upload_name, content, main_file)
+            stored = self._stored_inputs(input_directory, uploads, main_file)
             self._store_config(directory, config_text)
         except GreenPlanError:
             shutil.rmtree(directory, ignore_errors=True)
@@ -55,8 +74,9 @@ class JobService:
             title=title,
             created_at=now,
             updated_at=now,
-            upload_name=upload_name,
-            main_file=main.relative_to(input_directory.resolve()).as_posix(),
+            upload_name=", ".join(upload.name for upload in uploads),
+            main_file=relative_name(stored.main, input_directory),
+            overlay_files=[relative_name(path, input_directory) for path in stored.overlays],
         )
         self._repository.save(record)
         return record
@@ -85,11 +105,21 @@ class JobService:
             raise JobNotFoundError(f"artifact not found: {name}")
         return self._repository.directory(job_id) / OUTPUT_DIRECTORY / name
 
-    def _stored_main(
-        self, input_directory: Path, upload_name: str, content: bytes, main_file: str | None
-    ) -> Path:
-        drawings = self._storage.store(input_directory, upload_name, content)
-        return self._storage.resolve_main(input_directory, drawings, main_file).resolve()
+    def _stored_inputs(
+        self, input_directory: Path, uploads: Sequence[UploadedFile], main_file: str | None
+    ) -> StoredInputs:
+        drawings: list[Path] = []
+        direct: list[Path] = []
+        for upload in uploads:
+            stored = self._storage.store(input_directory, upload.name, upload.content)
+            drawings.extend(stored)
+            if not is_archive(upload.name):
+                direct.extend(stored)
+        main = self._storage.resolve_main(input_directory, unique_paths(drawings), main_file).resolve()
+        overlays = tuple(
+            path.resolve() for path in prefer_dxf(unique_paths(direct)) if path.resolve() != main
+        )
+        return StoredInputs(main, overlays)
 
     def _store_config(self, directory: Path, config_text: str | None) -> None:
         if not config_text:
@@ -108,6 +138,7 @@ class JobService:
             title=record.title,
             search_root=input_directory,
             generated_at=self._clock(),
+            overlay_paths=tuple(input_directory / name for name in record.overlay_files),
         )
         return self._pipeline_factory(config).run(request)
 
@@ -115,6 +146,10 @@ class JobService:
         updated = replace(record, updated_at=self._clock(), **changes)
         self._repository.save(updated)
         return updated
+
+
+def relative_name(path: Path, directory: Path) -> str:
+    return path.relative_to(directory.resolve()).as_posix()
 
 
 def job_summary(result: PipelineResult) -> dict[str, Any]:

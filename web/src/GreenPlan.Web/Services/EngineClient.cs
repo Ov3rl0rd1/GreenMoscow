@@ -83,9 +83,13 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
     private static MultipartFormDataContent BuildJobContent(JobSubmission submission)
     {
         var content = new MultipartFormDataContent();
-        var drawing = new StreamContent(submission.Drawing);
-        drawing.Headers.ContentType = new MediaTypeHeaderValue(DefaultContentType);
-        content.Add(drawing, "drawing", submission.FileName);
+        foreach (var drawing in submission.Drawings)
+        {
+            var part = new StreamContent(drawing.Content);
+            part.Headers.ContentType = new MediaTypeHeaderValue(DefaultContentType);
+            content.Add(part, "drawing", drawing.FileName);
+        }
+
         content.Add(new StringContent(submission.Title), "title");
         if (!string.IsNullOrWhiteSpace(submission.MainFile))
         {

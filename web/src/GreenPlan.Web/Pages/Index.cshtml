@@ -25,7 +25,7 @@
         <div asp-validation-summary="ModelOnly" class="alert-list"></div>
 
         <label asp-for="Form.Drawing"></label>
-        <input asp-for="Form.Drawing" type="file" accept=".dxf,.dwg,.zip" />
+        <input asp-for="Form.Drawing" type="file" accept=".dxf,.dwg,.zip" multiple />
         <span asp-validation-for="Form.Drawing" class="field-error"></span>
 
         <label asp-for="Form.Title"></label>
@@ -33,7 +33,7 @@
         <span asp-validation-for="Form.Title" class="field-error"></span>
 
         <label asp-for="Form.MainFile"></label>
-        <input asp-for="Form.MainFile" placeholder="Исходные данные/ГП и ПБ ул Багрицкого.dwg" />
+        <input asp-for="Form.MainFile" placeholder="Генплан.dxf" />
 
         <label asp-for="Form.Config"></label>
         <input asp-for="Form.Config" type="file" accept=".yaml,.yml" />

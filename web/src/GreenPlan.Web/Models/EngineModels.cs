@@ -12,11 +12,18 @@ public sealed record JobDto(
     string MainFile,
     string? Error,
     IReadOnlyList<string> Artifacts,
-    IReadOnlyDictionary<string, JsonElement> Summary);
+    IReadOnlyDictionary<string, JsonElement> Summary,
+    IReadOnlyList<string>? OverlayFiles = null);
 
 public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable);
 
-public sealed record JobSubmission(Stream Drawing, string FileName, string Title, string? MainFile, string? ConfigYaml);
+public sealed record UploadedDrawing(Stream Content, string FileName);
+
+public sealed record JobSubmission(
+    IReadOnlyList<UploadedDrawing> Drawings,
+    string Title,
+    string? MainFile,
+    string? ConfigYaml);
 
 public sealed record EngineArtifact(byte[] Content, string ContentType);
 

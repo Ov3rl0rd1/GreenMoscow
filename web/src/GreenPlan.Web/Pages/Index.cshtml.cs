@@ -24,7 +24,7 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid || Form.Drawing is null)
+        if (!ModelState.IsValid || Form.Drawing.Count == 0)
         {
             await LoadOverviewAsync(cancellationToken);
             return Page();
@@ -43,12 +43,22 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
         }
     }
 
-    private async Task<JobDto> SubmitAsync(IFormFile drawing, CancellationToken cancellationToken)
+    private async Task<JobDto> SubmitAsync(IReadOnlyList<IFormFile> drawings, CancellationToken cancellationToken)
     {
-        await using var drawingStream = drawing.OpenReadStream();
-        var configYaml = await ReadTextAsync(Form.Config, cancellationToken);
-        var submission = new JobSubmission(drawingStream, drawing.FileName, Form.Title, Form.MainFile, configYaml);
-        return await engine.CreateJobAsync(submission, cancellationToken);
+        var uploads = drawings.Select(file => new UploadedDrawing(file.OpenReadStream(), file.FileName)).ToList();
+        try
+        {
+            var configYaml = await ReadTextAsync(Form.Config, cancellationToken);
+            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml);
+            return await engine.CreateJobAsync(submission, cancellationToken);
+        }
+        finally
+        {
+            foreach (var upload in uploads)
+            {
+                await upload.Content.DisposeAsync();
+            }
+        }
     }
 
     private async Task LoadOverviewAsync(CancellationToken cancellationToken)

@@ -28,3 +28,7 @@ class InvalidUploadError(GreenPlanError):
 
 class JobNotFoundError(GreenPlanError):
     pass
+
+
+class InvalidInputError(GreenPlanError):
+    pass

@@ -4,7 +4,17 @@ using GreenPlan.Web.Services;
 
 namespace GreenPlan.Web.Tests.Support;
 
-public sealed record SubmittedJob(string FileName, string Title, string? MainFile, string? ConfigYaml, string Content);
+public sealed record SubmittedJob(
+    IReadOnlyList<string> FileNames,
+    string Title,
+    string? MainFile,
+    string? ConfigYaml,
+    IReadOnlyList<string> Contents)
+{
+    public string FileName => FileNames[0];
+
+    public string Content => Contents[0];
+}
 
 public sealed class FakeEngineClient : IEngineClient
 {
@@ -21,19 +31,24 @@ public sealed class FakeEngineClient : IEngineClient
 
     public Task<JobDto> CreateJobAsync(JobSubmission submission, CancellationToken cancellationToken)
     {
-        using var reader = new StreamReader(submission.Drawing, Encoding.UTF8, leaveOpen: true);
         LastSubmission = new SubmittedJob(
-            submission.FileName,
+            submission.Drawings.Select(drawing => drawing.FileName).ToList(),
             submission.Title,
             submission.MainFile,
             submission.ConfigYaml,
-            reader.ReadToEnd());
+            submission.Drawings.Select(drawing => ReadAll(drawing.Content)).ToList());
         if (CreateFailure is not null)
         {
             return Task.FromException<JobDto>(CreateFailure);
         }
 
         return Task.FromResult(Jobs[0]);
+    }
+
+    private static string ReadAll(Stream stream)
+    {
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+        return reader.ReadToEnd();
     }
 
     public Task<JobDto?> GetJobAsync(string jobId, CancellationToken cancellationToken) =>
