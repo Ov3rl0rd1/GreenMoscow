@@ -50,6 +50,7 @@ class PlanLayerWriter:
         counts: Counter[str] = Counter()
         for plant in report.plants:
             counts[self._write_plant(document, modelspace, symbols, plant)] += 1
+        counts.update(self._write_root_barriers(document, modelspace, report))
         if self._settings.include_rejections:
             for rejection in report.rejections:
                 counts[self._write_rejection(document, modelspace, symbols, rejection)] += 1
@@ -97,6 +98,18 @@ class PlanLayerWriter:
         )
         self._attach_identity(insert, plant, layer)
         return layer
+
+    def _write_root_barriers(
+        self, document: Drawing, modelspace: Modelspace, report: PlantingReport
+    ) -> Counter[str]:
+        lines = [line for plant in report.plants for line in plant.root_barriers]
+        if not lines:
+            return Counter()
+        settings = self._settings
+        layer = self._layer(document, (settings.root_barrier_layer_stem,), settings.root_barrier_color)
+        for points in lines:
+            modelspace.add_lwpolyline(list(points), dxfattribs={"layer": layer})
+        return Counter({layer: len(lines)})
 
     def _write_rejection(
         self,
@@ -190,6 +203,7 @@ class PlanLayerWriter:
             f"Сформировано: {generated_at}",
             f"Деревьев: {summary.trees}; кустарников: {summary.shrubs}; "
             f"условно: {summary.conditional}; отказов: {summary.rejected}",
+            f"Корнезащита: {format_number(summary.root_barrier_length_m)} м",
             f"Слои результата: {settings.layer_prefix}{SEPARATOR}*",
         )
         min_x, _min_y, _max_x, max_y = (

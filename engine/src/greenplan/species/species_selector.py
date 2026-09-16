@@ -11,6 +11,8 @@ from greenplan.constraints.clearance_meter import ClearanceMeter
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.requirement_resolver import RequirementResolver
 from greenplan.domain.decisions import (
+    ACCEPTED,
+    CONDITIONALLY_ACCEPTED,
     NO_SUITABLE_SPECIES,
     REJECTED,
     PlantCandidate,
@@ -24,6 +26,9 @@ from greenplan.knowledge.plant_catalog import PlantCatalog, Species
 from greenplan.species.site_context import PlantingContext, SiteContextDetector
 from greenplan.species.species_settings import SpeciesSettings
 from greenplan.species.species_suitability import RankedSpecies, SelectionReason, SpeciesSuitability
+
+STATUS_RANK = {ACCEPTED: 0, CONDITIONALLY_ACCEPTED: 1}
+BEST_ASSIGNMENT_RANK = (0, 0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,16 +111,17 @@ class SpeciesSelector:
         target = decision.candidate.target
         context = self._detector.detect(position)
         ranked = self._diversified(self._suitability.ranked(target, context), target, usage)
-        fallback: SpeciesAssignment | None = None
+        best: SpeciesAssignment | None = None
         for item in neighbour_species_first(ranked, memory.species_near(position)):
             evaluated = self._evaluator.evaluate(with_species(decision.candidate, item.species))
             if evaluated.status == REJECTED:
                 continue
             assignment = SpeciesAssignment(evaluated, item.species, context, item.invasive, item.reasons)
-            if not evaluated.advisory_clearances:
+            if assignment_rank(assignment) == BEST_ASSIGNMENT_RANK:
                 return assignment
-            fallback = fallback or assignment
-        return fallback
+            if best is None or assignment_rank(assignment) < assignment_rank(best):
+                best = assignment
+        return best
 
     def _diversified(
         self, ranked: Sequence[RankedSpecies], target: str, usage: "_SpeciesUsage"
@@ -124,6 +130,14 @@ class SpeciesSelector:
         return sorted(
             ranked, key=lambda item: -(item.score - penalty * usage.share(target, item.species.key))
         )
+
+
+def assignment_rank(assignment: SpeciesAssignment) -> tuple[int, int]:
+    decision = assignment.decision
+    return (
+        STATUS_RANK.get(decision.status, len(STATUS_RANK)),
+        1 if decision.advisory_clearances else 0,
+    )
 
 
 class _SpeciesUsage:
@@ -161,7 +175,9 @@ class SpeciesSelectorFactory:
         effective = settings or SpeciesSettings()
         constraints = design or DesignConstraints()
         repository = NormsRepository.from_knowledge(knowledge_root)
-        resolver = RequirementResolver(repository, constraints.unknown_overhead_voltage_kv)
+        resolver = RequirementResolver(
+            repository, constraints.unknown_overhead_voltage_kv, constraints.active_activations()
+        )
         evaluator_factory = CandidateEvaluatorFactory(
             resolver, ClearanceMeter(repository.defaults), constraints
         )

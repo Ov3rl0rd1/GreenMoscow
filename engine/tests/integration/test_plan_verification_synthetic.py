@@ -3,6 +3,7 @@ from pathlib import Path
 import ezdxf
 import pytest
 
+from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.decisions import ACCEPTED
 from greenplan.verify.plan_verifier import PlanVerifier
 from greenplan.verify.verification_model import (
@@ -28,6 +29,18 @@ def run(knowledge_root: Path, tmp_path_factory: pytest.TempPathFactory) -> Expor
 @pytest.fixture(scope="module")
 def verifier(knowledge_root: Path) -> PlanVerifier:
     return PlanVerifier.from_knowledge(knowledge_root)
+
+
+@pytest.fixture(scope="module")
+def table_verifier(knowledge_root: Path) -> PlanVerifier:
+    return PlanVerifier.from_knowledge(knowledge_root, design=DesignConstraints(allow_root_barriers=False))
+
+
+@pytest.fixture(scope="module")
+def zone_verifier(knowledge_root: Path) -> PlanVerifier:
+    return PlanVerifier.from_knowledge(
+        knowledge_root, design=DesignConstraints(apply_protection_zones=True, allow_root_barriers=False)
+    )
 
 
 def first_tree_insert(document):
@@ -74,17 +87,17 @@ def test_injected_tree_on_gas_pipeline_is_caught(
         add_tree_copy(document, first_tree_insert(document), "T-9999", (50.0, 15.0), ACCEPTED)
 
     report = verifier.verify(run.source, tampered_output(run, tmp_path / "gas.dxf", inject), run.site)
-    assert "sp42_gas_tree" in codes_for(report, "T-9999")
+    assert "sp42_gas_tree_root_barrier" in codes_for(report, "T-9999")
     assert not report.is_valid
 
 
 def test_accepted_tree_inside_protection_zone_is_caught(
-    run: ExportRun, verifier: PlanVerifier, tmp_path: Path
+    run: ExportRun, zone_verifier: PlanVerifier, tmp_path: Path
 ) -> None:
     def inject(document) -> None:
         add_tree_copy(document, first_tree_insert(document), "T-9998", (97.0, 13.2), ACCEPTED)
 
-    report = verifier.verify(run.source, tampered_output(run, tmp_path / "zone.dxf", inject), run.site)
+    report = zone_verifier.verify(run.source, tampered_output(run, tmp_path / "zone.dxf", inject), run.site)
     assert CONDITION_NOT_DECLARED in codes_for(report, "T-9998")
 
 
@@ -128,3 +141,13 @@ def test_verification_reports_are_written(run: ExportRun, verifier: PlanVerifier
     assert json_path.name == JSON_VERIFICATION_NAME
     assert '"is_valid": true' in json_path.read_text(encoding="utf-8")
     assert "**пройдена**" in markdown_path.read_text(encoding="utf-8")
+
+
+def test_accepted_tree_inside_protection_zone_passes_by_default(
+    run: ExportRun, table_verifier: PlanVerifier, tmp_path: Path
+) -> None:
+    def inject(document) -> None:
+        add_tree_copy(document, first_tree_insert(document), "T-9998", (97.0, 13.2), ACCEPTED)
+
+    report = table_verifier.verify(run.source, tampered_output(run, tmp_path / "zone.dxf", inject), run.site)
+    assert CONDITION_NOT_DECLARED not in codes_for(report, "T-9998")

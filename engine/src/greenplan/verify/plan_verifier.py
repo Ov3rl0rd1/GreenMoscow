@@ -64,6 +64,7 @@ class PlanVerifier:
                 constraints.unknown_overhead_voltage_kv,
                 effective.distance_tolerance_m,
                 effective.obstacle_search_margin_m,
+                constraints.active_activations(),
             ),
             limits_resolver=PlantingLimitsResolver(repository, placement_settings),
             integrity_checker=SourceIntegrityChecker(EntityFingerprinter()),

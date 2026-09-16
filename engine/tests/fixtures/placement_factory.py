@@ -32,3 +32,24 @@ def street_site(with_street_axis: bool = True) -> SiteModel:
         street_axes=(LineString([(0, 4), (100, 4)]),) if with_street_axis else (),
         diagnostics=SiteDiagnostics(),
     )
+
+
+def pipe_side_strip_site() -> SiteModel:
+    strip = box(0, GAS_AXIS_Y + 1.3, 100, GAS_AXIS_Y + 1.6)
+    gas = Obstacle(
+        GAS_PIPELINE,
+        LineString([(-10, GAS_AXIS_Y), (110, GAS_AXIS_Y)]),
+        "Газопровод",
+        "tile_up",
+        ("layer:Газопровод",),
+        GAS_OUTER_RADIUS_M,
+    )
+    return SiteModel(
+        boundary=box(0, -2, 100, 30),
+        plantable_surface=strip,
+        obstacles=(gas,),
+        existing_trees=(),
+        street_axes=(),
+        diagnostics=SiteDiagnostics(),
+    )
+

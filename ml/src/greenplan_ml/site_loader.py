@@ -62,7 +62,9 @@ class SiteLoader:
         settings = placement or PlacementSettings()
         constraints = design or DesignConstraints()
         repository = NormsRepository.from_knowledge(knowledge_root)
-        resolver = RequirementResolver(repository, constraints.unknown_overhead_voltage_kv)
+        resolver = RequirementResolver(
+            repository, constraints.unknown_overhead_voltage_kv, constraints.active_activations()
+        )
         converter = (
             LibreDwgConverter(dwg2dxf, cache_directory)
             if dwg2dxf is not None and cache_directory is not None

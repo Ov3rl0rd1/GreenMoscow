@@ -20,6 +20,17 @@ def checker(knowledge_root: Path) -> IndependentNormChecker:
     return IndependentNormChecker(NormsRepository.from_knowledge(knowledge_root), 10.0, 0.001, 3.0)
 
 
+@pytest.fixture(scope="module")
+def zone_checker(knowledge_root: Path) -> IndependentNormChecker:
+    return IndependentNormChecker(
+        NormsRepository.from_knowledge(knowledge_root),
+        10.0,
+        0.001,
+        3.0,
+        DesignConstraints(apply_protection_zones=True, allow_root_barriers=False).active_activations(),
+    )
+
+
 def plant(
     identifier: str, x: float, y: float, plant_type: str = TREE, crown: float = 5.0, status: str = ACCEPTED
 ):
@@ -37,12 +48,14 @@ def test_gas_table_distance_is_measured_between_surfaces(checker: IndependentNor
     ]
 
 
-def test_declared_conditional_plant_inside_zone_is_not_a_violation(checker: IndependentNormChecker) -> None:
-    assert checker.violations([plant("T-1", 0, 1.8, status=CONDITIONALLY_ACCEPTED)], gas_site()) == []
+def test_declared_conditional_plant_inside_zone_is_not_a_violation(
+    zone_checker: IndependentNormChecker,
+) -> None:
+    assert zone_checker.violations([plant("T-1", 0, 1.8, status=CONDITIONALLY_ACCEPTED)], gas_site()) == []
 
 
-def test_undeclared_condition_is_reported(checker: IndependentNormChecker) -> None:
-    violations = checker.violations([plant("T-1", 0, 1.8)], gas_site())
+def test_undeclared_condition_is_reported(zone_checker: IndependentNormChecker) -> None:
+    violations = zone_checker.violations([plant("T-1", 0, 1.8)], gas_site())
     assert [item.code for item in violations] == [CONDITION_NOT_DECLARED]
 
 
@@ -84,3 +97,36 @@ def test_existing_tree_and_shrub_to_tree_distances_are_checked() -> None:
 def test_rounding_of_exported_coordinates_is_tolerated() -> None:
     violations = site_checker().violations([plant("T-1", 0, 0), plant("T-2", 5.9995, 0)], open_site(()))
     assert violations == []
+
+
+def test_protection_zone_is_not_checked_by_default(checker: IndependentNormChecker) -> None:
+    assert checker.violations([plant("T-1", 0, 1.8)], gas_site()) == []
+
+
+@pytest.fixture(scope="module")
+def barrier_checker(knowledge_root: Path) -> IndependentNormChecker:
+    return IndependentNormChecker(
+        NormsRepository.from_knowledge(knowledge_root),
+        10.0,
+        0.001,
+        3.0,
+        DesignConstraints().active_activations(),
+    )
+
+
+def test_root_barrier_band_requires_a_declared_condition(barrier_checker: IndependentNormChecker) -> None:
+    violations = barrier_checker.violations([plant("T-1", 0, 1.55)], gas_site())
+    assert [item.code for item in violations] == [CONDITION_NOT_DECLARED]
+
+
+def test_declared_root_barrier_plant_passes(barrier_checker: IndependentNormChecker) -> None:
+    declared = plant("T-1", 0, 1.55, status=CONDITIONALLY_ACCEPTED)
+    assert barrier_checker.violations([declared], gas_site()) == []
+
+
+def test_plant_closer_than_the_barrier_minimum_is_a_violation(
+    barrier_checker: IndependentNormChecker,
+) -> None:
+    violations = barrier_checker.violations([plant("T-1", 0, 1.1, status=CONDITIONALLY_ACCEPTED)], gas_site())
+    assert [item.code for item in violations] == ["sp42_gas_tree_root_barrier"]
+    assert violations[0].required_m == pytest.approx(1.0)

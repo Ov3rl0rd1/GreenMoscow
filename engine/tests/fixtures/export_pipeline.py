@@ -45,9 +45,11 @@ def source_drawing(path: Path) -> Path:
     return save_document(document, path)
 
 
-def run_synthetic_export(knowledge_root: Path, directory: Path) -> ExportRun:
+def run_synthetic_export(
+    knowledge_root: Path, directory: Path, site: SiteModel | None = None
+) -> ExportRun:
     source = source_drawing(directory / "source.dxf")
-    site = street_site()
+    site = site or street_site()
     plan = PlantingPlanComposer.from_knowledge(knowledge_root).compose(site)
     selector = SpeciesSelectorFactory.from_knowledge(knowledge_root).for_site(site)
     species = selector.assign(plan.trees + plan.shrubs)

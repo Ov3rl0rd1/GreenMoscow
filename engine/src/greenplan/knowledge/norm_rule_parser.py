@@ -30,6 +30,9 @@ def parse_norm_rule(entry: dict[str, Any]) -> NormRule:
         condition_ru=entry.get("condition_ru", ""),
         rationale_ru=(entry.get("rationale_ru") or "").strip(),
         is_assumption=entry.get("status") == ASSUMPTION_STATUS,
+        activation=entry.get("activation", ""),
+        root_barrier=bool(entry.get("root_barrier", False)),
+        crown_increment=bool(entry.get("crown_increment", True)),
         parameters=dict(entry),
     )
 

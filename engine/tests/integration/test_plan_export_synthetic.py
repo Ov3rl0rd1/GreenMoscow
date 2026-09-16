@@ -7,9 +7,10 @@ import pytest
 from greenplan.domain.errors import ExportError
 from greenplan.export.entity_fingerprint import EntityFingerprinter
 from greenplan.export.plan_exporter import PlanExporter
+from greenplan.verify.plan_verifier import PlanVerifier
 
 from fixtures.export_pipeline import ExportRun, run_synthetic_export
-from fixtures.placement_factory import street_site
+from fixtures.placement_factory import pipe_side_strip_site, street_site
 
 GENERATED_LAYER = re.compile(r"^AI_[A-Z0-9_-]+$")
 PNG_SIGNATURE = b"\x89PNG"
@@ -71,6 +72,41 @@ def test_rejections_zones_and_meta_are_written(run: ExportRun) -> None:
     restricted = output.modelspace().query('LWPOLYLINE[layer=="AI_ZONE_RESTRICTED"]')
     assert len(restricted) > 0 and all(polyline.closed for polyline in restricted)
     assert len(output.modelspace().query('MTEXT[layer=="AI_META"]')) == 1
+
+
+@pytest.fixture(scope="module")
+def barrier_run(knowledge_root: Path, tmp_path_factory: pytest.TempPathFactory) -> ExportRun:
+    return run_synthetic_export(knowledge_root, tmp_path_factory.mktemp("barriers"), pipe_side_strip_site())
+
+
+def test_root_barriers_are_drawn_on_their_own_layer(barrier_run: ExportRun) -> None:
+    expected = [line for plant in barrier_run.report.plants for line in plant.root_barriers]
+    assert expected
+    output = ezdxf.readfile(barrier_run.output)
+    barriers = output.modelspace().query('LWPOLYLINE[layer=="AI_ROOT_BARRIER"]')
+    assert len(barriers) == len(expected) == barrier_run.summary.entities_by_layer["AI_ROOT_BARRIER"]
+    assert barrier_run.report.summary.root_barrier_length_m > 0
+
+
+def test_every_tree_in_the_pipe_side_strip_is_conditional(barrier_run: ExportRun) -> None:
+    trees = [plant for plant in barrier_run.report.plants if plant.plant_type == "tree"]
+    assert trees
+    assert all(plant.status == "conditional" and plant.root_barriers for plant in trees)
+
+
+def test_plan_with_root_barriers_passes_independent_verification(
+    barrier_run: ExportRun, knowledge_root: Path
+) -> None:
+    report = PlanVerifier.from_knowledge(knowledge_root).verify(
+        barrier_run.source, barrier_run.output, barrier_run.site
+    )
+    assert report.violations == ()
+
+
+def test_plan_without_conditions_has_no_barrier_layer(run: ExportRun) -> None:
+    if any(plant.root_barriers for plant in run.report.plants):
+        pytest.skip("synthetic street produced conditional trees")
+    assert "AI_ROOT_BARRIER" not in ezdxf.readfile(run.output).layers
 
 
 def test_output_passes_audit(run: ExportRun) -> None:

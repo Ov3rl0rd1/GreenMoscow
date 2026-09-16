@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 
 from greenplan.domain.decisions import REJECTED
-from greenplan.domain.norms import ADVISORY, PROHIBITIVE
+from greenplan.domain.norms import ADVISORY, CONDITIONAL_MEASURE, PROHIBITIVE, ROOT_BARRIER_RULE_SUFFIX
 from greenplan.explain.explanation_model import (
     CitationView,
     ClearanceView,
@@ -23,6 +23,7 @@ class ExplanationTextRenderer:
         sentences.extend(
             self._clearance_sentence(clearance, plant.crown_diameter_m) for clearance in plant.clearances
         )
+        sentences.append(_root_barrier_sentence(plant))
         if plant.species is not None:
             sentences.extend(self._species_sentences(plant.species))
         return " ".join(sentence for sentence in sentences if sentence)
@@ -59,6 +60,11 @@ class ExplanationTextRenderer:
             core = (
                 f"Нарушено: расстояние {obstacle.from_ru} {clearance.measurement_ru} — {distance} "
                 f"при требуемых {required}, дефицит {deficit} м{cite}."
+            ) + _barrier_minimum_note(clearance)
+        elif clearance.severity == CONDITIONAL_MEASURE:
+            core = (
+                f"Расстояние {obstacle.from_ru} {clearance.measurement_ru} — {distance}, меньше нормы "
+                f"{required}: посадка допустима только при условии — {clearance.condition_ru}{cite}."
             )
         elif clearance.severity == ADVISORY:
             core = (
@@ -93,6 +99,18 @@ def _radius_note(clearance: ClearanceView) -> str:
     if not clearance.assumed_outer_radius:
         return ""
     return " Диаметр сети на подоснове не подписан — принят консервативный по умолчанию (допущение решения)."
+
+
+def _barrier_minimum_note(clearance: ClearanceView) -> str:
+    if not clearance.rule_id.endswith(ROOT_BARRIER_RULE_SUFFIX):
+        return ""
+    return " Это наименьшее допустимое расстояние даже при устройстве корнезащиты."
+
+
+def _root_barrier_sentence(plant: PlantExplanation) -> str:
+    if plant.root_barrier_length_m <= 0:
+        return ""
+    return f"Корнезащита вдоль сети: {format_number(plant.root_barrier_length_m)} м."
 
 
 def _cite(citations: Sequence[CitationView]) -> str:

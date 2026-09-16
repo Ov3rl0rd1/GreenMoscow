@@ -1,6 +1,8 @@
 from dataclasses import replace
 from pathlib import Path
 
+from greenplan.constraints.clearance_meter import ClearanceMeter
+from greenplan.constraints.root_barrier_planner import RootBarrier, RootBarrierPlanner, total_length_m
 from greenplan.domain.decisions import Clearance, PlantingDecision, SiteViolation
 from greenplan.domain.norms import ADVISORY, CONDITIONAL, CONDITIONAL_MEASURE, PROHIBITIVE
 from greenplan.explain.citation_policy import CitationPolicy
@@ -31,6 +33,18 @@ def _worst_per_rule_and_obstacle_kind(clearances: list[Clearance]) -> list[Clear
     return list(worst.values())
 
 
+def barrier_planner_of(repository: NormsRepository) -> RootBarrierPlanner | None:
+    if repository.root_barrier is None:
+        return None
+    return RootBarrierPlanner(
+        ClearanceMeter(repository.defaults), repository.root_barrier.network_to_barrier_m
+    )
+
+
+def barrier_coordinates(barrier: RootBarrier) -> tuple[tuple[float, float], ...]:
+    return tuple((structure_value(x), structure_value(y)) for x, y, *_rest in barrier.line.coords)
+
+
 class ExplanationBuilder:
     def __init__(
         self,
@@ -39,12 +53,14 @@ class ExplanationBuilder:
         renderer: ExplanationTextRenderer,
         crown_rule_source_ref: str,
         max_satisfied_clearances: int,
+        barrier_planner: RootBarrierPlanner | None = None,
     ) -> None:
         self._citations = citations
         self._terms = terms
         self._renderer = renderer
         self._crown_rule_source_ref = crown_rule_source_ref
         self._max_satisfied_clearances = max_satisfied_clearances
+        self._barrier_planner = barrier_planner
 
     @classmethod
     def from_knowledge(
@@ -58,6 +74,7 @@ class ExplanationBuilder:
             ExplanationTextRenderer(terms),
             repository.defaults.crown_rule_source_ref,
             max_satisfied_clearances,
+            barrier_planner_of(repository),
         )
 
     @property
@@ -72,6 +89,7 @@ class ExplanationBuilder:
 
     def _explanation(self, decision: PlantingDecision, species: SpeciesView | None) -> PlantExplanation:
         candidate = decision.candidate
+        barriers = self._barrier_planner.barriers(decision) if self._barrier_planner else ()
         draft = PlantExplanation(
             plant_id=candidate.candidate_id,
             status=decision.status,
@@ -83,6 +101,8 @@ class ExplanationBuilder:
             clearances=self._clearance_views(decision),
             violations=tuple(self._violation_view(violation) for violation in decision.site_violations),
             explanation_ru="",
+            root_barriers=tuple(barrier_coordinates(barrier) for barrier in barriers),
+            root_barrier_length_m=structure_value(total_length_m(barriers)),
         )
         return replace(draft, explanation_ru=self._renderer.render(draft))
 

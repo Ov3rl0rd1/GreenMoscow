@@ -59,6 +59,9 @@ class ExplanationTerms:
     def site_violation(self, code: str) -> ReferencedText:
         return _referenced(self._section("site_violations").get(code), code)
 
+    def site_warning(self, code: str) -> str:
+        return self._section("site_warnings").get(code, code)
+
     def invasive(self, status: str) -> ReferencedText:
         return _referenced(self._section("invasive").get(status), status)
 

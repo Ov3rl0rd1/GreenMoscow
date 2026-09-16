@@ -27,6 +27,7 @@ CSV_COLUMNS = (
     "required_m",
     "citation",
     "explanation_ru",
+    "root_barrier_m",
 )
 
 
@@ -101,6 +102,7 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Деревьев: {summary.trees}, кустарников: {summary.shrubs} "
         f"(условно допустимых: {summary.conditional})",
         f"- Отклонено кандидатов (с объяснением причин): {summary.rejected}",
+        f"- Корнезащита у условно допустимых деревьев: {format_number(summary.root_barrier_length_m)} м",
         f"- Лимиты плотности: деревьев не более {summary.max_trees}, "
         f"кустарников не более {summary.max_shrubs}; "
         f"шаг деревьев {format_number(summary.tree_spacing_m)} м, "
@@ -112,7 +114,18 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Неразрешённые внешние ссылки: {len(summary.unresolved_references)}",
         f"- Версия движка: {report.engine_version}",
         "",
+        *_warning_lines(summary.warnings),
     ]
+
+
+def _warning_lines(warnings: Sequence[str]) -> list[str]:
+    if not warnings:
+        return []
+    return ["## Предупреждения", "", *(f"- {_capital(text)}" for text in warnings), ""]
+
+
+def _capital(text: str) -> str:
+    return text[:1].upper() + text[1:]
 
 
 def _species_lines(report: PlantingReport) -> list[str]:
@@ -165,6 +178,7 @@ def _csv_row(explanation: PlantExplanation) -> list[str]:
         str(primary.required_m) if primary else "",
         "; ".join(citation.text_ru for citation in primary.citations) if primary else "",
         explanation.explanation_ru,
+        str(explanation.root_barrier_length_m),
     ]
 
 

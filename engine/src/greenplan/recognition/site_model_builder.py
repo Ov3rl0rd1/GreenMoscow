@@ -6,6 +6,7 @@ from shapely.geometry import LineString, MultiPolygon, Polygon
 
 from greenplan.domain.drawing import DrawingContent, LayerGeometry
 from greenplan.domain.obstacle_kinds import (
+    BUILDING_WALL,
     CARRIAGEWAY_EDGE,
     CURB,
     EDGE_KINDS,
@@ -14,7 +15,14 @@ from greenplan.domain.obstacle_kinds import (
     STREET_AXIS,
     UNDERGROUND_NETWORK_KINDS,
 )
-from greenplan.domain.site import PROJECTED_STATUS, Obstacle, SiteDiagnostics, SiteModel
+from greenplan.domain.site import (
+    BUILDINGS_NOT_FOUND,
+    PROJECTED_STATUS,
+    PROTECTED_AREAS_NOT_CHECKED,
+    Obstacle,
+    SiteDiagnostics,
+    SiteModel,
+)
 from greenplan.geometry.ring_assembler import RingAssembler
 from greenplan.geometry.shapes import linear_parts, polygonal_parts
 from greenplan.knowledge.layer_dictionary import LayerClassification, LayerDictionary
@@ -195,7 +203,14 @@ class SiteModelBuilder:
             boundary_repairs=boundary.repairs,
             lawn_source=surfaces.lawn_source,
             annotated_network_share=annotated_length / total_length if total_length > 0 else 0.0,
+            warnings=site_warnings(obstacles),
         )
+
+
+def site_warnings(obstacles: Sequence[Obstacle]) -> tuple[str, ...]:
+    found_buildings = any(obstacle.kind == BUILDING_WALL for obstacle in obstacles)
+    missing = () if found_buildings else (BUILDINGS_NOT_FOUND,)
+    return (*missing, PROTECTED_AREAS_NOT_CHECKED)
 
 
 def _obstacle_from(classification: LayerClassification, geometry, source_name: str) -> Obstacle:

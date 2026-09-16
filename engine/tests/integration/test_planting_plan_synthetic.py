@@ -55,7 +55,7 @@ def test_rejections_carry_normative_reasons(plan: PlantingPlan) -> None:
     assert plan.rejections
     assert all(decision.status == REJECTED for decision in plan.rejections)
     assert all(reasons)
-    assert "sp42_gas_tree" in reasons
+    assert "sp42_gas_tree_root_barrier" in reasons
     assert (
         max(reasons.count(reason) for reason in set(reasons)) <= PlacementSettings().max_rejections_per_reason
     )

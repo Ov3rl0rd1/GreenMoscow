@@ -21,13 +21,18 @@
 #   conditional_measure — допустима при выполнении мероприятия (корневой барьер и т.п.)
 #   advisory          — рекомендация («не следует», «рекомендуется», ориентировочные значения)
 #
-# distance_m: null — норма данным источником НЕ УСТАНОВЛЕНА (прочерк), это не ноль и не запрет.
+# distance_m: null — норма данным источником НЕ УСТАНОВЛЕНА (прочерк), это не ноль и не запрет:
+#   посадка возможна (подтверждено постановщиком 16.09.2026, docs/18).
+#
+# activation — правило участвует в решении только при включённой настройке:
+#   protection_zones — design.apply_protection_zones (по умолчанию выключена: по ответу
+#   постановщика 16.09.2026 охранные зоны отдельно не применяются, «отступ является охранной зоной»).
 # Итоговое требование = максимум по всем применимым правилам одной severity;
 # зона conditional всегда шире или равна зоне prohibitive.
 
 meta:
-  version: "0.2.0"
-  updated: "2026-09-15"
+  version: "0.3.0"
+  updated: "2026-09-16"
   conflict_resolution: max_of_applicable_per_severity
 
   crown_rule:
@@ -40,7 +45,10 @@ meta:
     assumption_ref: design_assumption
 
   root_barrier_rule:
-    # Прим. 4–7 к табл. 9.1 СП 42: уменьшенные отступы при прикорневых барьерах
+    # Прим. 4–7 к табл. 9.1 СП 42: уменьшенные отступы при прикорневых барьерах.
+    # Применяется к правилам с root_barrier: true (сети и бордюр проезжей части), только к деревьям.
+    # Высота кроны при размещении неизвестна — берётся больший минимум (1 м, крона 5–20 м).
+    # Сокращение подтверждено постановщиком 16.09.2026 (docs/18): только с корнезащитой сбоку от сети.
     applies_to: [network, curb]
     max_barrier_sides: 2          # для кроны высотой < 5 м допускается 4 стороны
     min_distance_to_barrier_or_tub_m: 0.5
@@ -49,7 +57,7 @@ meta:
       - {crown_height_lt_m: 20.0, min_distance_m: 1.0}
     measured: network_outer_surface_to_trunk_outer_surface
     severity: conditional_measure
-    measure_ru: "устройство защитных прикорневых барьеров (прим. 6: материал безопасный для корней, перенаправление роста корней)"
+    measure_ru: "устройство защитных прикорневых барьеров не более чем с двух сторон ствола, из безопасного для корней материала, перенаправляющих рост корней от сети"
     source_refs: [sp42_t9_1_note4, sp42_t9_1_note5, sp42_t9_1_note6, sp42_t9_1_note7]
 
   defaults:
@@ -67,6 +75,7 @@ rules:
   # ===========================================================================
 
   - id: sp42_gas_tree
+    root_barrier: true
     obstacle: gas_pipeline
     target: tree
     distance_m: 1.5
@@ -82,9 +91,10 @@ rules:
     distance_m: null
     severity: prohibitive
     source_ref: sp42_t9_1_gas_sewer
-    note_ru: "прочерк — таблица 9.1 не нормирует; ограничение даёт охранная зона (pp878_zone)"
+    note_ru: "прочерк — норма не установлена, посадка кустарника возможна (ответ постановщика 16.09.2026)"
 
   - id: sp42_sewer_tree
+    root_barrier: true
     obstacle: [sewer, sewer_pressure, stormwater]
     target: tree
     distance_m: 1.5
@@ -102,6 +112,7 @@ rules:
     source_ref: sp42_t9_1_gas_sewer
 
   - id: sp42_heating_tree
+    root_barrier: true
     obstacle: heating_network
     target: tree
     distance_m: 2.0
@@ -122,6 +133,7 @@ rules:
     competing: [{source_ref: ppm743_p3_6_3_t3_6_1, distance_m: 1.0}]
 
   - id: sp42_water_tree
+    root_barrier: true
     obstacle: [water_supply, drainage]
     target: tree
     distance_m: 2.0
@@ -139,6 +151,7 @@ rules:
     source_ref: sp42_t9_1_water_drainage
 
   - id: sp42_cable_tree
+    root_barrier: true
     obstacle: [power_cable, communication_cable, cable_unknown]
     target: tree
     distance_m: 2.0
@@ -159,6 +172,7 @@ rules:
     competing: [{source_ref: ppm743_p3_6_3_t3_6_1, distance_m: 0.7}]
 
   - id: sp42_lks_tmk_tree
+    root_barrier: true
     obstacle: lks_tmk
     target: tree
     distance_m: 1.0
@@ -203,9 +217,12 @@ rules:
 
   # ===========================================================================
   # 2. ОХРАННЫЕ ЗОНЫ (режим «только с согласия/разрешения»)
+  #    По умолчанию не применяются (activation: protection_zones) — ответ постановщика
+  #    16.09.2026: сверх табличных отступов охранные зоны учитывать не требуется.
   # ===========================================================================
 
   - id: pp878_zone
+    activation: protection_zones
     obstacle: gas_pipeline
     target: [tree, shrub]
     zone_m: 2.0
@@ -223,6 +240,7 @@ rules:
     applicability_note_ru: "статус ПП 878 после 09.08.2025 уточнить (см. citations.yaml pp878_p7)"
 
   - id: pp878_grp_zone
+    activation: protection_zones
     obstacle: gas_regulator_point
     target: [tree, shrub]
     zone_m: 10.0
@@ -234,6 +252,7 @@ rules:
     note_ru: "значение 10 м в выгрузке не сверено — выводить без номера подпункта"
 
   - id: pr197_heating_zone
+    activation: protection_zones
     obstacle: heating_network
     target: [tree, shrub]
     zone_m: 3.0
@@ -244,6 +263,7 @@ rules:
     condition_ru: "письменное согласие предприятия, в ведении которого находится тепловая сеть"
 
   - id: pp160_cable_zone
+    activation: protection_zones
     obstacle: power_cable
     target: [tree, shrub]
     zone_m: 1.0
@@ -255,6 +275,7 @@ rules:
     condition_ru: "соблюдение условий, предусмотренных решением о согласовании охранной зоны"
 
   - id: pp160_overhead_zone
+    activation: protection_zones
     obstacle: overhead_line
     target: [tree, shrub]
     measured_from: outer_conductor
@@ -278,9 +299,10 @@ rules:
     severity: prohibitive
     source_ref: pue
     verification: needs_check
-    note_ru: "прим. 2 к табл. 9.1 отсылает к ПУЭ; текст ПУЭ не сверен — пока действует только охранная зона ПП 160"
+    note_ru: "прим. 2 к табл. 9.1 отсылает к ПУЭ; текст ПУЭ не сверен, числового отступа нет — под ВЛ подбираются низкорослые породы"
 
   - id: pp578_comm_zone
+    activation: protection_zones
     obstacle: communication_cable
     target: tree              # в п. 48 названа только посадка деревьев
     zone_m: 2.0
@@ -301,7 +323,7 @@ rules:
   - {id: sp42_tram_shrub,       obstacle: tram_track,       target: shrub, distance_m: 3.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_tram}
   - {id: sp42_sidewalk_tree,    obstacle: sidewalk_edge,    target: tree,  distance_m: 0.7, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_sidewalk}
   - {id: sp42_sidewalk_shrub,   obstacle: sidewalk_edge,    target: shrub, distance_m: 0.5, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_sidewalk}
-  - {id: sp42_carriageway_tree, obstacle: carriageway_edge, target: tree,  distance_m: 2.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_carriageway}
+  - {id: sp42_carriageway_tree, obstacle: carriageway_edge, target: tree,  distance_m: 2.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_carriageway, root_barrier: true}
   - {id: sp42_carriageway_shrub,obstacle: carriageway_edge, target: shrub, distance_m: 1.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_carriageway}
   - {id: sp42_pole_tree,        obstacle: [lighting_pole, traffic_light_pole, bridge_support], target: tree, distance_m: 4.0, measured_from: object_center, measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_pole}
   - {id: sp42_pole_shrub,       obstacle: [lighting_pole, traffic_light_pole, bridge_support], target: shrub, distance_m: null, severity: prohibitive, source_ref: sp42_t9_1_pole}
@@ -309,6 +331,22 @@ rules:
   - {id: sp42_slope_shrub,      obstacle: slope_toe,        target: shrub, distance_m: 0.5, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_slope}
   - {id: sp42_retaining_tree,   obstacle: retaining_wall,   target: tree,  distance_m: 3.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_retaining}
   - {id: sp42_retaining_shrub,  obstacle: retaining_wall,   target: shrub, distance_m: 1.0, measured_from: object_edge,   measured_to: trunk_axis, severity: prohibitive, source_ref: sp42_t9_1_retaining}
+
+  - id: design_snow_buffer_carriageway
+    obstacle: carriageway_edge
+    target: [tree, shrub]
+    distance_m: 1.0
+    measured_from: object_edge
+    measured_to: trunk_axis
+    severity: prohibitive
+    crown_increment: false
+    source_ref: qa_session_2026_09_16
+    status: assumption
+    assumption_ref: design_assumption
+    note_ru: >-
+      Рекомендация постановщика 16.09.2026: посадки не ближе 1 м к уличному фронту, даже у
+      кармана — первый метр страдает от снегоуборочной техники. Нижняя граница для сокращения
+      отступа с корнезащитой; при табличных отступах сама не ограничивает.
 
   - id: ppm743_school_kindergarten_tree
     obstacle: school_kindergarten_wall

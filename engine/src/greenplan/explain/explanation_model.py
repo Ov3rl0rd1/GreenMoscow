@@ -82,6 +82,8 @@ class PlantExplanation:
     clearances: tuple[ClearanceView, ...]
     violations: tuple[ViolationView, ...]
     explanation_ru: str
+    root_barriers: tuple[tuple[tuple[float, float], ...], ...] = ()
+    root_barrier_length_m: float = 0.0
 
     @property
     def primary_reason_code(self) -> str:

@@ -40,7 +40,9 @@ class NormsToolkit:
     def __init__(self, knowledge_root: Path, design: DesignConstraints | None = None) -> None:
         self.design = design or DesignConstraints()
         self.repository = NormsRepository.from_knowledge(knowledge_root)
-        self.resolver = RequirementResolver(self.repository, self.design.unknown_overhead_voltage_kv)
+        self.resolver = RequirementResolver(
+            self.repository, self.design.unknown_overhead_voltage_kv, self.design.active_activations()
+        )
         self.meter = ClearanceMeter(self.repository.defaults)
 
     def evaluator(self, site: SiteModel) -> CandidateEvaluator:

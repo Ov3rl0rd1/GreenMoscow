@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from shapely.geometry import Point, Polygon
 
+from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.decisions import (
     ACCEPTED,
     CONDITIONALLY_ACCEPTED,
@@ -22,6 +23,18 @@ def toolkit(knowledge_root: Path) -> NormsToolkit:
     return NormsToolkit(knowledge_root)
 
 
+@pytest.fixture(scope="module")
+def table_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(knowledge_root, DesignConstraints(allow_root_barriers=False))
+
+
+@pytest.fixture(scope="module")
+def zone_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(
+        knowledge_root, DesignConstraints(apply_protection_zones=True, allow_root_barriers=False)
+    )
+
+
 def tree_at(x: float, y: float, crown_diameter_m: float = 5.0, species: str | None = None) -> PlantCandidate:
     return PlantCandidate("T-1", Point(x, y), TREE, crown_diameter_m, None, species)
 
@@ -30,22 +43,22 @@ def gas_site():
     return open_site((network("gas_pipeline", [(-50, 0), (50, 0)], outer_radius_m=0.055),))
 
 
-def test_tree_too_close_to_gas_pipeline_surface_is_rejected(toolkit: NormsToolkit) -> None:
-    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.55))
+def test_tree_too_close_to_gas_pipeline_surface_is_rejected(table_toolkit: NormsToolkit) -> None:
+    decision = table_toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.55))
     assert decision.status == REJECTED
     blocking = decision.blocking_clearances[0]
     assert blocking.requirement.rule_id == "sp42_gas_tree"
     assert blocking.actual_m == pytest.approx(1.55 - 0.055 - 0.05)
 
 
-def test_tree_outside_table_distance_but_inside_gas_zone_is_conditional(toolkit: NormsToolkit) -> None:
-    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.8))
+def test_tree_outside_table_distance_but_inside_gas_zone_is_conditional(zone_toolkit: NormsToolkit) -> None:
+    decision = zone_toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.8))
     assert decision.status == CONDITIONALLY_ACCEPTED
     assert decision.condition_clearances[0].requirement.rule_id == "pp878_zone"
 
 
-def test_tree_outside_zone_is_accepted_with_reported_clearances(toolkit: NormsToolkit) -> None:
-    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 2.5))
+def test_tree_outside_zone_is_accepted_with_reported_clearances(zone_toolkit: NormsToolkit) -> None:
+    decision = zone_toolkit.evaluator(gas_site()).evaluate(tree_at(0, 2.5))
     assert decision.status == ACCEPTED
     assert {clearance.requirement.rule_id for clearance in decision.clearances} >= {
         "sp42_gas_tree",
@@ -85,10 +98,10 @@ def test_tree_near_kept_existing_tree_is_rejected(toolkit: NormsToolkit) -> None
     assert near_removed_only.status == ACCEPTED
 
 
-def test_large_crown_makes_previously_valid_point_invalid(toolkit: NormsToolkit) -> None:
+def test_large_crown_makes_previously_valid_point_invalid(table_toolkit: NormsToolkit) -> None:
     site = open_site((network("water_supply", [(-50, 0), (50, 0)], outer_radius_m=0.1),))
-    assert toolkit.evaluator(site).evaluate(tree_at(0, 2.5, crown_diameter_m=5.0)).status == ACCEPTED
-    assert toolkit.evaluator(site).evaluate(tree_at(0, 2.5, crown_diameter_m=9.0)).status == REJECTED
+    assert table_toolkit.evaluator(site).evaluate(tree_at(0, 2.5, crown_diameter_m=5.0)).status == ACCEPTED
+    assert table_toolkit.evaluator(site).evaluate(tree_at(0, 2.5, crown_diameter_m=9.0)).status == REJECTED
 
 
 def test_advisory_heating_species_rule_does_not_reject(toolkit: NormsToolkit) -> None:
@@ -101,3 +114,34 @@ def test_advisory_heating_species_rule_does_not_reject(toolkit: NormsToolkit) ->
     )
     assert decision_near.status == ACCEPTED
     assert decision_near.advisory_clearances[0].requirement.rule_id == "tsn_heating_species_3_4m"
+
+
+def test_protection_zone_does_not_condition_a_tree_by_default(toolkit: NormsToolkit) -> None:
+    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.8))
+    assert decision.status == ACCEPTED
+    assert "pp878_zone" not in {clearance.requirement.rule_id for clearance in decision.clearances}
+
+
+def test_shrub_right_above_gas_pipeline_is_allowed(toolkit: NormsToolkit) -> None:
+    shrub = PlantCandidate("S-1", Point(0, 0.2), SHRUB, 1.5)
+    assert toolkit.evaluator(gas_site()).evaluate(shrub).status == ACCEPTED
+
+
+def test_tree_inside_table_distance_needs_a_root_barrier(toolkit: NormsToolkit) -> None:
+    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.55))
+    assert decision.status == CONDITIONALLY_ACCEPTED
+    condition = decision.condition_clearances[0]
+    assert condition.requirement.rule_id == "sp42_gas_tree"
+    assert "барьер" in condition.requirement.condition_ru
+
+
+def test_tree_closer_than_the_barrier_minimum_is_rejected(toolkit: NormsToolkit) -> None:
+    decision = toolkit.evaluator(gas_site()).evaluate(tree_at(0, 1.1))
+    assert decision.status == REJECTED
+    assert decision.blocking_clearances[0].requirement.rule_id == "sp42_gas_tree_root_barrier"
+
+
+def test_shrub_never_gets_a_root_barrier(toolkit: NormsToolkit) -> None:
+    site = open_site((network("power_cable", [(-50, 0), (50, 0)], outer_radius_m=0.05),))
+    shrub = PlantCandidate("S-1", Point(0, 0.5), SHRUB, 1.5)
+    assert toolkit.evaluator(site).evaluate(shrub).status == REJECTED

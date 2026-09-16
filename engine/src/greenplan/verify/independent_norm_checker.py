@@ -7,7 +7,10 @@ from greenplan.domain.norms import (
     CONDITIONAL,
     CONDITIONAL_MEASURE,
     DISTANCE_RULE,
+    NO_ACTIVATIONS,
     PROHIBITIVE,
+    ROOT_BARRIER_RULE_SUFFIX,
+    ROOT_BARRIERS_ACTIVATION,
     TREE,
     ZONE_RULE,
     NormRule,
@@ -36,8 +39,14 @@ class IndependentNormChecker:
         unknown_overhead_voltage_kv: float,
         tolerance_m: float,
         search_margin_m: float,
+        active_activations: frozenset[str] = NO_ACTIVATIONS,
     ) -> None:
         self._defaults = repository.defaults
+        self._reduced_distance_m = (
+            repository.root_barrier.reduced_distance_m
+            if repository.root_barrier is not None and ROOT_BARRIERS_ACTIVATION in active_activations
+            else None
+        )
         self._voltage_kv = unknown_overhead_voltage_kv
         self._tolerance_m = tolerance_m
         self._search_margin_m = search_margin_m
@@ -47,6 +56,7 @@ class IndependentNormChecker:
             if rule.rule_type in (DISTANCE_RULE, ZONE_RULE)
             and rule.severity in CHECKED_SEVERITIES
             and not rule.species_ru
+            and rule.is_active(active_activations)
         )
         self._largest_rule_distance_m = max(
             (self._base_distance(rule) or 0.0 for rule in self._rules), default=0.0
@@ -75,23 +85,39 @@ class IndependentNormChecker:
                 actual = self._measured_distance(plant, obstacle, rule.measured_from)
                 if actual + self._tolerance_m >= required:
                     continue
-                if rule.severity in CONDITION_SEVERITIES:
+                minimum = self._root_barrier_minimum(rule, plant, required)
+                if rule.severity in CONDITION_SEVERITIES or (
+                    minimum is not None and actual + self._tolerance_m >= minimum
+                ):
                     inside_condition_zone = True
                     continue
+                rule_id = rule.rule_id if minimum is None else rule.rule_id + ROOT_BARRIER_RULE_SUFFIX
+                required = required if minimum is None else minimum
                 candidate = VerificationViolation(
                     plant.plant_id,
-                    rule.rule_id,
+                    rule_id,
                     PROHIBITIVE,
                     round(actual, MEASUREMENT_DECIMALS),
                     round(required, MEASUREMENT_DECIMALS),
                     obstacle.kind,
                 )
-                if rule.rule_id not in worst or candidate.actual_m < worst[rule.rule_id].actual_m:
-                    worst[rule.rule_id] = candidate
+                if rule_id not in worst or candidate.actual_m < worst[rule_id].actual_m:
+                    worst[rule_id] = candidate
         found = list(worst.values())
         if inside_condition_zone and plant.status == ACCEPTED:
             found.append(VerificationViolation(plant.plant_id, CONDITION_NOT_DECLARED, DECLARATION_SEVERITY))
         return found
+
+    def _root_barrier_minimum(self, rule: NormRule, plant: PlacedPlant, required: float) -> float | None:
+        if (
+            self._reduced_distance_m is None
+            or not rule.root_barrier
+            or rule.severity != PROHIBITIVE
+            or plant.plant_type != TREE
+            or required <= self._reduced_distance_m
+        ):
+            return None
+        return self._reduced_distance_m
 
     def _search_radius_m(self, plant: PlacedPlant) -> float:
         return self._largest_rule_distance_m + self._crown_increment_m(plant) + self._search_margin_m
@@ -102,7 +128,7 @@ class IndependentNormChecker:
         table_distance = rule.distance_for(plant.plant_type)
         if table_distance is None:
             return None
-        if rule.severity == PROHIBITIVE and plant.plant_type == TREE:
+        if rule.severity == PROHIBITIVE and plant.plant_type == TREE and rule.crown_increment:
             return table_distance + self._crown_increment_m(plant)
         return table_distance
 

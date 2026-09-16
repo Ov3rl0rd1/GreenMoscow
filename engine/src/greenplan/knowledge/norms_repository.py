@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from greenplan.domain.errors import KnowledgeValidationError
-from greenplan.domain.norms import NormRule, NormsDefaults
+from greenplan.domain.norms import NormRule, NormsDefaults, RootBarrierPolicy
 from greenplan.knowledge.citations_repository import CitationsRepository
 from greenplan.knowledge.norm_rule_parser import parse_norm_rule, referenced_citation_keys
 from greenplan.knowledge.yaml_loader import load_yaml_mapping, require_key
@@ -9,11 +9,16 @@ from greenplan.knowledge.yaml_loader import load_yaml_mapping, require_key
 
 class NormsRepository:
     def __init__(
-        self, rules: tuple[NormRule, ...], defaults: NormsDefaults, citations: CitationsRepository
+        self,
+        rules: tuple[NormRule, ...],
+        defaults: NormsDefaults,
+        citations: CitationsRepository,
+        root_barrier: RootBarrierPolicy | None,
     ) -> None:
         self._rules = rules
         self.defaults = defaults
         self.citations = citations
+        self.root_barrier = root_barrier
 
     @classmethod
     def from_knowledge(cls, knowledge_root: Path) -> "NormsRepository":
@@ -28,7 +33,7 @@ class NormsRepository:
         _validate_references(entries, meta, citations, norms_path)
         rules = tuple(parse_norm_rule(entry) for entry in entries)
         _validate_unique_ids(rules, norms_path)
-        return cls(rules, _defaults_from(meta), citations)
+        return cls(rules, _defaults_from(meta), citations, _root_barrier_from(meta))
 
     def rules(self) -> tuple[NormRule, ...]:
         return self._rules
@@ -43,6 +48,7 @@ class NormsRepository:
 def _validate_references(entries: list, meta: dict, citations: CitationsRepository, source: Path) -> None:
     keys = {key for entry in entries for key in referenced_citation_keys(entry)}
     keys.add(meta["crown_rule"]["source_ref"])
+    keys.update((meta.get("root_barrier_rule") or {}).get("source_refs", ()))
     missing = sorted(key for key in keys if not citations.contains(key))
     if missing:
         raise KnowledgeValidationError(f"unresolved citation keys in {source}: {missing}")
@@ -53,6 +59,18 @@ def _validate_unique_ids(rules: tuple[NormRule, ...], source: Path) -> None:
     duplicates = sorted({identifier for identifier in identifiers if identifiers.count(identifier) > 1})
     if duplicates:
         raise KnowledgeValidationError(f"duplicate rule ids in {source}: {duplicates}")
+
+
+def _root_barrier_from(meta: dict) -> RootBarrierPolicy | None:
+    rule = meta.get("root_barrier_rule")
+    if not rule:
+        return None
+    return RootBarrierPolicy(
+        reduced_distance_m=max(float(item["min_distance_m"]) for item in rule["by_crown_height"]),
+        network_to_barrier_m=float(rule["min_distance_to_barrier_or_tub_m"]),
+        measure_ru=rule["measure_ru"],
+        source_refs=tuple(rule["source_refs"]),
+    )
 
 
 def _defaults_from(meta: dict) -> NormsDefaults:

@@ -44,6 +44,8 @@ class ReportSummary:
     lawn_source: str
     annotated_network_share: float
     unresolved_references: tuple[str, ...]
+    root_barrier_length_m: float = 0.0
+    warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

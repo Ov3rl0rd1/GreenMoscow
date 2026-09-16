@@ -56,7 +56,7 @@ class ReportBuilder:
         return PlantingReport(
             title=title,
             engine_version=self._engine_version,
-            summary=_summary(site, plan, species, plants, rejections),
+            summary=_summary(site, plan, species, plants, rejections, terms),
             applied_norms=applied_norm_rows((*plants, *rejections), terms),
             rejection_reasons=rejection_reason_rows(rejections, terms),
             plants=plants,
@@ -125,6 +125,7 @@ def _summary(
     species: SpeciesOutcome,
     plants: Sequence[PlantExplanation],
     rejections: Sequence[PlantExplanation],
+    terms: ExplanationTerms,
 ) -> ReportSummary:
     cell_area = plan.tree_raster.grid.cell_size_m**2
     diagnostics = site.diagnostics
@@ -144,6 +145,8 @@ def _summary(
         lawn_source=diagnostics.lawn_source,
         annotated_network_share=structure_value(diagnostics.annotated_network_share),
         unresolved_references=diagnostics.unresolved_references,
+        root_barrier_length_m=structure_value(sum(plant.root_barrier_length_m for plant in plants)),
+        warnings=tuple(terms.site_warning(code) for code in diagnostics.warnings),
     )
 
 

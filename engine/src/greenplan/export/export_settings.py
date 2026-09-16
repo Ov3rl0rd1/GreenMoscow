@@ -12,6 +12,7 @@ class ExportSettings:
     zone_conditional_layer_stem: str = "ZONE_CONDITIONAL"
     zone_restricted_layer_stem: str = "ZONE_RESTRICTED"
     meta_layer_stem: str = "META"
+    root_barrier_layer_stem: str = "ROOT_BARRIER"
     symbol_block_stem: str = "SYMBOL"
     tree_color: int = 3
     shrub_color: int = 82
@@ -21,6 +22,7 @@ class ExportSettings:
     zone_conditional_color: int = 40
     zone_restricted_color: int = 11
     meta_color: int = 7
+    root_barrier_color: int = 6
     xdata_application: str = "GREENPLAN"
     xdata_max_bytes: int = 250
     id_attribute_tag: str = "ID"

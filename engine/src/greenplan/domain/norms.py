@@ -13,6 +13,11 @@ ADVISORY = "advisory"
 DISTANCE_RULE = "distance"
 ZONE_RULE = "zone"
 
+PROTECTION_ZONES_ACTIVATION = "protection_zones"
+ROOT_BARRIERS_ACTIVATION = "root_barriers"
+ROOT_BARRIER_RULE_SUFFIX = "_root_barrier"
+NO_ACTIVATIONS: frozenset[str] = frozenset()
+
 SURFACE_MEASUREMENT = "network_surface"
 STRUCTURE_EDGE_MEASUREMENT = "structure_edge"
 GEOMETRY_MEASUREMENT = "geometry"
@@ -61,10 +66,16 @@ class NormRule:
     condition_ru: str
     rationale_ru: str
     is_assumption: bool
+    activation: str = ""
+    root_barrier: bool = False
+    crown_increment: bool = True
     parameters: dict[str, Any] = field(default_factory=dict)
 
     def distance_for(self, target: str) -> float | None:
         return next((distance for key, distance in self.distances if key == target), None)
+
+    def is_active(self, activations: frozenset[str]) -> bool:
+        return not self.activation or self.activation in activations
 
     def applies_to(self, obstacle_kind: str, target: str) -> bool:
         return obstacle_kind in self.obstacles and target in self.targets
@@ -89,6 +100,14 @@ class Requirement:
     @property
     def is_zone(self) -> bool:
         return self.rule_type == ZONE_RULE
+
+
+@dataclass(frozen=True, slots=True)
+class RootBarrierPolicy:
+    reduced_distance_m: float
+    network_to_barrier_m: float
+    measure_ru: str
+    source_refs: tuple[str, ...]
 
 
 @dataclass(frozen=True, slots=True)

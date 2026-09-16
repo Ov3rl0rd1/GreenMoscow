@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from shapely.geometry import Point
 
+from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.zone_builder import ZoneBuilder
 from greenplan.domain.norms import TREE
 from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
@@ -22,6 +23,18 @@ def toolkit(knowledge_root: Path) -> NormsToolkit:
     return NormsToolkit(knowledge_root)
 
 
+@pytest.fixture(scope="module")
+def table_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(knowledge_root, DesignConstraints(allow_root_barriers=False))
+
+
+@pytest.fixture(scope="module")
+def zone_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(
+        knowledge_root, DesignConstraints(apply_protection_zones=True, allow_root_barriers=False)
+    )
+
+
 def tree_profile() -> PlantingProfile:
     settings = PlacementSettings()
     return PlantingProfile(
@@ -33,8 +46,8 @@ def zone_builder(toolkit: NormsToolkit) -> PlantingZoneBuilder:
     return PlantingZoneBuilder(ZoneBuilder(toolkit.resolver, toolkit.meter), toolkit.resolver, toolkit.design)
 
 
-def test_prohibited_zone_contains_gas_band_pole_and_kept_tree(toolkit: NormsToolkit) -> None:
-    zones = zone_builder(toolkit).build(street_site(), tree_profile(), ())
+def test_prohibited_zone_contains_gas_band_pole_and_kept_tree(zone_toolkit: NormsToolkit) -> None:
+    zones = zone_builder(zone_toolkit).build(street_site(), tree_profile(), ())
     assert zones.prohibited.contains(Point(50, 15))
     assert zones.prohibited.contains(Point(50, 16.5))
     assert not zones.prohibited.contains(Point(50, 16.7))
@@ -50,9 +63,9 @@ def test_planned_positions_are_excluded_with_profile_clearance(toolkit: NormsToo
     assert not zones.prohibited.contains(Point(51.6, 11))
 
 
-def test_rasterizer_marks_allowed_conditional_clearance_and_edge_distance(toolkit: NormsToolkit) -> None:
+def test_rasterizer_marks_allowed_conditional_clearance_and_edge_distance(zone_toolkit: NormsToolkit) -> None:
     site = street_site()
-    zones = zone_builder(toolkit).build(site, tree_profile(), ())
+    zones = zone_builder(zone_toolkit).build(site, tree_profile(), ())
     raster = SiteRasterizer(0.5).rasterize(site, zones, CARRIAGEWAY_EDGE)
     grid = raster.grid
     assert raster.plantable.sum() * 0.25 == pytest.approx(1000.0)

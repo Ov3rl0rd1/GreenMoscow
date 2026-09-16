@@ -70,7 +70,9 @@ class PlantingPlanComposer:
         placement = settings or PlacementSettings()
         constraints = design or DesignConstraints()
         repository = NormsRepository.from_knowledge(knowledge_root)
-        resolver = RequirementResolver(repository, constraints.unknown_overhead_voltage_kv)
+        resolver = RequirementResolver(
+            repository, constraints.unknown_overhead_voltage_kv, constraints.active_activations()
+        )
         meter = ClearanceMeter(repository.defaults)
         selector = PeakSelector()
         zone_builder = PlantingZoneBuilder(ZoneBuilder(resolver, meter), resolver, constraints)

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from shapely.geometry import Point
 
+from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.decisions import (
     REJECTED,
     TOO_CLOSE_TO_EXISTING_TREE,
@@ -29,6 +30,18 @@ from fixtures.species_factory import species
 @pytest.fixture(scope="module")
 def toolkit(knowledge_root: Path) -> NormsToolkit:
     return NormsToolkit(knowledge_root)
+
+
+@pytest.fixture(scope="module")
+def table_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(knowledge_root, DesignConstraints(allow_root_barriers=False))
+
+
+@pytest.fixture(scope="module")
+def zone_toolkit(knowledge_root: Path) -> NormsToolkit:
+    return NormsToolkit(
+        knowledge_root, DesignConstraints(apply_protection_zones=True, allow_root_barriers=False)
+    )
 
 
 @pytest.fixture(scope="module")
@@ -77,9 +90,9 @@ def test_design_assumption_is_named_as_assumption(policy: CitationPolicy) -> Non
 
 
 def test_rejected_tree_explains_deficit_with_verified_reference(
-    toolkit: NormsToolkit, builder: ExplanationBuilder
+    table_toolkit: NormsToolkit, builder: ExplanationBuilder
 ) -> None:
-    explanation = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 1.55))
+    explanation = builder.for_decision(tree_decision(table_toolkit, gas_site(), 0, 1.55))
     text = explanation.explanation_ru
     assert explanation.status == REJECTED
     assert text.startswith("Посадка дерева в данной точке отклонена.")
@@ -89,9 +102,9 @@ def test_rejected_tree_explains_deficit_with_verified_reference(
 
 
 def test_conditional_tree_names_zone_and_condition(
-    toolkit: NormsToolkit, builder: ExplanationBuilder
+    zone_toolkit: NormsToolkit, builder: ExplanationBuilder
 ) -> None:
-    text = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 1.8)).explanation_ru
+    text = builder.for_decision(tree_decision(zone_toolkit, gas_site(), 0, 1.8)).explanation_ru
     assert text.startswith("Посадка дерева допустима условно.")
     assert "охранной зоне газораспределительной сети" in text
     assert "письменное разрешение эксплуатационной организации" in text
