@@ -3,11 +3,12 @@ from typing import Protocol
 
 import numpy as np
 
+from greenplan.domain.site import SiteModel
 from greenplan.placement.raster import SiteRaster
 
 
 class ScoreMapProvider(Protocol):
-    def score(self, raster: SiteRaster) -> np.ndarray: ...
+    def score(self, raster: SiteRaster, site: SiteModel) -> np.ndarray: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,7 +25,7 @@ class RuleScoreMap:
     def __init__(self, weights: RuleScoreWeights) -> None:
         self._weights = weights
 
-    def score(self, raster: SiteRaster) -> np.ndarray:
+    def score(self, raster: SiteRaster, site: SiteModel) -> np.ndarray:
         weights = self._weights
         combined = (
             weights.clearance_weight * self._clearance_term(raster)

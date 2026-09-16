@@ -12,6 +12,7 @@ from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.xref_reference_reader import XrefReferenceReader
 from greenplan.pipeline.run_config import RunConfig
 from greenplan.placement.planting_plan import PlantingPlanComposer
+from greenplan.placement.score_maps import ScoreMapProvider
 from greenplan.recognition.site_model_builder import SiteModelBuilder
 from greenplan.species.species_selector import SpeciesSelectorFactory
 from greenplan.verify.plan_verifier import PlanVerifier
@@ -33,7 +34,12 @@ class PipelineComponents:
 
     @classmethod
     def assemble(
-        cls, knowledge_root: Path, config: RunConfig, dwg2dxf: Path | None, cache_directory: Path
+        cls,
+        knowledge_root: Path,
+        config: RunConfig,
+        dwg2dxf: Path | None,
+        cache_directory: Path,
+        tree_score_map: ScoreMapProvider | None = None,
     ) -> "PipelineComponents":
         converter = LibreDwgConverter(dwg2dxf, cache_directory) if dwg2dxf is not None else None
         opener = DrawingFileOpener(DxfDocumentLoader(), converter)
@@ -42,7 +48,9 @@ class PipelineComponents:
             drawing_set_builder=DrawingSetBuilder(opener, XrefReferenceReader()),
             content_reader=DrawingContentReader(),
             site_builder=SiteModelBuilder.from_knowledge(knowledge_root, config.recognition),
-            composer=PlantingPlanComposer.from_knowledge(knowledge_root, config.placement, config.design),
+            composer=PlantingPlanComposer.from_knowledge(
+                knowledge_root, config.placement, config.design, tree_score_map
+            ),
             species_factory=SpeciesSelectorFactory.from_knowledge(
                 knowledge_root, config.species, config.design
             ),

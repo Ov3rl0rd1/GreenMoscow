@@ -6,11 +6,15 @@ from typing import Protocol
 
 import uvicorn
 
+from greenplan.domain.errors import ConfigurationError
+from greenplan.domain.norms import TREE
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
-from greenplan.pipeline.run_config import RunConfigLoader
+from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
+from greenplan.placement.placement_settings import PlacementSettings
+from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
 from greenplan.verify.verification_model import VerificationReport
 from greenplan.verify.verification_writers import write_verification_json, write_verification_markdown
 
@@ -37,9 +41,8 @@ class RunCommand:
         add_environment_arguments(parser)
         parser.add_argument("--output", required=True, type=Path, help="каталог результатов")
         parser.add_argument("--title", help="название участка в отчётах")
-        parser.add_argument(
-            "--no-ml", action="store_true", help="только правила (сейчас это единственный режим)"
-        )
+        parser.add_argument("--model", type=Path, help="ONNX-модель подсказок размещения деревьев")
+        parser.add_argument("--no-ml", action="store_true", help="игнорировать модель и считать по правилам")
         parser.set_defaults(command=self)
 
     def execute(self, arguments: argparse.Namespace) -> int:
@@ -118,6 +121,7 @@ class ServeCommand:
 
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.set_defaults(model=None, no_ml=False)
     parser.add_argument("--input", required=True, type=Path, help="главный DWG/DXF объекта")
     parser.add_argument(
         "--search-root", type=Path, help="где искать внешние ссылки (по умолчанию — папка входа)"
@@ -136,8 +140,25 @@ def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
         config,
         locate_dwg2dxf(arguments.dwg2dxf, knowledge_root),
         resolve_cache_directory(arguments.cache, knowledge_root),
+        tree_score_map(arguments, config),
     )
     return PlanningPipeline(components, config)
+
+
+def tree_score_map(arguments: argparse.Namespace, config: RunConfig) -> ScoreMapProvider | None:
+    if arguments.model is None or arguments.no_ml:
+        return None
+    return model_score_map(arguments.model, config.placement)
+
+
+def model_score_map(path: Path, placement: PlacementSettings) -> ScoreMapProvider:
+    try:
+        from greenplan_ml.score_map import ModelScoreMap
+    except ImportError as error:
+        raise ConfigurationError(
+            "для --model нужен пакет greenplan-ml: установите его или уберите флаг"
+        ) from error
+    return ModelScoreMap.from_file(path, RuleScoreMap(placement.tree_score), TREE)
 
 
 def print_run(result: PipelineResult) -> None:

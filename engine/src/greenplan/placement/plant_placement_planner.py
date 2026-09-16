@@ -76,7 +76,7 @@ class PlantPlacementPlanner:
     ) -> PlacementOutcome:
         zones = self._zone_builder.build(site, profile, planned_positions)
         raster = self._rasterizer.rasterize(site, zones, profile.reference_edge_kind)
-        score = profile.score_map.score(raster)
+        score = profile.score_map.score(raster, site)
         eligible = raster.allowed if profile.allow_conditional else raster.allowed & ~raster.conditional
         admission = _Admission(
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
