@@ -1,0 +1,141 @@
+:root {
+    --green: #1b7837;
+    --green-light: #d9f0d3;
+    --red: #b2182b;
+    --orange: #e08214;
+    --ink: #1f2933;
+    --muted: #616e7c;
+    --paper: #f7f9f6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.topbar {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.9rem 2rem;
+    background: var(--green);
+    color: white;
+}
+
+.brand {
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-decoration: none;
+}
+
+.subtitle {
+    opacity: 0.85;
+}
+
+.container {
+    max-width: 960px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.lead {
+    color: var(--muted);
+}
+
+.alert {
+    background: #fde8e8;
+    color: var(--red);
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    white-space: pre-wrap;
+}
+
+.field-error {
+    color: var(--red);
+}
+
+.upload {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.upload input {
+    padding: 0.4rem;
+}
+
+.upload button {
+    margin-top: 0.8rem;
+    padding: 0.6rem 1.2rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--green);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #e4e7eb;
+}
+
+.summary th {
+    width: 55%;
+    font-weight: 500;
+}
+
+.status {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #e4e7eb;
+}
+
+.status-succeeded {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.status-failed {
+    background: #fde8e8;
+    color: var(--red);
+}
+
+.status-running,
+.status-queued {
+    background: #fdf0d9;
+    color: var(--orange);
+}
+
+.preview {
+    max-width: 100%;
+    border: 1px solid #e4e7eb;
+}
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 1.5rem;
+    font-size: 0.9rem;
+}

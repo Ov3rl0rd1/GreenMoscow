@@ -1,0 +1,75 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Новый расчёт";
+}
+
+<section class="card">
+    <h1>Новый расчёт</h1>
+    <p class="lead">
+        Загрузите главный чертёж объекта или архив его папки вместе с внешними ссылками.
+        Результат — DXF с посадками на отдельных слоях, отчёты с объяснениями и независимая проверка.
+    </p>
+
+    @if (!Model.EngineAvailable)
+    {
+        <p class="alert">Сервис расчёта сейчас недоступен. Проверьте, что запущен контейнер engine.</p>
+    }
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <p class="alert">@Model.ErrorMessage</p>
+    }
+
+    <form method="post" enctype="multipart/form-data" class="upload">
+        <div asp-validation-summary="ModelOnly" class="alert-list"></div>
+
+        <label asp-for="Form.Drawing"></label>
+        <input asp-for="Form.Drawing" type="file" accept=".dxf,.dwg,.zip" />
+        <span asp-validation-for="Form.Drawing" class="field-error"></span>
+
+        <label asp-for="Form.Title"></label>
+        <input asp-for="Form.Title" />
+        <span asp-validation-for="Form.Title" class="field-error"></span>
+
+        <label asp-for="Form.MainFile"></label>
+        <input asp-for="Form.MainFile" placeholder="Исходные данные/ГП и ПБ ул Багрицкого.dwg" />
+
+        <label asp-for="Form.Config"></label>
+        <input asp-for="Form.Config" type="file" accept=".yaml,.yml" />
+
+        <button type="submit">Рассчитать</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Последние расчёты</h2>
+    @if (Model.Jobs.Count == 0)
+    {
+        <p>Расчётов пока нет.</p>
+    }
+    else
+    {
+        <table class="jobs">
+            <thead>
+                <tr>
+                    <th>Участок</th>
+                    <th>Файл</th>
+                    <th>Статус</th>
+                    <th>Создан</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Model.Jobs)
+                {
+                    <tr>
+                        <td><a asp-page="/Jobs/Details" asp-route-id="@job.JobId">@job.Title</a></td>
+                        <td>@job.UploadName</td>
+                        <td><span class="status status-@job.Status">@JobStatusText.For(job.Status)</span></td>
+                        <td>@job.CreatedAt</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

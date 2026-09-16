@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @if (ViewData["AutoRefresh"] is true)
+    {
+        <meta http-equiv="refresh" content="3" />
+    }
+    <title>@ViewData["Title"] — GreenPlan</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" asp-page="/Index">GreenPlan</a>
+        <span class="subtitle">проектирование озеленения с учётом подземных коммуникаций</span>
+    </header>
+    <main class="container">
+        @RenderBody()
+    </main>
+    <footer class="footer">
+        Посадки размещаются на отдельных слоях DXF, исходные слои чертежа не изменяются.
+        Каждая посадка и каждый отказ объяснены со ссылкой на норму.
+    </footer>
+</body>
+</html>
