@@ -11,9 +11,10 @@ data/
 *.7z
 !knowledge/symbols/*.json
 tools/bin/
-jobs/
-runs/
-artifacts/
+/jobs/
+/engine/jobs/
+/runs/
+/artifacts/
 ml/checkpoints/
 ml/datasets/
 *.onnx

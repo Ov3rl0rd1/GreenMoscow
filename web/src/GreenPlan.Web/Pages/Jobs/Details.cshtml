@@ -1,0 +1,79 @@
+@page "{id}"
+@model GreenPlan.Web.Pages.Jobs.DetailsModel
+@{
+    var job = Model.Job!;
+    var summary = new JobSummaryView(job.Summary);
+    ViewData["Title"] = job.Title;
+    ViewData["AutoRefresh"] = !JobStatusText.IsFinished(job.Status);
+}
+
+<section class="card">
+    <p><a asp-page="/Index">← Новый расчёт</a></p>
+    <h1>@job.Title</h1>
+    <p>Статус: <span class="status status-@job.Status">@JobStatusText.For(job.Status)</span></p>
+    <p>Загружено: @job.UploadName; главный чертёж: <code>@job.MainFile</code></p>
+    @if (job.OverlayFiles is { Count: > 0 })
+    {
+        <p>Наложены в тех же координатах: @string.Join(", ", job.OverlayFiles)</p>
+    }
+    <p>Создан: @job.CreatedAt; обновлён: @job.UpdatedAt</p>
+    @if (job.Error is not null)
+    {
+        <pre class="alert">@job.Error</pre>
+    }
+    @if (!JobStatusText.IsFinished(job.Status))
+    {
+        <p class="lead">Расчёт идёт, страница обновится автоматически.</p>
+    }
+</section>
+
+@if (job.Status == JobStatuses.Succeeded)
+{
+    <section class="card">
+        <h2>Итог</h2>
+        <table class="summary">
+            <tbody>
+                <tr><th>Деревьев</th><td>@summary.Integer("trees")</td></tr>
+                <tr><th>Кустарников</th><td>@summary.Integer("shrubs")</td></tr>
+                <tr><th>Условно допустимых посадок</th><td>@summary.Integer("conditional")</td></tr>
+                <tr><th>Отказов с объяснением</th><td>@summary.Integer("rejected")</td></tr>
+                <tr>
+                    <th>Независимая проверка</th>
+                    <td>@(summary.Flag("verification_valid") == true ? "пройдена" : "не пройдена"), нарушений: @summary.Integer("violations")</td>
+                </tr>
+                <tr>
+                    <th>Исходный чертёж</th>
+                    <td>@(summary.Flag("integrity_is_intact") == true ? "не изменён" : "изменён")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Время этапов</h3>
+        <table class="summary">
+            <tbody>
+                @foreach (var timing in summary.Timings())
+                {
+                    <tr><th>@StageNames.For(timing.Stage)</th><td>@timing.SecondsText с</td></tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    @if (job.Artifacts.Contains("preview.png"))
+    {
+        <section class="card">
+            <h2>Превью</h2>
+            <img class="preview" src="@ArtifactEndpoints.UrlFor(job.JobId, "preview.png")" alt="Превью плана посадок" />
+        </section>
+    }
+
+    <section class="card">
+        <h2>Файлы результата</h2>
+        <ul class="artifacts">
+            @foreach (var artifact in job.Artifacts)
+            {
+                <li><a href="@ArtifactEndpoints.UrlFor(job.JobId, artifact)">@artifact</a></li>
+            }
+        </ul>
+    </section>
+}
