@@ -2,9 +2,10 @@ from pathlib import Path
 
 from shapely.geometry import LineString, Point, box
 
+from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.norms import TREE
 from greenplan.domain.obstacle_kinds import GAS_PIPELINE
-from greenplan.domain.site import Obstacle, SiteDiagnostics, SiteModel
+from greenplan.domain.site import NETWORKS_NOT_FOUND, Obstacle, SiteDiagnostics, SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.knowledge.pilot_objects import PilotObject
 from greenplan.verify.independent_norm_checker import IndependentNormChecker
@@ -30,7 +31,9 @@ def auditor(knowledge_root: Path) -> ReferenceAuditor:
     return ReferenceAuditor(
         loader=None,
         extractor=None,
-        checker=IndependentNormChecker(repository, 10.0, 0.001, 3.0),
+        checker=IndependentNormChecker(
+            repository, 10.0, 0.001, 3.0, DesignConstraints().active_activations()
+        ),
         crowns=SpeciesCrownLookup.from_knowledge(knowledge_root),
     )
 
@@ -68,6 +71,7 @@ def test_markdown_lists_objects_and_top_rules() -> None:
             violations=4,
             violating_plants=3,
             by_rule=(("sp42_gas_tree", 4),),
+            hard_violating_plants=3,
         ),
         ObjectAudit("second", "B", False, reason="в проектном решении нет посадок"),
     ]
@@ -75,3 +79,17 @@ def test_markdown_lists_objects_and_top_rules() -> None:
     assert "first" in text and "30%" in text
     assert "sp42_gas_tree — 4" in text
     assert "в проектном решении нет посадок" in text
+
+
+def test_planting_in_the_barrier_band_is_not_counted_as_a_hard_violation(knowledge_root: Path) -> None:
+    audit = auditor(knowledge_root)._audit_plantings(OBJECT, gas_site(), [planting(0.0, 1.3)])
+    assert audit.plants_needing_barrier == 1
+    assert audit.hard_violating_plants == 0
+
+
+def test_object_without_networks_is_flagged(knowledge_root: Path) -> None:
+    lawn = box(-50, -20, 50, 20)
+    site = SiteModel(lawn, lawn, (), (), (), SiteDiagnostics(warnings=(NETWORKS_NOT_FOUND,)))
+    audit = auditor(knowledge_root)._audit_plantings(OBJECT, site, [planting(0.0, 1.0)])
+    assert not audit.networks_found
+    assert "| нет |" in render_audit_markdown([audit])

@@ -90,8 +90,8 @@ class AuditReferenceCommand:
         audits = auditor.audit_all(catalog, arguments.dataset_root, arguments.levels, arguments.only)
         for item in audits:
             state = (
-                f"посадок {item.plantings}, с нарушением {item.violating_plants} "
-                f"({item.violation_share:.0%})"
+                f"посадок {item.plantings}, нарушают запрет {item.hard_violating_plants} "
+                f"({item.hard_violation_share:.0%}), нужна корнезащита {item.plants_needing_barrier}"
                 if item.checked
                 else item.reason
             )

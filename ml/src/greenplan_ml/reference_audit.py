@@ -6,11 +6,11 @@ from pathlib import Path
 
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.errors import GreenPlanError
-from greenplan.domain.site import SiteModel
+from greenplan.domain.site import NETWORKS_NOT_FOUND, SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.knowledge.pilot_objects import PilotCatalog, PilotObject
 from greenplan.verify.independent_norm_checker import IndependentNormChecker
-from greenplan.verify.verification_model import PlacedPlant
+from greenplan.verify.verification_model import CONDITION_NOT_DECLARED, PlacedPlant, VerificationViolation
 from greenplan_ml.reference_extractor import ReferencePlanting, ReferencePlantingExtractor
 from greenplan_ml.site_loader import SiteLoader
 from greenplan_ml.targets import SpeciesCrownLookup
@@ -19,6 +19,15 @@ AUDIT_JSON_NAME = "reference_audit.json"
 AUDIT_MARKDOWN_NAME = "reference_audit.md"
 ACCEPTED_STATUS = "accepted"
 REFERENCE_LAYER = "reference"
+AUDIT_NOTES = (
+    "«Нарушают запрет» — посадка ближе табличного расстояния, где сокращение не допускается,",
+    "или ближе минимума, допустимого даже с корнезащитой. «Нужна корнезащита» — посадка в полосе,",
+    "где норма допускает сокращение отступа только с корнезащитой, а на чертеже эталона она не",
+    "показана; это не обязательно ошибка проекта, но мероприятие должно быть заявлено.",
+    "Диаметр неподписанных сетей принят консервативным по умолчанию, поэтому у кабелей и",
+    "неподписанных труб число нарушений может быть завышено. Там, где в подоснове нет сетей,",
+    "низкая доля нарушений ничего не доказывает — проверять не с чем.",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,10 +41,17 @@ class ObjectAudit:
     violations: int = 0
     violating_plants: int = 0
     by_rule: tuple[tuple[str, int], ...] = ()
+    hard_violating_plants: int = 0
+    plants_needing_barrier: int = 0
+    networks_found: bool = True
 
     @property
     def violation_share(self) -> float:
         return self.violating_plants / self.plantings if self.plantings else 0.0
+
+    @property
+    def hard_violation_share(self) -> float:
+        return self.hard_violating_plants / self.plantings if self.plantings else 0.0
 
 
 class ReferenceAuditor:
@@ -100,6 +116,7 @@ class ReferenceAuditor:
         plants = [self._placed(index, planting) for index, planting in enumerate(plantings)]
         violations = self._checker.violations(plants, site)
         by_rule = Counter(violation.code for violation in violations)
+        hard = hard_violating_plant_ids(violations)
         return ObjectAudit(
             object_id=item.object_id,
             level=item.level,
@@ -111,6 +128,9 @@ class ReferenceAuditor:
             violations=len(violations),
             violating_plants=len({violation.plant_id for violation in violations}),
             by_rule=tuple(by_rule.most_common()),
+            hard_violating_plants=len(hard),
+            plants_needing_barrier=len({violation.plant_id for violation in violations} - hard),
+            networks_found=NETWORKS_NOT_FOUND not in site.diagnostics.warnings,
         )
 
     def _placed(self, index: int, planting: ReferencePlanting) -> PlacedPlant:
@@ -125,6 +145,10 @@ class ReferenceAuditor:
             REFERENCE_LAYER,
             f"{planting.target}-{index}",
         )
+
+
+def hard_violating_plant_ids(violations: Sequence[VerificationViolation]) -> set[str]:
+    return {violation.plant_id for violation in violations if violation.code != CONDITION_NOT_DECLARED}
 
 
 def write_audit_report(directory: Path, audits: Sequence[ObjectAudit]) -> tuple[Path, Path]:
@@ -145,17 +169,20 @@ def render_audit_markdown(audits: Sequence[ObjectAudit]) -> str:
         "Проверка проектных решений датасета тем же независимым нормативным контролем, что и",
         "наш результат: те же правила, те же измерения между поверхностями.",
         "",
-        "| Объект | Уровень | Посадок | Вне газона | Нарушений | Посадок с нарушением | Доля |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "| Объект | Уровень | Посадок | Вне газона | Нарушают запрет | Нужна корнезащита | "
+        "Доля нарушающих запрет | Сети в подоснове |",
+        "|---|---|---:|---:|---:|---:|---:|:---:|",
     ]
     for item in audits:
         if not item.checked:
-            lines.append(f"| {item.object_id} | {item.level} | — | — | — | — | {item.reason} |")
+            lines.append(f"| {item.object_id} | {item.level} | — | — | — | — | {item.reason} | — |")
             continue
         lines.append(
             f"| {item.object_id} | {item.level} | {item.plantings} | {item.outside_plantable} | "
-            f"{item.violations} | {item.violating_plants} | {item.violation_share:.0%} |"
+            f"{item.hard_violating_plants} | {item.plants_needing_barrier} | "
+            f"{item.hard_violation_share:.0%} | {'есть' if item.networks_found else 'нет'} |"
         )
+    lines.extend(["", *AUDIT_NOTES])
     for item in audits:
         if item.checked and item.by_rule:
             listed = ", ".join(f"{rule} — {count}" for rule, count in item.by_rule[:5])
