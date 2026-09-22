@@ -12,7 +12,7 @@ from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.folder_converter import FolderConverter
 from greenplan.ingest.input_selection import DrawingInputs, DrawingInputSelector
 from greenplan.knowledge.pilot_objects import PilotCatalog
-from greenplan.pipeline.batch_runner import BatchRunner
+from greenplan.pipeline.batch_runner import BatchOutcome, BatchRunner
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.pipeline.pipeline_request import PipelineRequest
@@ -147,16 +147,13 @@ class BatchCommand:
         )
         runner = BatchRunner(build_pipeline(arguments))
         outcomes = runner.run(
-            catalog, arguments.dataset_root, arguments.output, arguments.levels, arguments.only
+            catalog,
+            arguments.dataset_root,
+            arguments.output,
+            arguments.levels,
+            arguments.only,
+            print_batch_outcome,
         )
-        for item in outcomes:
-            state = (
-                f"деревьев {item.trees}, кустарников {item.shrubs}, нарушений {item.violations}, "
-                f"{item.total_s} с, {item.peak_memory_mb} МБ"
-                if item.succeeded
-                else item.reason
-            )
-            print(f"{item.object_id}: {state}")
         return EXIT_OK if all(item.succeeded and not item.violations for item in outcomes) else EXIT_ERROR
 
 
@@ -204,6 +201,16 @@ class ServeCommand:
             factory=True,
         )
         return EXIT_OK
+
+
+def print_batch_outcome(item: BatchOutcome) -> None:
+    state = (
+        f"деревьев {item.trees}, кустарников {item.shrubs}, нарушений {item.violations}, "
+        f"{item.total_s} с, {item.peak_memory_mb} МБ"
+        if item.succeeded
+        else item.reason
+    )
+    print(f"{item.object_id}: {state}", flush=True)
 
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:

@@ -1,5 +1,5 @@
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -11,6 +11,7 @@ from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipelin
 BATCH_JSON_NAME = "batch_report.json"
 BATCH_MARKDOWN_NAME = "batch_report.md"
 TIMING_DECIMALS = 3
+ProgressReport = Callable[["BatchOutcome"], None]
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,9 +31,8 @@ class BatchOutcome:
 
 
 class BatchRunner:
-    def __init__(self, pipeline: PlanningPipeline, territory: str = "") -> None:
+    def __init__(self, pipeline: PlanningPipeline) -> None:
         self._pipeline = pipeline
-        self._territory = territory
 
     def run(
         self,
@@ -41,11 +41,14 @@ class BatchRunner:
         output_root: Path,
         levels: Sequence[str] | None = None,
         object_ids: Sequence[str] | None = None,
+        on_result: ProgressReport | None = None,
     ) -> list[BatchOutcome]:
-        outcomes = [
-            self.run_object(item, dataset_root, output_root)
-            for item in catalog.selected(levels, object_ids)
-        ]
+        outcomes: list[BatchOutcome] = []
+        for item in catalog.selected(levels, object_ids):
+            outcome = self.run_object(item, dataset_root, output_root)
+            outcomes.append(outcome)
+            if on_result is not None:
+                on_result(outcome)
         write_batch_report(output_root, outcomes)
         return outcomes
 

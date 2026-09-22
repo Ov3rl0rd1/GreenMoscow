@@ -95,6 +95,15 @@ def test_batch_runs_every_object_and_collects_measurements(catalog: PilotCatalog
     assert pipeline.requests[0].search_root == tmp_path / "data" / "1. Первая"
 
 
+def test_progress_is_reported_object_by_object(catalog: PilotCatalog, tmp_path: Path) -> None:
+    seen = []
+    BatchRunner(FakePipeline(failing={"Вторая улица"})).run(
+        catalog, tmp_path / "data", tmp_path / "out", on_result=seen.append
+    )
+    assert [item.object_id for item in seen] == ["first", "second"]
+    assert seen[0].succeeded and not seen[1].succeeded
+
+
 def test_failed_object_does_not_stop_the_batch(catalog: PilotCatalog, tmp_path: Path) -> None:
     outcomes = BatchRunner(FakePipeline(failing={"Первая улица"})).run(
         catalog, tmp_path / "data", tmp_path / "out"
