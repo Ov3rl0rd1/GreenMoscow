@@ -41,9 +41,10 @@ class SurfaceClassifier:
     def _project_surface_polygons(self, geometries: Sequence[LayerGeometry]) -> dict[str, list[Polygon]]:
         polygons_by_class: dict[str, list[Polygon]] = defaultdict(list)
         for item in geometries:
-            surface = self._catalog.parse(item.layer)
-            if surface is not None and surface.target_class is not None:
-                polygons_by_class[surface.target_class].extend(polygonal_parts(item.geometry))
+            surface_class = self._catalog.surface_class(item.layer)
+            if surface_class is not None:
+                polygons_by_class[surface_class].extend(polygonal_parts(item.geometry))
+                polygons_by_class[surface_class].extend(self._closed_line_polygons(item))
         return polygons_by_class
 
     def _topographic_green_areas(self, geometries: Sequence[LayerGeometry]) -> list[Polygon]:

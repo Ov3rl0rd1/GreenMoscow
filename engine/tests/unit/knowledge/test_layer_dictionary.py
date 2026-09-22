@@ -100,3 +100,28 @@ def test_surface_layers_are_parsed_by_target_code(
 
 def test_non_surface_layer_is_not_parsed(surface_catalog: SurfaceCodeCatalog) -> None:
     assert surface_catalog.parse("Газопровод") is None
+
+
+@pytest.mark.parametrize(
+    ("layer", "expected_class"),
+    [
+        ("ДВ_ГП_П_Газон_Рулонный", LAWN),
+        ("ДВ_ПП_П_Газон устраиваемый", LAWN),
+        ("ГП_контр_газон_сущ", LAWN),
+        ("ДВ_ПП_Газон_за ТРОТ", LAWN),
+        ("_Тип 7 (газон)", LAWN),
+        ("ДВ_ПП_ДО_Тип4_ПЧ за ГАЗОН", CARRIAGEWAY),
+        ("ДВ_ПП_ДО_Тип6_ТРТ за ГАЗОН", SIDEWALK),
+        ("ДВ_ПП_ДО_Тип9_Устройство_трот_менее_3м_газон", SIDEWALK),
+        ("#03_Цветник за счет Газона", None),
+        ("Газопровод", None),
+    ],
+)
+def test_named_project_surfaces_are_classified(
+    surface_catalog: SurfaceCodeCatalog, layer: str, expected_class: str | None
+) -> None:
+    assert surface_catalog.surface_class(layer) == expected_class
+
+
+def test_code_pair_layers_still_win_over_named_rules(surface_catalog: SurfaceCodeCatalog) -> None:
+    assert surface_catalog.surface_class("_ГЗН-АБ ПЧ") == CARRIAGEWAY
