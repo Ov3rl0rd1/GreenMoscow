@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from greenplan import __version__
 from greenplan.cli.commands import (
     EXIT_ERROR,
+    BatchCommand,
     Command,
     ConvertCommand,
     InspectCommand,
@@ -29,7 +30,14 @@ def build_parser(commands: Sequence[Command]) -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    commands = (RunCommand(), VerifyCommand(), InspectCommand(), ConvertCommand(), ServeCommand())
+    commands = (
+        RunCommand(),
+        VerifyCommand(),
+        InspectCommand(),
+        BatchCommand(),
+        ConvertCommand(),
+        ServeCommand(),
+    )
     arguments = build_parser(commands).parse_args(argv)
     try:
         return arguments.command.execute(arguments)

@@ -1,5 +1,5 @@
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +24,8 @@ class RunSummary:
     output_dxf: Path
     generated_at: str
     engine_version: str
+    memory_mb: dict[str, float] = field(default_factory=dict)
+    peak_memory_mb: float = 0.0
 
     def payload(self) -> dict[str, Any]:
         summary = self.report_summary
@@ -36,6 +38,8 @@ class RunSummary:
             "output_dxf": str(self.output_dxf),
             "timings_s": self.timings_s,
             "total_s": round(sum(self.timings_s.values()), TIMING_DECIMALS),
+            "memory_mb": self.memory_mb,
+            "peak_memory_mb": self.peak_memory_mb,
             "plants": {
                 "trees": summary.trees,
                 "shrubs": summary.shrubs,

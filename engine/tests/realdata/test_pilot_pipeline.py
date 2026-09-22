@@ -11,6 +11,11 @@ from fixtures.pilot_objects import BAGRITSKOGO_MAIN
 
 pytestmark = [pytest.mark.realdata, pytest.mark.converter, pytest.mark.slow]
 
+PLACEMENT_BUDGET_S = 30 * 60
+RUN_BUDGET_S = 60 * 60
+MEMORY_BUDGET_MB = 8 * 1024
+PLACEMENT_STAGES = ("read_drawings", "recognize_site", "place_plants")
+
 
 def test_cli_run_on_pilot_object_is_verified_and_timed(
     pilot_objects_root: Path, dwg2dxf_path: Path, repository_root: Path, knowledge_root: Path, tmp_path: Path
@@ -35,3 +40,8 @@ def test_cli_run_on_pilot_object_is_verified_and_timed(
     assert summary["verification"]["is_valid"] is True
     assert summary["plants"]["trees"] > 20
     assert summary["total_s"] > 0
+    assert summary["peak_memory_mb"] > 0
+    placement_s = sum(summary["timings_s"][stage] for stage in PLACEMENT_STAGES)
+    assert placement_s < PLACEMENT_BUDGET_S, summary["timings_s"]
+    assert summary["total_s"] < RUN_BUDGET_S, summary["timings_s"]
+    assert summary["peak_memory_mb"] < MEMORY_BUDGET_MB, summary["memory_mb"]

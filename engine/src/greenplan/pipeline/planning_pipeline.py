@@ -1,6 +1,6 @@
 import re
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from greenplan.domain.drawing import DrawingSet
@@ -42,6 +42,8 @@ class PipelineResult:
     verification: VerificationReport
     timings_s: dict[str, float]
     diagnostics: SiteDiagnostics
+    memory_mb: dict[str, float] = field(default_factory=dict)
+    peak_memory_mb: float = 0.0
 
 
 class PlanningPipeline:
@@ -103,10 +105,19 @@ class PlanningPipeline:
             output_dxf,
             generated_at,
             report.engine_version,
+            timer.memory_mb,
+            timer.peak_memory_mb,
         ).write(directory)
         artifacts[summary.name] = summary
         return PipelineResult(
-            output_dxf, artifacts, report.summary, verification, timer.durations, site.diagnostics
+            output_dxf,
+            artifacts,
+            report.summary,
+            verification,
+            timer.durations,
+            site.diagnostics,
+            timer.memory_mb,
+            timer.peak_memory_mb,
         )
 
 

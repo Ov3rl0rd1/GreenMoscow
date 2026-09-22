@@ -11,6 +11,8 @@ from greenplan.domain.norms import TREE
 from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.folder_converter import FolderConverter
 from greenplan.ingest.input_selection import DrawingInputs, DrawingInputSelector
+from greenplan.knowledge.pilot_objects import PilotCatalog
+from greenplan.pipeline.batch_runner import BatchRunner
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.pipeline.pipeline_request import PipelineRequest
@@ -115,6 +117,47 @@ class InspectCommand:
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return EXIT_OK
+
+
+class BatchCommand:
+    name = "batch"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(self.name, help="прогнать объекты датасета и собрать сводку")
+        parser.add_argument("--dataset-root", required=True, type=Path, help="каталог с объектами датасета")
+        parser.add_argument("--output", required=True, type=Path, help="куда сложить результаты")
+        parser.add_argument("--objects", type=Path, help="YAML со списком объектов")
+        parser.add_argument("--levels", nargs="*", help="уровни объектов, например A")
+        parser.add_argument("--only", nargs="*", help="id объектов")
+        parser.add_argument("--territory", help="категория территории для всех объектов")
+        parser.add_argument("--model", type=Path, help="ONNX-модель подсказок")
+        parser.add_argument("--no-ml", action="store_true", help="считать только по правилам")
+        parser.add_argument("--config", type=Path, help="YAML с переопределением настроек")
+        parser.add_argument("--knowledge", type=Path, help="каталог knowledge/")
+        parser.add_argument("--cache", type=Path, help="кеш сконвертированных DXF")
+        parser.add_argument("--dwg2dxf", type=Path, help="путь к dwg2dxf")
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        knowledge_root = locate_knowledge_root(arguments.knowledge)
+        catalog = (
+            PilotCatalog.from_file(arguments.objects)
+            if arguments.objects is not None
+            else PilotCatalog.from_knowledge(knowledge_root)
+        )
+        runner = BatchRunner(build_pipeline(arguments))
+        outcomes = runner.run(
+            catalog, arguments.dataset_root, arguments.output, arguments.levels, arguments.only
+        )
+        for item in outcomes:
+            state = (
+                f"деревьев {item.trees}, кустарников {item.shrubs}, нарушений {item.violations}, "
+                f"{item.total_s} с, {item.peak_memory_mb} МБ"
+                if item.succeeded
+                else item.reason
+            )
+            print(f"{item.object_id}: {state}")
+        return EXIT_OK if all(item.succeeded and not item.violations for item in outcomes) else EXIT_ERROR
 
 
 class ConvertCommand:
@@ -234,6 +277,7 @@ def print_run(result: PipelineResult) -> None:
     print(f"DXF: {result.output_dxf}")
     for stage, seconds in result.timings_s.items():
         print(f"  {stage}: {seconds} с")
+    print(f"Пиковая память: {result.peak_memory_mb} МБ")
 
 
 def print_verification(report: VerificationReport) -> None:
