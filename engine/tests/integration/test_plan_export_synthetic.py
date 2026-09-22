@@ -125,3 +125,13 @@ def test_exporting_over_generated_content_is_refused(
 
 def test_preview_is_a_png(run: ExportRun) -> None:
     assert run.preview.read_bytes()[:4] == PNG_SIGNATURE
+
+
+def test_preview_of_a_long_street_is_wider_than_tall(run: ExportRun) -> None:
+    width, height = png_size(run.preview)
+    assert width > height
+
+
+def png_size(path: Path) -> tuple[int, int]:
+    header = path.read_bytes()[16:24]
+    return int.from_bytes(header[:4], "big"), int.from_bytes(header[4:], "big")

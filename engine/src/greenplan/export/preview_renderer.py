@@ -35,6 +35,8 @@ class PreviewSettings:
     boundary_line_width: float = 0.8
     shrub_marker_size: float = 2.0
     rejection_marker_size: float = 10.0
+    minimum_figure_size_in: float = 3.0
+    margin_ratio: float = 0.02
 
 
 class PreviewRenderer:
@@ -50,9 +52,9 @@ class PreviewRenderer:
         self._draw_networks(axis, site)
         self._draw_plants(axis, report)
         self._draw_rejections(axis, report)
-        self._frame(axis, site)
+        self._frame(axis, figure, site)
         path.parent.mkdir(parents=True, exist_ok=True)
-        figure.savefig(path)
+        figure.savefig(path, bbox_inches="tight")
         return path
 
     def _draw_areas(self, axis: Axes, site: SiteModel, zones: PlantingZones) -> None:
@@ -111,13 +113,32 @@ class PreviewRenderer:
             marker="x",
         )
 
-    def _frame(self, axis: Axes, site: SiteModel) -> None:
-        if not site.boundary.is_empty:
-            min_x, min_y, max_x, max_y = site.boundary.bounds
+    def _frame(self, axis: Axes, figure: Figure, site: SiteModel) -> None:
+        bounds = self._preview_bounds(site)
+        if bounds is not None:
+            min_x, min_y, max_x, max_y = bounds
             axis.set_xlim(min_x, max_x)
             axis.set_ylim(min_y, max_y)
+            figure.set_size_inches(*self._figure_size(max_x - min_x, max_y - min_y))
         axis.set_aspect("equal")
         axis.set_axis_off()
+
+    def _preview_bounds(self, site: SiteModel) -> tuple[float, float, float, float] | None:
+        area = site.plantable_surface if not site.plantable_surface.is_empty else site.boundary
+        if area.is_empty:
+            return None
+        min_x, min_y, max_x, max_y = area.bounds
+        margin = max(max_x - min_x, max_y - min_y) * self._settings.margin_ratio
+        return min_x - margin, min_y - margin, max_x + margin, max_y + margin
+
+    def _figure_size(self, width_m: float, height_m: float) -> tuple[float, float]:
+        longest = self._settings.figure_size_in
+        shortest = self._settings.minimum_figure_size_in
+        if width_m <= 0 or height_m <= 0:
+            return longest, longest
+        if width_m >= height_m:
+            return longest, max(shortest, longest * height_m / width_m)
+        return max(shortest, longest * width_m / height_m), longest
 
 
 def _fill(axis: Axes, area: BaseGeometry, color: str) -> None:
