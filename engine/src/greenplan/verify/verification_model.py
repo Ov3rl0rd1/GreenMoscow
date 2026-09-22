@@ -41,6 +41,7 @@ class IntegrityReport:
     changed_handles: tuple[str, ...]
     changed_layers: tuple[str, ...]
     missing_blocks: tuple[str, ...]
+    dropped_empty_bodies: tuple[str, ...] = ()
 
     @property
     def is_intact(self) -> bool:

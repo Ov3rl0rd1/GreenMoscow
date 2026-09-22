@@ -100,3 +100,20 @@ def test_text_with_broken_encoding_is_fingerprinted_without_failure() -> None:
     assert first == FINGERPRINTER.fingerprint(text)
     text.dxf.text = "смотровых колодцах"
     assert FINGERPRINTER.fingerprint(text) == first
+
+
+def test_empty_acis_body_is_reported_apart_from_lost_entities() -> None:
+    document = create_document()
+    region = document.modelspace().add_region([])
+    line = document.modelspace().add_line((0, 0), (1, 0))
+    region_handle, line_handle = region.dxf.handle, line.dxf.handle
+    before = FINGERPRINTER.modelspace_fingerprints(document)
+    document.modelspace().delete_entity(region)
+    difference = FINGERPRINTER.compare(before, FINGERPRINTER.modelspace_fingerprints(document))
+    assert difference.dropped_empty_bodies == (region_handle,)
+    assert difference.missing_handles == ()
+    assert difference.is_intact
+    document.modelspace().delete_entity(line)
+    lost = FINGERPRINTER.compare(before, FINGERPRINTER.modelspace_fingerprints(document))
+    assert lost.missing_handles == (line_handle,)
+    assert not lost.is_intact

@@ -32,6 +32,17 @@ COMPARED_ATTRIBUTES = (
     "height",
 )
 GEOMETRY_ERRORS = (TypeError, ValueError, ArithmeticError)
+ACIS_BODY_TYPES = (
+    "REGION",
+    "BODY",
+    "3DSOLID",
+    "SURFACE",
+    "PLANESURFACE",
+    "EXTRUDEDSURFACE",
+    "LOFTEDSURFACE",
+    "REVOLVEDSURFACE",
+    "SWEPTSURFACE",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,12 +51,14 @@ class EntityFingerprint:
     dxftype: str
     layer: str
     digest: str
+    is_empty_body: bool = False
 
 
 @dataclass(frozen=True, slots=True)
 class IntegrityDifference:
     missing_handles: tuple[str, ...]
     changed_handles: tuple[str, ...]
+    dropped_empty_bodies: tuple[str, ...] = ()
 
     @property
     def is_intact(self) -> bool:
@@ -60,6 +73,7 @@ class EntityFingerprinter:
             dxftype=entity.dxftype(),
             layer=entity.dxf.layer,
             digest=hashlib.sha1(payload.encode("utf-8")).hexdigest(),
+            is_empty_body=is_empty_body(entity),
         )
 
     def modelspace_fingerprints(self, document: Drawing) -> dict[str, EntityFingerprint]:
@@ -68,11 +82,19 @@ class EntityFingerprinter:
     def compare(
         self, before: Mapping[str, EntityFingerprint], after: Mapping[str, EntityFingerprint]
     ) -> IntegrityDifference:
-        missing = tuple(sorted(handle for handle in before if handle not in after))
+        lost = sorted(handle for handle in before if handle not in after)
         changed = tuple(
             sorted(handle for handle, print_ in before.items() if handle in after and after[handle] != print_)
         )
-        return IntegrityDifference(missing, changed)
+        missing = tuple(handle for handle in lost if not before[handle].is_empty_body)
+        empty_bodies = tuple(handle for handle in lost if before[handle].is_empty_body)
+        return IntegrityDifference(missing, changed, empty_bodies)
+
+
+def is_empty_body(entity: DXFGraphic) -> bool:
+    if entity.dxftype() not in ACIS_BODY_TYPES:
+        return False
+    return not getattr(entity, "sab", b"") and not getattr(entity, "acis_data", ())
 
 
 def _attributes_text(entity: DXFGraphic) -> str:

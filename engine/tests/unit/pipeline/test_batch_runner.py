@@ -140,3 +140,11 @@ def test_unexpected_error_is_recorded_and_the_batch_continues(
     assert not outcomes[0].succeeded
     assert "UnicodeEncodeError" in outcomes[0].reason
     assert outcomes[1].succeeded
+
+
+def test_batch_markdown_shows_source_integrity(catalog: PilotCatalog, tmp_path: Path) -> None:
+    output = tmp_path / "out"
+    BatchRunner(FakePipeline(failing=set())).run(catalog, tmp_path / "data", output)
+    text = (output / BATCH_MARKDOWN_NAME).read_text(encoding="utf-8")
+    assert "Исходник цел" in text
+    assert "| да |" in text

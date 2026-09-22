@@ -44,6 +44,7 @@ def verification_markdown_lines(report: VerificationReport) -> list[str]:
         f"изменено {len(integrity.changed_handles)}",
         f"- Изменённые исходные слои: {len(integrity.changed_layers)}; "
         f"пропавшие блоки: {len(integrity.missing_blocks)}",
+        *_empty_bodies_note(integrity.dropped_empty_bodies),
         "",
         "## Нарушения по видам",
         "",
@@ -66,3 +67,13 @@ def verification_markdown_lines(report: VerificationReport) -> list[str]:
 
 def _optional_number(value: float | None) -> str:
     return "" if value is None else format_number(value)
+
+
+def _empty_bodies_note(handles: tuple[str, ...]) -> list[str]:
+    if not handles:
+        return []
+    return [
+        f"- Не перенесено пустых тел ACIS: {len(handles)} — во входном чертеже это оболочки "
+        "REGION или 3DSOLID без геометрии (так их отдаёт конвертер DWG→DXF); на изображение "
+        "чертежа они не влияют, поэтому проверку не проваливают"
+    ]

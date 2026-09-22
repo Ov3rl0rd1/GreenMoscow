@@ -154,7 +154,10 @@ class BatchCommand:
             arguments.only,
             print_batch_outcome,
         )
-        return EXIT_OK if all(item.succeeded and not item.violations for item in outcomes) else EXIT_ERROR
+        passed = all(
+            item.succeeded and not item.violations and item.integrity_is_intact for item in outcomes
+        )
+        return EXIT_OK if passed else EXIT_ERROR
 
 
 class ConvertCommand:
@@ -206,6 +209,7 @@ class ServeCommand:
 def print_batch_outcome(item: BatchOutcome) -> None:
     state = (
         f"деревьев {item.trees}, кустарников {item.shrubs}, нарушений {item.violations}, "
+        f"исходник {'цел' if item.integrity_is_intact else 'НЕ ЦЕЛ'}, "
         f"{item.total_s} с, {item.peak_memory_mb} МБ"
         if item.succeeded
         else item.reason

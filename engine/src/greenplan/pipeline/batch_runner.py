@@ -96,16 +96,18 @@ def render_batch_markdown(outcomes: Sequence[BatchOutcome]) -> str:
     lines = [
         "# Пакетный прогон объектов",
         "",
-        "| Объект | Уровень | Деревья | Кустарники | Условно | Отказы | Нарушения | Время, с | Память, МБ |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Объект | Уровень | Деревья | Кустарники | Условно | Отказы | Нарушения | "
+        "Исходник цел | Время, с | Память, МБ |",
+        "|---|---|---:|---:|---:|---:|---:|:---:|---:|---:|",
     ]
     for item in outcomes:
         if not item.succeeded:
-            lines.append(f"| {item.object_id} | {item.level} | — | — | — | — | — | — | — |")
+            lines.append(f"| {item.object_id} | {item.level} | — | — | — | — | — | — | — | — |")
             continue
         lines.append(
             f"| {item.object_id} | {item.level} | {item.trees} | {item.shrubs} | {item.conditional} | "
-            f"{item.rejected} | {item.violations} | {item.total_s} | {item.peak_memory_mb} |"
+            f"{item.rejected} | {item.violations} | {'да' if item.integrity_is_intact else 'НЕТ'} | "
+            f"{item.total_s} | {item.peak_memory_mb} |"
         )
     failed = [item for item in outcomes if not item.succeeded]
     if failed:

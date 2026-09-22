@@ -26,6 +26,7 @@ class SourceIntegrityChecker:
                 )
             ),
             missing_blocks=tuple(sorted(_block_names(source) - _block_names(output))),
+            dropped_empty_bodies=difference.dropped_empty_bodies,
         )
 
 
