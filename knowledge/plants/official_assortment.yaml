@@ -1,0 +1,4817 @@
+meta:
+  title_ru: Ассортимент деревьев, кустарников и лиан для озеленения различных категорий территорий города Москвы
+    (основной, дополнительный, перспективный)
+  publisher_ru: ДПиООС города Москвы, mos.ru
+  received: '2026-09-23'
+  sources:
+  - research/raw/assortment/main_and_additional_assortment.docx
+  - research/raw/assortment/perspective_species.docx
+  species_count: 329
+columns:
+- id: yards
+  number: 1
+  name_ru: Дворовые территории
+  short_ru: дворовые территории
+- id: preschool
+  number: 2
+  name_ru: Дошкольные учреждения
+  short_ru: дошкольные учреждения
+- id: schools_sport
+  number: 3
+  name_ru: Общеобразовательные и спортивные учреждения (школы, колледжи)
+  short_ru: школы, колледжи и спортивные учреждения
+- id: healthcare
+  number: 4
+  name_ru: Учреждения здравоохранения и реабилитационные центры
+  short_ru: учреждения здравоохранения
+- id: roads
+  number: 5
+  name_ru: Магистрали (шоссе, проспекты, улицы с высокоскоростным движением, кольцевые дороги и хорды), *внутриквартальные
+    улицы и проезды местного значения
+  short_ru: магистрали и внутриквартальные улицы
+- id: public_spaces
+  number: 6
+  name_ru: Площади, пространства общественно-делового и торгово-развлекательного назначения
+  short_ru: площади и общественные пространства
+- id: parks
+  number: 7
+  name_ru: Парки, *бульвары, скверы, набережные, сады
+  short_ru: парки, бульвары, скверы, набережные
+- id: industrial
+  number: 8
+  name_ru: Территории производственного назначения, *озеленённые территории охранных и санитарно-защитных зон
+  short_ru: производственные и санитарно-защитные территории
+notes:
+  1: Разрешён на всех территориях, кроме ООЗТ и ПТ, с контролем распространения (п. 5 ПП №369-ПП)
+  2: Не высаживать вблизи детских и спортивных площадок, мест массового пребывания детей
+  3: 'Требует особого ухода: защита корневой системы от травм, весеннее дождевание кроны (при посадке у дорог),
+    мульчирование, рыхление'
+  4: Требует дренированных, рыхлых, незасоленных, неуплотнённых почв. Не высаживать в зонах с застойным увлажнением
+    и на уплотнённых грунтах
+  5: Чувствительно к противогололёдным реагентам и выхлопным газам
+  6: Не высаживать вблизи плодовых культур (яблоня, груша, айва) из-за риска распространения ржавчинных грибов
+  7: Вид с потенциалом самосева и неконтролируемого распространения. За пределами ООЗТ посадка допускается на расстоянии
+    от 1 до 2 км от их границ при условии регулярного контроля
+footnotes_ru:
+- На территориях ботанических, зоологических садов, кладбищ, мемориальных комплексов и религиозных организаций породный
+  состав для озеленения определяется балансодержателем. В границах особо охраняемых природных территорий, особо
+  охраняемых зеленых территорий, природных территорий на участках, занятых естественными растительными сообществами,
+  породный состав определяется на основании проекта мероприятий по сохранению, развитию и воспроизводству насаждений.
+- На территориях инклюзивных площадок для людей с ограниченными возможностями породный состав определяется на основании
+  проекта мероприятий по сохранению, развитию и воспроизводству насаждений.
+- На территориях высших учебных заведений породный состав определяется на основании проекта мероприятий по сохранению,
+  развитию и воспроизводству насаждений.
+- '*Обозначенный перечень территорий озеленения вне границ ООЗТ, на которых возможна высадка рекомендуемого растения
+  при условии контроля его распространения.'
+- На территориях ботанических, зоологических садов, кладбищ, мемориальных комплексов и религиозных организаций породный
+  состав для озеленения определяется балансодержателем. В границах особо охраняемых природных территорий, особо
+  охраняемых зеленых территорий, природных территорий на участках, занятых естественными растительными сообществами,
+  породный состав определяется на основании проекта мероприятий по сохранению, развитию и воспроизводству насаждений.
+species:
+- name_ru: Ель колючая (формы и сорта)
+  source_name: Ель колючая (формы и сорта)
+  level: main
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ель обыкновенная/европейская (формы и сорта)
+  source_name: Ель обыкновенная/европейская [3], [4], [5](формы и сорта)
+  level: main
+  group: conifer_tree
+  notes:
+  - 3
+  - 4
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лиственница американская
+  source_name: Лиственница американская
+  level: main
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лиственница даурская (Гмелина)
+  source_name: Лиственница даурская (Гмелина)
+  level: main
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лиственница европейская (опадающая) (формы и сорта)
+  source_name: Лиственница европейская (опадающая) (формы и сорта)
+  level: main
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лиственница сибирская
+  source_name: Лиственница сибирская
+  level: main
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна обыкновенная (формы и сорта)
+  source_name: Сосна обыкновенная [3], [4], [5](формы и сорта)
+  level: main
+  group: conifer_tree
+  notes:
+  - 3
+  - 4
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Можжевельник виргинский (формы и сорта)
+  source_name: Можжевельник виргинский [2], [5], [6](формы и сорта)
+  level: main
+  group: conifer_shrub
+  notes:
+  - 2
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Можжевельник горизонтальный (формы и сорта)
+  source_name: Можжевельник горизонтальный [2], [5], [6](формы и сорта)
+  level: main
+  group: conifer_shrub
+  notes:
+  - 2
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Можжевельник казацкий (формы и сорта)
+  source_name: Можжевельник казацкий [2], [5], [6](формы и сорта)
+  level: main
+  group: conifer_shrub
+  notes:
+  - 2
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Можжевельник средний Пфитцериана (формы и сорта)
+  source_name: Можжевельник средний Пфитцериана [2], [5], [6] (формы и сорта)
+  level: main
+  group: conifer_shrub
+  notes:
+  - 2
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Можжевельник скальный (формы и сорта)
+  source_name: Можжевельник скальный [2], [5], [6](формы и сорта)
+  level: main
+  group: conifer_shrub
+  notes:
+  - 2
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна горная (формы и сорта)
+  source_name: Сосна горная(формы и сорта) [5]
+  level: main
+  group: conifer_shrub
+  notes:
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бархат Амурский
+  source_name: Бархат Амурский
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Береза повислая/плакучая (формы и сорта)
+  source_name: Береза повислая/плакучая (формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Береза пушистая (формы и сорта)
+  source_name: Береза пушистая (формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник Арнольда
+  source_name: Боярышник Арнольда [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник крупноколючковый
+  source_name: Боярышник крупноколючковый [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник перистонадрезанный
+  source_name: Боярышник перистонадрезанный [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник полумягкий/мягковатый
+  source_name: Боярышник полумягкий/мягковатый [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник сливолистный
+  source_name: Боярышник сливолистный [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник точечный
+  source_name: Боярышник точечный [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник чёрный
+  source_name: Боярышник чёрный [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вишня обыкновенная
+  source_name: Вишня обыкновенная [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Вяз гибридный Резиста
+  source_name: Вяз гибридный Резиста
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вяз перисто-ветвистый
+  source_name: Вяз перисто-ветвистый
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вяз приземистый
+  source_name: Вяз приземистый
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Груша уссурийская
+  source_name: Груша уссурийская [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Дуб красный
+  source_name: Дуб красный [1]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Дуб черешчатый (формы и сорта)
+  source_name: Дуб черешчатый(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ива белая (формы и сорта)
+  source_name: Ива белая(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива ломкая ф. «Bullata»
+  source_name: Ива ломкая ф. «Bullata»
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива прутовидная
+  source_name: Ива прутовидная
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ивы свердловской селекции (формы и сорта)
+  source_name: Ивы свердловской селекции(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива Шверина
+  source_name: Ива Шверина
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Кладрастис желтый
+  source_name: Кладрастис желтый
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен гиннала/приречный
+  source_name: Клен гиннала/приречный
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен красный (формы и сорта)
+  source_name: Клен красный(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Клен остролистный (формы и сорта)
+  source_name: Клен остролистный(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен сахаристый/серебристый (формы и сорта)
+  source_name: Клен сахаристый/серебристый(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: '-'
+    industrial: +
+- name_ru: Клен татарский
+  source_name: Клен татарский
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Конский каштан восьмитычинковый
+  source_name: Конский каштан восьмитычинковый
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Конский каштан мясо-красный
+  source_name: Конский каштан мясо-красный
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Липа американская
+  source_name: Липа американская [3]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Липа крупнолистная (формы и сорта)
+  source_name: Липа крупнолистная [3](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Липа мелколистная/сердцевидная (формы и сорта)
+  source_name: Липа мелколистная/сердцевидная [3](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Липа обыкновенная/европейская (формы и сорта)
+  source_name: Липа обыкновенная/европейская [3] (формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ольха серая (формы и сорта)
+  source_name: Ольха серая(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ольха черная (формы и сорта)
+  source_name: Ольха черная(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Орех маньчжурский
+  source_name: Орех маньчжурский [1]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 1
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: '-'
+    parks: '-'
+    industrial: +
+- name_ru: Орех серый
+  source_name: Орех серый
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Робиния лжеакация/акация белая
+  source_name: Робиния лжеакация/акация белая [1]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: '-'
+    industrial: '-'
+- name_ru: Рябина ария (формы и сорта)
+  source_name: Рябина ария [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина гибридная (формы и сорта)
+  source_name: Рябина гибридная [2] (формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина обыкновенная (формы и сорта)
+  source_name: Рябина обыкновенная [2] (формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина промежуточная (формы и сорта)
+  source_name: Рябина промежуточная [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина тюрингская/дуболистная (формы и сорта)
+  source_name: Рябина тюрингская/дуболистная [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Слива домашняя (формы и сорта)
+  source_name: Слива домашняя [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Слива колючая/терн
+  source_name: Слива колючая/терн [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Слива растопыренная
+  source_name: Слива растопыренная [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь бальзамический (муж. клоны)
+  source_name: Тополь бальзамический(муж. клоны)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь белый/серебристый (муж. клоны) (формы и сорта)
+  source_name: Тополь белый/серебристый (муж. клоны)(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь берлинский (муж. клоны)
+  source_name: Тополь берлинский (муж. клоны)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь дрожащий/осина (муж. клоны)
+  source_name: Тополь дрожащий/осина (муж. клоны)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: '-'
+    parks: '-'
+    industrial: +
+- name_ru: Тополь канадский (муж. клоны)
+  source_name: Тополь канадский (муж. клоны)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь Симона (муж. клоны) (формы и сорта)
+  source_name: Тополь Симона (муж. клоны)(формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь советский Пирамидальный (муж. клоны)
+  source_name: Тополь советский Пирамидальный (муж. клоны)
+  level: main
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черемуха виргинская (формы и сорта)
+  source_name: Черемуха виргинская [1](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Черемуха Маака
+  source_name: Черемуха Маака [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черемуха обыкновенная (формы и сорта)
+  source_name: Черемуха обыкновенная [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черемуха поздняя (формы и сорта)
+  source_name: Черемуха поздняя [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Яблоня Недзведцкого
+  source_name: Яблоня Недзведцкого [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня обильноцветущая
+  source_name: Яблоня обильноцветущая [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня сливолистная
+  source_name: Яблоня сливолистная [2]
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня ягодная (формы и сорта)
+  source_name: Яблоня ягодная [2](формы и сорта)
+  level: main
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Аморфа кустарниковая
+  source_name: Аморфа кустарниковая [1]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Арония черноплодная/Мичурина (формы и сорта)
+  source_name: Арония черноплодная/Мичурина [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Барбарис амурский
+  source_name: Барбарис амурский [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Барбарис обыкновенный (формы и сорта)
+  source_name: Барбарис обыкновенный [2] (формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Барбарис оттавский (формы и сорта)
+  source_name: Барбарис оттавский [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Барбарис Тунберга (формы и сорта)
+  source_name: Барбарис Тунберга [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бересклет бородавчатый
+  source_name: Бересклет бородавчатый [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Бересклет европейский (формы и сорта)
+  source_name: Бересклет европейский [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Бересклет крылатый (формы и сорта)
+  source_name: Бересклет крылатый [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Бересклет Маака
+  source_name: Бересклет Маака [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Бирючина обыкновенная (формы и сорта)
+  source_name: Бирючина обыкновенная [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Боярышник Арнольда
+  source_name: Боярышник Арнольда [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник кроваво-красный
+  source_name: Боярышник кроваво-красный [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник обыкновенный/колючий
+  source_name: Боярышник обыкновенный/колючий [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник однопестичный (формы и сорта)
+  source_name: Боярышник однопестичный [2](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник перистонадрезанный
+  source_name: Боярышник перистонадрезанный [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник полумягкий/мягковатый
+  source_name: Боярышник полумягкий/мягковатый [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник сливолистный
+  source_name: Боярышник сливолистный [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: HYPERLINK "https://www.google.com/search?q=%D0%91%D1%83%D0%B7%D0%B8%D0%BD%D0%B0+%D0%BA%D0%B0%D0%BD%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F+%C2%AB%D0%90%D1%83%D1%80%D0%B5%D0%B0%C2%BB&oq=%D0%91%D1%83%D0%B7%D0%B8%D0%BD%D0%B0+%D0%BA%D0%B0%D0%BD%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F+%D0%B7%D0%BE%D0%BB%D0%BE%D1%82%D0%B8%D1%81%D1%82%D0%B0%D1%8F&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigAdIBBzM0MmowajSoAgCwAgE&sourceid=chrome&ie=UTF-8&mstk=AUtExfBMWM9x8bcqk3FdEMqKlDBzjpqJ90F5FKwqrckLMwP6LMSX9P9BQwXIY3YIdSPTf7dF0HmZcWlvFEok_vjoPOBYGAnOSag7GUT0bC_3ohmGR6Z4jWDG6_Jd8ff_DNBtXxacURdnr88RO9atL1CD60rtJIM8pSWxiM9zDEtcKP-dhpV-p7svJN_1AONd9zXQLxhAbsiAAIIzF92h-XZag4twhOy7tvKZabF9AUN9fjPOof6bjkbr32Ai6Ux02rvVXBI3vkswsCwBQu56jLV-LFZloPmT0Xcv__p60KgLwMsPdw&csui=3&ved=2ahUKEwjd_5_-iLiTAxWxFxAIHQlGEukQgK4QegQIARAB"
+    Бузина канадская «Аurea»
+  source_name: HYPERLINK "https://www.google.com/search?q=%D0%91%D1%83%D0%B7%D0%B8%D0%BD%D0%B0+%D0%BA%D0%B0%D0%BD%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F+%C2%AB%D0%90%D1%83%D1%80%D0%B5%D0%B0%C2%BB&oq=%D0%91%D1%83%D0%B7%D0%B8%D0%BD%D0%B0+%D0%BA%D0%B0%D0%BD%D0%B0%D0%B4%D1%81%D0%BA%D0%B0%D1%8F+%D0%B7%D0%BE%D0%BB%D0%BE%D1%82%D0%B8%D1%81%D1%82%D0%B0%D1%8F&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigAdIBBzM0MmowajSoAgCwAgE&sourceid=chrome&ie=UTF-8&mstk=AUtExfBMWM9x8bcqk3FdEMqKlDBzjpqJ90F5FKwqrckLMwP6LMSX9P9BQwXIY3YIdSPTf7dF0HmZcWlvFEok_vjoPOBYGAnOSag7GUT0bC_3ohmGR6Z4jWDG6_Jd8ff_DNBtXxacURdnr88RO9atL1CD60rtJIM8pSWxiM9zDEtcKP-dhpV-p7svJN_1AONd9zXQLxhAbsiAAIIzF92h-XZag4twhOy7tvKZabF9AUN9fjPOof6bjkbr32Ai6Ux02rvVXBI3vkswsCwBQu56jLV-LFZloPmT0Xcv__p60KgLwMsPdw&csui=3&ved=2ahUKEwjd_5_-iLiTAxWxFxAIHQlGEukQgK4QegQIARAB"
+    Бузина канадская «Аurea»
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бузина красная/кистистая
+  source_name: Бузина красная/кистистая [2]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: '-'
+    parks: +
+    industrial: +
+- name_ru: Бузина черная (формы и сорта)
+  source_name: Бузина черная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Гортензия Бреттшнейдера
+  source_name: Гортензия Бреттшнейдера
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Гортензия древовидная (формы и сорта)
+  source_name: Гортензия древовидная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Гортензия метельчатая (формы и сорта)
+  source_name: Гортензия метельчатая(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дерен белый/сибирский (формы и сорта)
+  source_name: Дерен белый/сибирский [1](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дерен кроваво-красный (формы и сорта)
+  source_name: Дерен кроваво-красный(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дерен отпрысковый ф. «Флавирамея»
+  source_name: Дерен отпрысковый ф. «Флавирамея»
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость альпийская
+  source_name: Жимолость альпийская
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость золотистая
+  source_name: Жимолость золотистая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость Королькова
+  source_name: Жимолость Королькова
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость Маака
+  source_name: Жимолость Маака
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость Максимовича
+  source_name: Жимолость Максимовича
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость обыкновенная
+  source_name: Жимолость обыкновенная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: '-'
+    parks: +
+    industrial: '-'
+- name_ru: Жимолость татарская (формы и сорта)
+  source_name: Жимолость татарская(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива пурпурная ф. «Nana»
+  source_name: Ива пурпурная ф. «Nana»
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ирга канадская/Ирга Ламарка
+  source_name: Ирга канадская/Ирга Ламарка
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ирга колосистая
+  source_name: Ирга колосистая [1]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ирга круглолистная
+  source_name: Ирга круглолистная [7]
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 7
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Калина гордовина (формы и сорта)
+  source_name: Калина гордовина(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Калина обыкновенная (формы и сорта)
+  source_name: Калина обыкновенная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Калина Саржента (формы и сорта)
+  source_name: Калина Саржента(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Карагана древовидная/акация желтая (формы и сорта)
+  source_name: Карагана древовидная/акация желтая(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: '-'
+    industrial: +
+- name_ru: Карагана кустарниковая
+  source_name: Карагана кустарниковая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Кизильник блестящий
+  source_name: Кизильник блестящий
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лапчатка кустарниковая (формы и сорта)
+  source_name: Лапчатка кустарниковая(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лещина обыкновенная (формы и сорта)
+  source_name: Лещина обыкновенная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лещина пурпурнолистная
+  source_name: Лещина пурпурнолистная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лох серебристый
+  source_name: Лох серебристый
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лох узколистный
+  source_name: Лох узколистный
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Магония падуболистная (формы и сорта)
+  source_name: Магония падуболистная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Пузыреплодник калинолистный (формы и сорта)
+  source_name: Пузыреплодник калинолистный [1](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Роза бедренцеволистная
+  source_name: Роза бедренцеволистная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Роза морщинистая (формы и сорта)
+  source_name: Роза морщинистая [1](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: '-'
+    industrial: +
+- name_ru: Роза сизая
+  source_name: Роза сизая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Роза собачья
+  source_name: Роза собачья
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябинник рябинолистный (формы и сорта)
+  source_name: Рябинник рябинолистный [1](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень амурская
+  source_name: Сирень амурская
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сирень венгерская
+  source_name: Сирень венгерская
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень обыкновенная (формы и сорта)
+  source_name: Сирень обыкновенная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень Престон (сорта)
+  source_name: Сирень Престон(сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Смородина альпийская (формы и сорта)
+  source_name: Смородина альпийская(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Смородина железистая
+  source_name: Смородина железистая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Смородина золотистая
+  source_name: Смородина золотистая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Смородина красная
+  source_name: Смородина красная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Снежноягодник белый (формы и сорта)
+  source_name: Снежноягодник белый [7](формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes:
+  - 7
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: '-'
+    industrial: +
+- name_ru: Спирея березолистная (формы и сорта)
+  source_name: Спирея березолистная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея Билларда (формы и сорта)
+  source_name: Спирея Билларда(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея Бумальда (формы и сорта)
+  source_name: Спирея Бумальда(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея Вангутта (формы и сорта)
+  source_name: Спирея Вангутта(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея дубравколистная
+  source_name: Спирея дубравколистная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея Дугласа (формы и сорта)
+  source_name: Спирея Дугласа(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея иволистная (формы и сорта)
+  source_name: Спирея иволистная(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея ниппонская (формы и сорта)
+  source_name: Спирея ниппонская (формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея острозубчатая
+  source_name: Спирея острозубчатая
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея серая (формы и сорта)
+  source_name: Спирея серая(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея средняя (формы и сорта)
+  source_name: Спирея средняя(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея трехлопастная
+  source_name: Спирея трехлопастная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея японская (формы и сорта)
+  source_name: Спирея японская (формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Форзиция обратнояйцевидная
+  source_name: Форзиция обратнояйцевидная
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Хеномелес японский
+  source_name: Хеномелес японский
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Чубушник венечный (формы и сорта)
+  source_name: Чубушник венечный(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник Лемуана (формы и сорта)
+  source_name: Чубушник Лемуана(формы и сорта)
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник мелколистный
+  source_name: Чубушник мелколистный
+  level: main
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Актинидия коломикта
+  source_name: Актинидия коломикта
+  level: main
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Виноград амурский
+  source_name: Виноград амурский
+  level: main
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Девичий виноград пятилисточковый
+  source_name: Девичий виноград пятилисточковый [1]
+  level: main
+  group: liana
+  notes:
+  - 1
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Жимолость каприфоль
+  source_name: Жимолость каприфоль
+  level: main
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клематис сибирский
+  source_name: Клематис сибирский
+  level: main
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лимонник китайский
+  source_name: Лимонник китайский
+  level: main
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ель канадская/сизая (формы и сорта)
+  source_name: Ель канадская/сизая(формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ель сербская (формы и сорта)
+  source_name: Ель сербская [4](формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes:
+  - 4
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ель шероховатая
+  source_name: Ель шероховатая [4]
+  level: additional
+  group: conifer_tree
+  notes:
+  - 4
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ель Энгельмана
+  source_name: Ель Энгельмана
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Кипарисовик горохоплодный
+  source_name: Кипарисовик горохоплодный
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лиственница Кемфера
+  source_name: Лиственница Кемфера
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лиственница Сукачева
+  source_name: Лиственница Сукачева
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Пихта бальзамическая (формы и сорта)
+  source_name: Пихта бальзамическая [3], [4], [5](формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes:
+  - 3
+  - 4
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Пихта Вича
+  source_name: Пихта Вича
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Пихта одноцветная (формы и сорта)
+  source_name: Пихта одноцветная(формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Пихта сибирская
+  source_name: Пихта сибирская [3], [4], [5]
+  level: additional
+  group: conifer_tree
+  notes:
+  - 3
+  - 4
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Псевдотсуга Мензиса сизая
+  source_name: Псевдотсуга Мензиса сизая
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна Веймутова (формы и сорта)
+  source_name: Сосна Веймутова [4](формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes:
+  - 4
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: '-'
+    parks: +
+    industrial: '-'
+- name_ru: Сосна кедровая европейская
+  source_name: Сосна кедровая европейская
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна кедровая корейская
+  source_name: Сосна кедровая корейская
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна кедровая сибирская
+  source_name: Сосна кедровая сибирская
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна кедровая стланиковая (кедровый стланик)
+  source_name: Сосна кедровая стланиковая (кедровый стланик)
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна румелийская (формы и сорта)
+  source_name: Сосна румелийская(формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: '-'
+    parks: +
+    industrial: '-'
+- name_ru: Сосна черная австрийская
+  source_name: Сосна черная австрийская
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Туя западная (формы и сорта)
+  source_name: Туя западная(формы и сорта)
+  level: additional
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Микробиота перекрёстнопарная
+  source_name: Микробиота перекрёстнопарная
+  level: additional
+  group: conifer_shrub
+  notes: []
+  columns:
+    yards: '-'
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Можжевельник китайский (формы и сорта)
+  source_name: Можжевельник китайский [5], [6](формы и сорта)
+  level: additional
+  group: conifer_shrub
+  notes:
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Можжевельник чешуйчатый (формы и сорта)
+  source_name: Можжевельник чешуйчатый [5], [6](формы и сорта)
+  level: additional
+  group: conifer_shrub
+  notes:
+  - 5
+  - 6
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Багряник японский
+  source_name: Багряник японский
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Береза бумажная
+  source_name: Береза бумажная
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Берёза вишнёвая
+  source_name: Берёза вишнёвая
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Береза ребристая (формы и сорта)
+  source_name: Береза ребристая(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Береза черная (формы и сорта)
+  source_name: Береза черная(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Береза Эрмана/каменная (формы и сорта)
+  source_name: Береза Эрмана/каменная(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Боярышник зеленомясый
+  source_name: Боярышник зеленомясый
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вяз шершавый (формы и сорта)
+  source_name: Вяз шершавый(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Груша иволистная (формы и сорта)
+  source_name: Груша иволистная(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Груша обыкновенная
+  source_name: Груша обыкновенная
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Дуб монгольский
+  source_name: Дуб монгольский
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Ива козья (формы и сорта)
+  source_name: Ива козья(формы и сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: '-'
+    parks: +
+    industrial: +
+- name_ru: Ива пятитычинковая
+  source_name: Ива пятитычинковая
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива росистая
+  source_name: Ива росистая
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива цельнолистная
+  source_name: Ива цельнолистная
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен зеленокорый
+  source_name: Клен зеленокорый
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клён колосистый
+  source_name: Клён колосистый
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен ложнозибольдов
+  source_name: Клен ложнозибольдов
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клен маньчжурский
+  source_name: Клен маньчжурский
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клён мелколистный
+  source_name: Клён мелколистный
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Липа войлочная/серебристая
+  source_name: Липа войлочная/серебристая [3]
+  level: additional
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Липа монгольская
+  source_name: Липа монгольская [3]
+  level: additional
+  group: deciduous_tree
+  notes:
+  - 3
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Маакия амурская
+  source_name: Маакия амурская
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рябина Арнольда (сорта)
+  source_name: Рябина Арнольда (сорта)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рябина бузинолистная
+  source_name: Рябина бузинолистная
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина кашмирская
+  source_name: Рябина кашмирская
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина Мужо
+  source_name: Рябина Мужо
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тополь лавролистный
+  source_name: Тополь лавролистный
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: '-'
+    parks: '-'
+    industrial: +
+- name_ru: Тополь Максимовича (муж. клоны)
+  source_name: Тополь Максимовича (муж. клоны)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: '-'
+    parks: '-'
+    industrial: +
+- name_ru: Тополь черный (муж. клоны)
+  source_name: Тополь черный (муж. клоны)
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черемуха пенсильванская
+  source_name: Черемуха пенсильванская
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня Зибольда
+  source_name: Яблоня Зибольда
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня Саржента
+  source_name: Яблоня Саржента
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ясень маньчжурский
+  source_name: Ясень маньчжурский
+  level: additional
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Барбарис Вильсон
+  source_name: Барбарис Вильсон [2]
+  level: additional
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бересклет Форчуна (формы и сорта)
+  source_name: Бересклет Форчуна [2](формы и сорта)
+  level: additional
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Боярышник Максимовича
+  source_name: Боярышник Максимовича
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вейгела Миддендорфа
+  source_name: Вейгела Миддендорфа
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Вишня войлочная
+  source_name: Вишня войлочная
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дёрен Бейли
+  source_name: Дёрен Бейли
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дёрен Вальтера
+  source_name: Дёрен Вальтера
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жёстер даурский
+  source_name: Жёстер даурский
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Жимолость Максимовича
+  source_name: Жимолость Максимовича
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость покрывальная
+  source_name: Жимолость покрывальная
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Кизильник горизонтальный
+  source_name: Кизильник горизонтальный
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Миндаль низкий/степной
+  source_name: Миндаль низкий/степной
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ракитник русский
+  source_name: Ракитник русский [2]
+  level: additional
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рододендрон даурский
+  source_name: Рододендрон даурский
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: '-'
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сирень Вольфа
+  source_name: Сирень Вольфа
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сирень Комарова
+  source_name: Сирень Комарова
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Скумпия обыкновенная/кожевенная (формы и сорта)
+  source_name: Скумпия обыкновенная/кожевенная(формы и сорта)
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Снежноягодник Доренбоза
+  source_name: Снежноягодник Доренбоза
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Стефанандра надрезаннолистная
+  source_name: Стефанандра надрезаннолистная
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Стефанандра Танаки
+  source_name: Стефанандра Танаки
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Экзохорда тяньшанская
+  source_name: Экзохорда тяньшанская
+  level: additional
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Аристолохия крупнолистная
+  source_name: Аристолохия крупнолистная
+  level: additional
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Аристолохия маньчжурская
+  source_name: Аристолохия маньчжурская
+  level: additional
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Гортензия черешковая
+  source_name: Гортензия черешковая
+  level: additional
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Древогубец круглолистный
+  source_name: Древогубец круглолистный [7]
+  level: additional
+  group: liana
+  notes:
+  - 7
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Жимолость вьющаяся
+  source_name: Жимолость вьющаяся
+  level: additional
+  group: liana
+  notes: []
+  columns:
+    yards: null
+    preschool: null
+    schools_sport: null
+    healthcare: null
+    roads: null
+    public_spaces: null
+    parks: null
+    industrial: null
+- name_ru: Клематис тангутский
+  source_name: Клематис тангутский
+  level: additional
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Пихта белокорая/почкочешуйная
+  source_name: Пихта белокорая/почкочешуйная
+  level: perspective
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Пихта цельнолистная
+  source_name: Пихта цельнолистная
+  level: perspective
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сосна Мюррея
+  source_name: Сосна Мюррея
+  level: perspective
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тсуга канадская
+  source_name: Тсуга канадская [3], [4], [5]
+  level: perspective
+  group: conifer_tree
+  notes:
+  - 3
+  - 4
+  - 5
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Плосковеточник восточный
+  source_name: Плосковеточник восточный
+  level: perspective
+  group: conifer_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тисс остроконечный (сорта)
+  source_name: Тисс остроконечный [2] (сорта)
+  level: perspective
+  group: conifer_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тисс средний (сорта)
+  source_name: Тисс средний [2] (сорта)
+  level: perspective
+  group: conifer_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Тисс ягодный (малорослые сорта)
+  source_name: Тисс ягодный [2](малорослые сорта)
+  level: perspective
+  group: conifer_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Абрикос маньчжурский (мелкоплодная форма)
+  source_name: Абрикос маньчжурский [2] (мелкоплодная форма)
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Берёза аллеганская
+  source_name: Берёза аллеганская
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Берёза даурская
+  source_name: Берёза даурская
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Берёза плосколистная
+  source_name: Берёза плосколистная
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Боярышник согнутостолбиковый
+  source_name: Боярышник согнутостолбиковый
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вяз Андросова
+  source_name: Вяз Андросова
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вяз японский/Давида
+  source_name: Вяз японский/Давида
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива волчниковая
+  source_name: Ива волчниковая
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива каспийская
+  source_name: Ива каспийская
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ива тонкостолбиковая
+  source_name: Ива тонкостолбиковая
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Клён бородатый
+  source_name: Клён бородатый
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Конский каштан голый
+  source_name: Конский каштан голый
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Лещина древовидная
+  source_name: Лещина древовидная
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Магнолия кобус
+  source_name: Магнолия кобус
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рябина Альбова
+  source_name: Рябина Альбова [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рябина Вильморена
+  source_name: Рябина Вильморена [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина кавказская
+  source_name: Рябина кавказская [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина Кёне
+  source_name: Рябина Кёне [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рябина смешанная
+  source_name: Рябина смешанная [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черёмуха Грея
+  source_name: Черёмуха Грея [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Черёмуха Сьори
+  source_name: Черёмуха Сьори [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Слива Саржента
+  source_name: Слива Саржента [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чозения арбутолистная
+  source_name: Чозения арбутолистная
+  level: perspective
+  group: deciduous_tree
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Яблоня Сиверса
+  source_name: Яблоня Сиверса [2]
+  level: perspective
+  group: deciduous_tree
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Акантопанакс сидячецветковый
+  source_name: Акантопанакс сидячецветковый [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Аралия высокая
+  source_name: Аралия высокая [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Арония арбутолистная
+  source_name: Арония арбутолистная [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Барбарис выемчатый
+  source_name: Барбарис выемчатый [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Барбарис Дильса
+  source_name: Барбарис Дильса [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бересклет большекрылый
+  source_name: Бересклет большекрылый [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бересклет Гамильтона
+  source_name: Бересклет Гамильтона [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Бересклет малоцветковый
+  source_name: Бересклет малоцветковый [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Вейгела ранняя
+  source_name: Вейгела ранняя
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Восковница пенсильваннская
+  source_name: Восковница пенсильваннская
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Восковница обыкновенная
+  source_name: Восковница обыкновенная
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Гамамелис виргинский
+  source_name: Гамамелис виргинский
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Дейция амурская
+  source_name: Дейция амурская
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Диервилла ручейная
+  source_name: Диервилла ручейная
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость мелколистная
+  source_name: Жимолость мелколистная [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Жимолость Толмачёва
+  source_name: Жимолость Толмачёва [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Калина сливолистная
+  source_name: Калина сливолистная [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Лещина Зибольда
+  source_name: Лещина Зибольда
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: '-'
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Ольха зеленая
+  source_name: Ольха зеленая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Птелея трёхлистная
+  source_name: Птелея трёхлистная
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Рододендрон жёлтый
+  source_name: Рододендрон жёлтый [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон короткоплодный (сорта)
+  source_name: Рододендрон короткоплодный [2] (сорта)
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон канадский гибридные (сорта)
+  source_name: Рододендрон канадский гибридные [2](сорта)
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон кэтевбинский
+  source_name: Рододендрон кэтевбинский [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон мягкий
+  source_name: Рододендрон мягкий [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон ноготковидный
+  source_name: Рододендрон ноготковидный [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон Смирнова
+  source_name: Рододендрон Смирнова [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон Фори
+  source_name: Рододендрон Фори [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Рододендрон японский
+  source_name: Рододендрон японский [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Роза даурская
+  source_name: Роза даурская [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Роза калифорнийская
+  source_name: Роза калифорнийская [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Роза Федченко
+  source_name: Роза Федченко [2]
+  level: perspective
+  group: deciduous_shrub
+  notes:
+  - 2
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень пекинская
+  source_name: Сирень пекинская
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень бархатистая
+  source_name: Сирень бархатистая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень мохнатая
+  source_name: Сирень мохнатая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Сирень пониклая
+  source_name: Сирень пониклая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Сирень юньнаньская
+  source_name: Сирень юньнаньская
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Спирея длиннопочечная
+  source_name: Спирея длиннопочечная
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Спирея извилистая
+  source_name: Спирея извилистая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Форзиция свисающая
+  source_name: Форзиция свисающая
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник Гордона
+  source_name: Чубушник Гордона
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник пушистый
+  source_name: Чубушник пушистый
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник тонколистный
+  source_name: Чубушник тонколистный
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Чубушник Шренка
+  source_name: Чубушник Шренка
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Экзохорда тяньшанская
+  source_name: Экзохорда тяньшанская
+  level: perspective
+  group: deciduous_shrub
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Актинидия многобрачная/полигамная
+  source_name: Актинидия многобрачная/полигамная
+  level: perspective
+  group: liana
+  notes: []
+  columns:
+    yards: '-'
+    preschool: '-'
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: '-'
+- name_ru: Виноград лисий
+  source_name: Виноград лисий
+  level: perspective
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Виноград приречный
+  source_name: Виноград приречный
+  level: perspective
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: +
+    schools_sport: +
+    healthcare: +
+    roads: +
+    public_spaces: +
+    parks: +
+    industrial: +
+- name_ru: Виноградовник аконитолистный
+  source_name: Виноградовник аконитолистный
+  level: perspective
+  group: liana
+  notes: []
+  columns:
+    yards: +
+    preschool: '-'
+    schools_sport: '-'
+    healthcare: +
+    roads: '-'
+    public_spaces: +
+    parks: +
+    industrial: +

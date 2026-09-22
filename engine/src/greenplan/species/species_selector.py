@@ -23,6 +23,7 @@ from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.knowledge.invasive_registry import InvasiveRegistry, InvasiveVerdict
 from greenplan.knowledge.norms_repository import NormsRepository
+from greenplan.knowledge.official_assortment import OfficialAssortment
 from greenplan.knowledge.plant_catalog import PlantCatalog, Species
 from greenplan.knowledge.territory_catalog import TerritoryCatalog
 from greenplan.species.selection_texts import SelectionReason, SelectionTexts
@@ -252,7 +253,12 @@ class SpeciesSelectorFactory:
         registry = InvasiveRegistry.from_file(knowledge_root / "plants" / "invasive_moscow.yaml")
         texts = SelectionTexts.from_knowledge(knowledge_root)
         territories = TerritoryCatalog.from_knowledge(knowledge_root)
-        policy = TerritoryPolicy(territories, territories.category(territory_category), texts)
+        policy = TerritoryPolicy(
+            territories,
+            territories.category(territory_category),
+            texts,
+            OfficialAssortment.from_knowledge(knowledge_root),
+        )
         suitability = SpeciesSuitability(catalog, registry, effective, policy, texts)
         return cls(suitability, evaluator_factory, effective, texts)
 

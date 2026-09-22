@@ -86,6 +86,9 @@ invasive:
   allowed:
     text: "вид не входит в известные перечни инвазивных растений"
     source_refs: [ppm369_invasive, mpr77_invasive]
+  allowed_with_control:
+    text: "вид разрешён на всех территориях, кроме ООЗТ и ПТ, при контроле распространения — примечание [1] к таблице ассортимента"
+    source_refs: [dpioos_assortment_notes]
   conditional:
     text: "условно допустимо: источники по перечню инвазивных растений расходятся, требуется проверка"
   excluded:

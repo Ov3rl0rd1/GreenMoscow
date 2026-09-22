@@ -4,10 +4,22 @@
 # для сверенных источников).
 
 meta:
-  version: "1.0.0"
-  updated: "2026-09-16"
+  version: "1.1.0"
+  updated: "2026-09-23"
 
 territory:
+  official_main:
+    text: "входит в основной ассортимент ДПиООС для территорий: {columns}"
+    source_ref: dpioos_assortment_main
+  official_additional:
+    text: "входит в дополнительный ассортимент ДПиООС для территорий: {columns}"
+    source_ref: dpioos_assortment_additional
+  official_perspective:
+    text: "входит в ассортимент перспективных видов ДПиООС для территорий: {columns}"
+    source_ref: dpioos_assortment_perspective
+  official_note:
+    text: "примечание [{number}] к таблице ассортимента: {note}"
+    source_ref: dpioos_assortment_notes
   recommended:
     text: "рекомендуется для насаждений {column}"
     source_ref: tsn_tV6
@@ -15,7 +27,7 @@ territory:
     text: "допускается с ограничением для насаждений {column}"
     source_ref: tsn_tV6
   unlisted:
-    text: "в перечне пород по категориям насаждений не приведён — выбран по практике эталонных проектов пилота"
+    text: "ни в ассортименте ДПиООС, ни в перечне пород по категориям насаждений не приведён — выбран по практике эталонных проектов пилота"
   composition:
     text: "категория территории — {category}: {composition}"
     source_ref: qa_session_2026_09_16
@@ -47,4 +59,7 @@ alternatives:
   conditional: "потребовал бы корнезащиты"
   advisory: "нарушил бы рекомендацию по размещению"
   excluded_territory: "не рекомендуется для насаждений {column}"
+  excluded_official: "не входит в ассортимент ДПиООС для территорий: {columns}"
+  excluded_children: "не высаживается у детских и спортивных площадок (примечание [2] к таблице ассортимента ДПиООС)"
+  excluded_road_sensitive: "чувствителен к противогололёдным реагентам и выхлопным газам — не у проезжей части (примечание [5] к таблице ассортимента ДПиООС)"
   excluded_conifer: "хвойные не применяются у проезжей части в категории «{category}»"

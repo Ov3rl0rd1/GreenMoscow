@@ -43,6 +43,7 @@ class Species:
     traits: SpeciesTraits | None = None
     territory_table_name: str | None = None
     noise_barrier: bool = False
+    official_names: tuple[str, ...] = ()
 
     @property
     def target(self) -> str | None:
@@ -109,6 +110,7 @@ def _species_from(entry: Mapping[str, Any]) -> Species:
         traits=_traits_from(entry.get("traits")),
         territory_table_name=entry.get("tsn_v6_name"),
         noise_barrier=bool(entry.get("noise_barrier", False)),
+        official_names=tuple(entry.get("official_names") or ()),
     )
 
 

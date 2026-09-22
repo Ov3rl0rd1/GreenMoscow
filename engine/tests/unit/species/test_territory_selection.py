@@ -8,7 +8,8 @@ from greenplan.domain.errors import ConfigurationError
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
 from greenplan.domain.site import Obstacle, SiteModel
-from greenplan.knowledge.invasive_registry import InvasiveRegistry
+from greenplan.knowledge.invasive_registry import ALLOWED_WITH_CONTROL, InvasiveRegistry
+from greenplan.knowledge.official_assortment import OfficialAssortment
 from greenplan.knowledge.plant_catalog import PlantCatalog
 from greenplan.knowledge.territory_catalog import TerritoryCatalog
 from greenplan.species.selection_texts import SelectionTexts
@@ -16,12 +17,14 @@ from greenplan.species.site_context import SiteContextDetector
 from greenplan.species.species_selector import SpeciesSelector
 from greenplan.species.species_settings import SpeciesSettings
 from greenplan.species.species_suitability import SpeciesSuitability
-from greenplan.species.territory_policy import FORBIDDEN, LIMITED, UNLISTED, TerritoryPolicy
+from greenplan.species.territory_policy import FORBIDDEN, RECOMMENDED, TerritoryPolicy
 
 from fixtures.norms_factory import NormsToolkit, open_site
 
 SETTINGS = SpeciesSettings()
 STREET_COLUMN = "streets_roads"
+KNOWLEDGE_ROOT = Path(__file__).resolve().parents[4] / "knowledge"
+OFFICIAL = OfficialAssortment.from_knowledge(KNOWLEDGE_ROOT)
 
 
 @pytest.fixture(scope="module")
@@ -63,8 +66,13 @@ def suitability(
     texts: SelectionTexts,
     category_id: str,
 ) -> SpeciesSuitability:
-    policy = TerritoryPolicy(territories, territories.category(category_id), texts)
-    return SpeciesSuitability(plant_catalog, registry, SETTINGS, policy, texts)
+    return SpeciesSuitability(
+        plant_catalog, registry, SETTINGS, policy_for(territories, texts, category_id), texts
+    )
+
+
+def policy_for(territories: TerritoryCatalog, texts: SelectionTexts, category_id: str) -> TerritoryPolicy:
+    return TerritoryPolicy(territories, territories.category(category_id), texts, OFFICIAL)
 
 
 def ranked_keys(items) -> set[str]:
@@ -89,17 +97,25 @@ def test_table_verdicts_follow_the_source(territories: TerritoryCatalog) -> None
     assert territories.verdict("Вид которого нет", STREET_COLUMN) is None
 
 
-def test_policy_marks_recommended_limited_and_unlisted(
+def test_official_table_decides_before_the_tsn_table(
     territories: TerritoryCatalog, texts: SelectionTexts, plant_catalog: PlantCatalog
 ) -> None:
-    policy = TerritoryPolicy(territories, territories.category("district_street"), texts)
-    assert policy.assess(plant_catalog.get("cotoneaster_lucidus")).kind != LIMITED
-    assert policy.assess(plant_catalog.get("tilia_cordata")).kind == LIMITED
-    assert policy.assess(plant_catalog.get("hydrangea_paniculata")).kind == UNLISTED
-    assert policy.assess(plant_catalog.get("cornus_alba")).kind == FORBIDDEN
+    policy = policy_for(territories, texts, "district_street")
+    assert policy.assess(plant_catalog.get("tilia_cordata")).kind == "official_main"
+    assert policy.assess(plant_catalog.get("thuja_occidentalis")).kind == FORBIDDEN
+    assert policy.assess(plant_catalog.get("hydrangea_paniculata")).kind == FORBIDDEN
+    assert policy.assess(plant_catalog.get("cornus_alba")).kind == "official_main"
+    assert policy.assess(plant_catalog.get("aesculus_hippocastanum")).entry is None
 
 
-def test_street_assortment_drops_species_forbidden_by_the_table(
+def test_additional_level_is_recognised(
+    territories: TerritoryCatalog, texts: SelectionTexts, plant_catalog: PlantCatalog
+) -> None:
+    policy = policy_for(territories, texts, "residential_yard")
+    assert policy.assess(plant_catalog.get("thuja_occidentalis")).kind == "official_additional"
+
+
+def test_street_assortment_drops_species_the_official_table_forbids(
     plant_catalog: PlantCatalog,
     registry: InvasiveRegistry,
     territories: TerritoryCatalog,
@@ -108,11 +124,12 @@ def test_street_assortment_drops_species_forbidden_by_the_table(
     street = suitability(plant_catalog, registry, territories, texts, "district_street")
     yard = suitability(plant_catalog, registry, territories, texts, "residential_yard")
     context = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 3.0))
-    assert "philadelphus" not in ranked_keys(street.ranked(SHRUB, context))
-    assert "philadelphus" in ranked_keys(yard.ranked(SHRUB, context))
+    assert "hydrangea_paniculata" not in ranked_keys(street.ranked(SHRUB, context))
+    assert "hydrangea_paniculata" in ranked_keys(yard.ranked(SHRUB, context))
+    assert "philadelphus" in ranked_keys(street.ranked(SHRUB, context))
 
 
-def test_conifers_are_not_offered_next_to_the_carriageway(
+def test_road_sensitive_species_are_kept_away_from_the_carriageway(
     plant_catalog: PlantCatalog,
     registry: InvasiveRegistry,
     territories: TerritoryCatalog,
@@ -121,11 +138,35 @@ def test_conifers_are_not_offered_next_to_the_carriageway(
     street = suitability(plant_catalog, registry, territories, texts, "magistral")
     near_road = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 3.0))
     far_away = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 40.0))
-    assert not any(item.species.coniferous for item in street.ranked(TREE, near_road))
-    assert any(item.species.coniferous for item in street.ranked(TREE, far_away))
+    assert "pinus_sylvestris" not in ranked_keys(street.ranked(TREE, near_road))
+    assert "pinus_sylvestris" in ranked_keys(street.ranked(TREE, far_away))
 
 
-def test_chosen_species_explains_the_table_and_its_own_traits(
+def test_species_with_the_spread_note_are_allowed_with_control(
+    plant_catalog: PlantCatalog,
+    registry: InvasiveRegistry,
+    territories: TerritoryCatalog,
+    texts: SelectionTexts,
+) -> None:
+    street = suitability(plant_catalog, registry, territories, texts, "district_street")
+    context = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 3.0))
+    dogwood = next(item for item in street.ranked(SHRUB, context) if item.species.key == "cornus_alba")
+    assert dogwood.invasive.status == ALLOWED_WITH_CONTROL
+    assert "dpioos_assortment_notes" in dogwood.invasive.source_refs
+
+
+def test_children_note_excludes_species_at_schools(
+    territories: TerritoryCatalog, texts: SelectionTexts, plant_catalog: PlantCatalog
+) -> None:
+    school = policy_for(territories, texts, "school_kindergarten")
+    street = policy_for(territories, texts, "residential_yard")
+    barberry = plant_catalog.get("berberis")
+    assert school.assess(barberry).kind == FORBIDDEN
+    assert "примечание [2]" in school.exclusion_text(barberry)
+    assert street.assess(barberry).admissible
+
+
+def test_chosen_species_explains_the_official_table_its_notes_and_traits(
     plant_catalog: PlantCatalog,
     registry: InvasiveRegistry,
     territories: TerritoryCatalog,
@@ -135,9 +176,19 @@ def test_chosen_species_explains_the_table_and_its_own_traits(
     context = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 3.0))
     lime = next(item for item in street.ranked(TREE, context) if item.species.key == "tilia_cordata")
     codes = {reason.code for reason in lime.reasons}
-    assert "territory:limited" in codes
+    assert "territory:official_main" in codes
+    assert "territory:official_note" in codes
     assert "traits:dust_high_near_road" in codes
-    assert any(reason.source_ref == "tsn_tV6" for reason in lime.reasons)
+    assert any(reason.source_ref == "dpioos_assortment_main" for reason in lime.reasons)
+
+
+def test_species_missing_from_the_official_table_fall_back_to_tsn(
+    territories: TerritoryCatalog, texts: SelectionTexts, plant_catalog: PlantCatalog
+) -> None:
+    policy = policy_for(territories, texts, "park")
+    assessment = policy.assess(plant_catalog.get("aesculus_hippocastanum"))
+    assert assessment.entry is None
+    assert assessment.kind in {RECOMMENDED, "limited", "unlisted", FORBIDDEN}
 
 
 def test_species_of_the_noise_list_are_marked_on_noisy_streets(
@@ -156,17 +207,6 @@ def test_species_of_the_noise_list_are_marked_on_noisy_streets(
     assert on_street.score - on_square.score == pytest.approx(SETTINGS.noise_bonus)
 
 
-def test_noise_protection_shrubs_of_the_note_are_still_forbidden_on_streets(
-    plant_catalog: PlantCatalog,
-    registry: InvasiveRegistry,
-    territories: TerritoryCatalog,
-    texts: SelectionTexts,
-) -> None:
-    street = suitability(plant_catalog, registry, territories, texts, "magistral")
-    context = SiteContextDetector(carriageway_site(), SETTINGS).detect(Point(0, 3.0))
-    assert "physocarpus_opulifolius" not in ranked_keys(street.ranked(SHRUB, context))
-
-
 def test_excluded_species_are_listed_with_a_reason(
     plant_catalog: PlantCatalog,
     registry: InvasiveRegistry,
@@ -174,10 +214,10 @@ def test_excluded_species_are_listed_with_a_reason(
     texts: SelectionTexts,
 ) -> None:
     street = suitability(plant_catalog, registry, territories, texts, "district_street")
-    excluded = dict(street.excluded(SHRUB))
-    names = {species.name_ru for species in excluded}
-    assert any(name.startswith("Чубушник") for name in names)
-    assert all(text for text in excluded.values())
+    excluded = {species.name_ru: text for species, text in street.excluded(SHRUB)}
+    assert any(name.startswith("Гортензия метельчатая") for name in excluded)
+    assert any("примечание [5]" in text for text in excluded.values())
+    assert all(excluded.values())
 
 
 def test_assignment_lists_alternatives(

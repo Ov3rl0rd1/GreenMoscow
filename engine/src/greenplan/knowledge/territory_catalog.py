@@ -33,6 +33,8 @@ class TerritoryCategory:
     conifers_near_carriageway: bool
     noise_protection: bool
     composition_ru: str
+    official_columns: tuple[str, ...] = ()
+    children_sensitive: bool = False
 
 
 class TerritoryCatalog:
@@ -122,4 +124,6 @@ def _category_from(entry: Mapping[str, Any]) -> TerritoryCategory:
         conifers_near_carriageway=bool(entry.get("conifers_near_carriageway", True)),
         noise_protection=bool(entry.get("noise_protection", False)),
         composition_ru=(entry.get("composition_ru") or "").strip(),
+        official_columns=tuple(entry.get("official_columns") or ()),
+        children_sensitive=bool(entry.get("children_sensitive", False)),
     )

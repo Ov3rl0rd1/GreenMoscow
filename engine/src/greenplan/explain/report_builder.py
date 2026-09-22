@@ -66,7 +66,7 @@ class ReportBuilder:
         listed = [
             assignment.species.key
             for assignment in species.assignments
-            if assignment.species.territory_table_name
+            if assignment.species.official_names
         ]
         return PlantingReport(
             title=title,

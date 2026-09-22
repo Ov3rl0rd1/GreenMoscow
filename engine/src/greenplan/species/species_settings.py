@@ -22,6 +22,8 @@ class SpeciesSettings:
     noise_bonus: float = 3.0
     territory_limited_penalty: float = 2.0
     unlisted_penalty: float = 3.0
+    additional_level_penalty: float = 1.0
+    perspective_level_penalty: float = 2.0
     max_alternatives: int = 3
 
     def grouping_distance_m(self, target: str) -> float:

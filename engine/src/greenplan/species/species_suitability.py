@@ -3,11 +3,18 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from greenplan.knowledge.invasive_registry import CONDITIONAL, EXCLUDED, InvasiveRegistry, InvasiveVerdict
+from greenplan.knowledge.official_assortment import ADDITIONAL, PERSPECTIVE
 from greenplan.knowledge.plant_catalog import NOT_STREET_SUITABLE, PlantCatalog, SelectionRule, Species
 from greenplan.species.selection_texts import SelectionReason, SelectionTexts
 from greenplan.species.site_context import NEAR_BUILDING, STREET_CARRIAGEWAY_ADJACENT, PlantingContext
 from greenplan.species.species_settings import SpeciesSettings
-from greenplan.species.territory_policy import LIMITED, UNLISTED, TerritoryAssessment, TerritoryPolicy
+from greenplan.species.territory_policy import (
+    LIMITED,
+    OFFICIAL_KIND_PREFIX,
+    UNLISTED,
+    TerritoryAssessment,
+    TerritoryPolicy,
+)
 
 LEVEL_SCORE = {"high": 1.0, "medium": 0.0, "low": -1.0}
 SHADE_SCORE = {"tolerant": 1.0, "medium": 0.0, "intolerant": -1.0}
@@ -39,7 +46,9 @@ class SpeciesSuitability:
         self._settings = settings
         self._territory = territory
         self._texts = texts
-        self._verdicts = {species.key: registry.verdict(species) for species in catalog.species()}
+        self._verdicts = {
+            species.key: self._invasive_verdict(registry, species) for species in catalog.species()
+        }
 
     @property
     def territory(self) -> TerritoryPolicy | None:
@@ -84,7 +93,10 @@ class SpeciesSuitability:
         return (
             self._passes_invasive_policy(self._verdicts[species.key])
             and (territory is None or territory.admissible)
-            and not (self._territory is not None and self._territory.excludes_conifer(species, context))
+            and not (
+                self._territory is not None
+                and self._territory.excludes_near_carriageway(species, territory, context)
+            )
             and _keeps_heating_distance(species, context)
             and _suits_street(species, context)
             and all(_passes_rule(species, rule) for rule in rules)
@@ -111,9 +123,17 @@ class SpeciesSuitability:
                 score += settings.crown_class_bonus
         return score + self._territory_score(territory) + self._trait_score(species, context)
 
+    def _invasive_verdict(self, registry: InvasiveRegistry, species: Species) -> InvasiveVerdict:
+        override = self._territory.invasive_override(species) if self._territory is not None else None
+        return override or registry.verdict(species)
+
     def _territory_score(self, territory: TerritoryAssessment | None) -> float:
         if territory is None:
             return 0.0
+        if territory.kind == f"{OFFICIAL_KIND_PREFIX}{ADDITIONAL}":
+            return -self._settings.additional_level_penalty
+        if territory.kind == f"{OFFICIAL_KIND_PREFIX}{PERSPECTIVE}":
+            return -self._settings.perspective_level_penalty
         if territory.kind == LIMITED:
             return -self._settings.territory_limited_penalty
         if territory.kind == UNLISTED:
@@ -152,6 +172,8 @@ class SpeciesSuitability:
         reasons: list[SelectionReason] = []
         if territory is not None and territory.reason is not None:
             reasons.append(territory.reason)
+        if self._territory is not None:
+            reasons.extend(self._territory.note_reasons(territory))
         reasons.extend(self._trait_reasons(species, context))
         reasons.extend(
             SelectionReason(f"context:{rule.context}", rule.reason_ru, rule.source_ref)

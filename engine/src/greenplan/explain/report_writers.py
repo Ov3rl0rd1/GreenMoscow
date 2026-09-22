@@ -163,7 +163,7 @@ def _metric_lines(metrics: PlanMetrics | None) -> list[str]:
         f"- Ярусы: {', '.join(metrics.tiers) if metrics.tiers else 'не сформированы'}",
         f"- Проекция крон: {format_number(metrics.crown_projection_m2)} м² ({crown} % газона)",
         f"- Фронт вдоль проезжей части под кронами: {format_number(metrics.street_front_covered_m)} м",
-        f"- Доля пород из перечня по категории насаждений: {listed} %",
+        f"- Доля пород из ассортимента ДПиООС: {listed} %",
         "",
     ]
 

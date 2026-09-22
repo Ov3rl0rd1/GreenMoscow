@@ -8,6 +8,7 @@ from greenplan.knowledge.plant_catalog import Species
 from greenplan.knowledge.yaml_loader import load_yaml_mapping, require_key
 
 ALLOWED = "allowed"
+ALLOWED_WITH_CONTROL = "allowed_with_control"
 CONDITIONAL = "conditional"
 EXCLUDED = "excluded"
 STATUS_BY_POLICY = {"exclude": EXCLUDED, "exclude_with_warning": EXCLUDED, "conditional": CONDITIONAL}
