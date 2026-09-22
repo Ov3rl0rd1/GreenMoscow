@@ -1,7 +1,8 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from shapely.geometry import Point
+from shapely.geometry import LineString, Point, box
 
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.zone_builder import ZoneBuilder
@@ -87,6 +88,23 @@ def test_street_limits_come_from_norms(toolkit: NormsToolkit) -> None:
 def test_street_length_falls_back_to_boundary_rectangle(toolkit: NormsToolkit) -> None:
     limits = PlantingLimitsResolver(toolkit.repository, PlacementSettings()).resolve(street_site(False))
     assert limits.density_measure == pytest.approx(0.1)
+
+
+def test_street_axes_outside_the_site_do_not_raise_the_density_cap(toolkit: NormsToolkit) -> None:
+    site = street_site()
+    extended = replace(
+        site,
+        street_axes=(LineString([(-900, 4), (1100, 4)]), LineString([(0, 500), (100, 500)])),
+    )
+    limits = PlantingLimitsResolver(toolkit.repository, PlacementSettings()).resolve(extended)
+    assert limits.density_measure == pytest.approx(0.1)
+
+
+def test_distant_boundary_pieces_are_measured_separately(toolkit: NormsToolkit) -> None:
+    site = street_site(False)
+    split = replace(site, boundary=site.boundary.union(box(4600, 0, 4650, 20)))
+    limits = PlantingLimitsResolver(toolkit.repository, PlacementSettings()).resolve(split)
+    assert limits.density_measure == pytest.approx(0.15)
 
 
 def test_non_street_context_is_limited_per_hectare_of_lawn(toolkit: NormsToolkit) -> None:

@@ -4,9 +4,11 @@ from dataclasses import dataclass
 from typing import Any
 
 from shapely.geometry import Point
+from shapely.geometry.base import BaseGeometry
 
 from greenplan.domain.errors import ConfigurationError
 from greenplan.domain.site import SiteModel
+from greenplan.geometry.shapes import polygonal_parts
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.placement.placement_settings import PlacementSettings
 
@@ -70,7 +72,12 @@ def _density_measure(site: SiteModel, unit: str) -> float:
 
 
 def street_length_m(site: SiteModel) -> float:
-    if site.street_axes:
-        return sum(axis.length for axis in site.street_axes)
-    corners = list(site.boundary.minimum_rotated_rectangle.exterior.coords)
+    inside = sum(axis.intersection(site.boundary).length for axis in site.street_axes)
+    if inside > 0:
+        return inside
+    return sum(longest_side_m(part) for part in polygonal_parts(site.boundary))
+
+
+def longest_side_m(area: BaseGeometry) -> float:
+    corners = list(area.minimum_rotated_rectangle.exterior.coords)
     return max(Point(start).distance(Point(end)) for start, end in zip(corners, corners[1:], strict=False))
