@@ -6,6 +6,7 @@ from greenplan.domain.errors import GreenPlanError
 from greenplan_ml import __version__
 from greenplan_ml.cli.commands import (
     EXIT_ERROR,
+    AuditReferenceCommand,
     BuildDatasetCommand,
     Command,
     EvaluateCommand,
@@ -28,7 +29,13 @@ def build_parser(commands: Sequence[Command]) -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    commands = (BuildDatasetCommand(), TrainCommand(), ExportCommand(), EvaluateCommand())
+    commands = (
+        BuildDatasetCommand(),
+        TrainCommand(),
+        ExportCommand(),
+        EvaluateCommand(),
+        AuditReferenceCommand(),
+    )
     arguments = build_parser(commands).parse_args(argv)
     try:
         return arguments.command.execute(arguments)

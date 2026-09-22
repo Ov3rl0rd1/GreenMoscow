@@ -5,10 +5,11 @@ from typing import Protocol
 import numpy as np
 
 from greenplan.domain.norms import SHRUB, TREE
+from greenplan.knowledge.pilot_objects import PilotCatalog
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.score_maps import RuleScoreMap
-from greenplan_ml.dataset_builder import DatasetBuilder, PilotCatalog
+from greenplan_ml.dataset_builder import DatasetBuilder
 from greenplan_ml.evaluation import EvaluationSettings, ModelEvaluator
 from greenplan_ml.inference import OnnxHeatmapModel
 from greenplan_ml.sample_builder import SampleSettings
@@ -59,6 +60,45 @@ class BuildDatasetCommand:
             status = f"{report.crops} окон, деревьев {report.trees}" if report.is_built else report.reason
             print(f"{report.object_id}: {status}")
         return EXIT_OK if any(report.is_built for report in reports) else EXIT_ERROR
+
+
+class AuditReferenceCommand:
+    name = "audit-reference"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(
+            self.name, help="проверить эталонные проекты датасета нормативным контролем"
+        )
+        parser.add_argument("--dataset-root", required=True, type=Path, help="каталог с объектами датасета")
+        parser.add_argument("--output", required=True, type=Path, help="куда записать отчёт аудита")
+        parser.add_argument("--objects", type=Path, default=DEFAULT_OBJECTS_FILE, help="YAML со списком пар")
+        parser.add_argument("--levels", nargs="*", help="уровни объектов, например A")
+        parser.add_argument("--only", nargs="*", help="id объектов")
+        add_environment_arguments(parser)
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        from greenplan_ml.reference_audit import ReferenceAuditor, write_audit_report
+
+        knowledge_root = locate_knowledge_root(arguments.knowledge)
+        auditor = ReferenceAuditor.from_knowledge(
+            knowledge_root,
+            locate_dwg2dxf(arguments.dwg2dxf, knowledge_root),
+            resolve_cache_directory(arguments.cache, knowledge_root),
+        )
+        catalog = PilotCatalog.from_file(arguments.objects)
+        audits = auditor.audit_all(catalog, arguments.dataset_root, arguments.levels, arguments.only)
+        for item in audits:
+            state = (
+                f"посадок {item.plantings}, с нарушением {item.violating_plants} "
+                f"({item.violation_share:.0%})"
+                if item.checked
+                else item.reason
+            )
+            print(f"{item.object_id}: {state}")
+        json_path, markdown_path = write_audit_report(arguments.output, audits)
+        print(f"Отчёт: {json_path}, {markdown_path}")
+        return EXIT_OK if any(item.checked for item in audits) else EXIT_ERROR
 
 
 class TrainCommand:
