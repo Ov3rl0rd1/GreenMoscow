@@ -166,6 +166,7 @@ def job_summary(result: PipelineResult) -> dict[str, Any]:
         "verification_valid": result.verification.is_valid,
         "violations": len(result.verification.violations),
         "integrity_is_intact": result.verification.integrity.is_intact,
+        "warnings": list(summary.warnings),
         "timings_s": result.timings_s,
         "peak_memory_mb": result.peak_memory_mb,
     }

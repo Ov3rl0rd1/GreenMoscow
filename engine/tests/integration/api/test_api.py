@@ -61,6 +61,7 @@ def test_dxf_job_runs_to_completion_and_serves_artifacts(client: TestClient, dra
     job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
     assert job["status"] == SUCCEEDED, job["error"]
     assert job["summary"]["verification_valid"] is True
+    assert any("особо охраняемые" in warning for warning in job["summary"]["warnings"])
     assert {JSON_REPORT_NAME, "street_greenplan.dxf", "preview.png"} <= set(job["artifacts"])
     report = client.get(f"{JOBS}/{job['job_id']}/artifacts/{JSON_REPORT_NAME}")
     assert json.loads(report.content)["title"] == "Улица"

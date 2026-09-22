@@ -106,6 +106,16 @@ td {
     font-weight: 500;
 }
 
+.warnings {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #8a5a00;
+}
+
+.warnings li {
+    margin-bottom: 0.3rem;
+}
+
 .status {
     padding: 0.1rem 0.5rem;
     border-radius: 999px;

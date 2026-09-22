@@ -48,6 +48,17 @@
             </tbody>
         </table>
 
+        @if (summary.Warnings().Count > 0)
+        {
+            <h3>На что обратить внимание</h3>
+            <ul class="warnings">
+                @foreach (var warning in summary.Warnings())
+                {
+                    <li>@warning</li>
+                }
+            </ul>
+        }
+
         <h3>Время этапов</h3>
         <table class="summary">
             <tbody>

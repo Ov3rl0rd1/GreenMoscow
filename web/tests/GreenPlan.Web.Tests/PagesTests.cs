@@ -146,6 +146,18 @@ public sealed class PagesTests
     }
 
     [Fact]
+    public async Task JobPageShowsSiteWarnings()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateClient();
+
+        var html = await client.GetStringAsync($"/Jobs/Details/{TestJobs.SucceededId}");
+
+        Assert.Contains("На что обратить внимание", html);
+        Assert.Contains("подземные коммуникации во входных чертежах не найдены", html);
+    }
+
+    [Fact]
     public async Task RunningJobPageRefreshesItself()
     {
         using var factory = new GreenPlanWebFactory();
