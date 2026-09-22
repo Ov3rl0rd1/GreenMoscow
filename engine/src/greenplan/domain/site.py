@@ -10,6 +10,7 @@ REMOVE_TREE_STATUS = "remove"
 BOUNDARY_GAP_CLOSED = "boundary_gap_closed"
 BOUNDARY_PIECES_JOINED = "boundary_pieces_joined"
 BOUNDARY_SELF_INTERSECTION_FIXED = "boundary_self_intersection_fixed"
+NETWORKS_NOT_FOUND = "networks_not_found"
 BUILDINGS_NOT_FOUND = "buildings_not_found"
 PROTECTED_AREAS_NOT_CHECKED = "protected_areas_not_checked"
 

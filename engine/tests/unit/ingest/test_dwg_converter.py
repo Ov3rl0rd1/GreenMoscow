@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from greenplan.domain.errors import ConversionError
+from greenplan.ingest import dwg_converter
 from greenplan.ingest.command_runner import CommandResult
 from greenplan.ingest.dwg_converter import DRAFT_SUFFIX, LibreDwgConverter, publish_conversion
 from greenplan.ingest.executable_locator import (
@@ -119,3 +120,26 @@ def test_publishing_keeps_entry_written_by_another_process(tmp_path: Path) -> No
     publish_conversion(draft, target)
     assert target.read_text(encoding="utf-8") == "earlier"
     assert not draft.exists()
+
+
+def test_source_beyond_the_windows_path_limit_is_staged_next_to_the_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(dwg_converter, "MAX_WINDOWS_PATH_LENGTH", 1)
+    runner = RecordingRunner()
+    cache = tmp_path / "cache"
+    converter = LibreDwgConverter(Path("dwg2dxf"), cache, runner)
+    source = make_dwg(tmp_path, content=b"AC1032-tile")
+    converter.convert(source)
+    used_source = Path(runner.calls[0][4])
+    assert used_source.parent == cache
+    assert used_source != source
+    assert not used_source.exists()
+
+
+def test_short_source_is_passed_to_the_converter_as_is(tmp_path: Path) -> None:
+    runner = RecordingRunner()
+    converter = LibreDwgConverter(Path("dwg2dxf"), tmp_path / "cache", runner)
+    source = make_dwg(tmp_path)
+    converter.convert(source)
+    assert Path(runner.calls[0][4]) == source

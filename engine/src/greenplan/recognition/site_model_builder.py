@@ -17,6 +17,7 @@ from greenplan.domain.obstacle_kinds import (
 )
 from greenplan.domain.site import (
     BUILDINGS_NOT_FOUND,
+    NETWORKS_NOT_FOUND,
     PROJECTED_STATUS,
     PROTECTED_AREAS_NOT_CHECKED,
     Obstacle,
@@ -208,8 +209,15 @@ class SiteModelBuilder:
 
 
 def site_warnings(obstacles: Sequence[Obstacle]) -> tuple[str, ...]:
-    found_buildings = any(obstacle.kind == BUILDING_WALL for obstacle in obstacles)
-    missing = () if found_buildings else (BUILDINGS_NOT_FOUND,)
+    kinds = {obstacle.kind for obstacle in obstacles}
+    missing = [
+        code
+        for code, present in (
+            (NETWORKS_NOT_FOUND, bool(kinds & set(UNDERGROUND_NETWORK_KINDS))),
+            (BUILDINGS_NOT_FOUND, BUILDING_WALL in kinds),
+        )
+        if not present
+    ]
     return (*missing, PROTECTED_AREAS_NOT_CHECKED)
 
 

@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from pathlib import Path
 from typing import Protocol
 
@@ -12,6 +13,8 @@ DEFAULT_TIMEOUT_S = 600
 STDERR_TAIL_LENGTH = 500
 UNSAFE_FILENAME_CHARACTERS = re.compile(r"[^\w\-.]+")
 DRAFT_SUFFIX = ".part"
+STAGED_SOURCE_MARK = ".source"
+MAX_WINDOWS_PATH_LENGTH = 259
 
 
 class DwgConverter(Protocol):
@@ -48,13 +51,26 @@ class LibreDwgConverter:
 
     def _run_conversion(self, dwg_path: Path, target: Path) -> None:
         draft = target.with_name(f"{target.name}.{os.getpid()}{DRAFT_SUFFIX}")
-        arguments = [str(self._executable), "-y", "-o", str(draft), str(dwg_path)]
-        result = self._runner.run(arguments, self._timeout_s)
+        source = self._reachable_source(dwg_path, target)
+        try:
+            result = self._runner.run(
+                [str(self._executable), "-y", "-o", str(draft), str(source)], self._timeout_s
+            )
+        finally:
+            if source != dwg_path:
+                source.unlink(missing_ok=True)
         if result.succeeded and is_usable_file(draft):
             publish_conversion(draft, target)
             return
         draft.unlink(missing_ok=True)
         raise ConversionError(f"dwg2dxf failed for {dwg_path}: {result.stderr[-STDERR_TAIL_LENGTH:]}")
+
+    def _reachable_source(self, dwg_path: Path, target: Path) -> Path:
+        if len(str(dwg_path.resolve())) < MAX_WINDOWS_PATH_LENGTH:
+            return dwg_path
+        staged = target.with_name(f"{target.stem}{STAGED_SOURCE_MARK}{dwg_path.suffix}")
+        shutil.copyfile(dwg_path, staged)
+        return staged
 
 
 def is_usable_file(path: Path) -> bool:
