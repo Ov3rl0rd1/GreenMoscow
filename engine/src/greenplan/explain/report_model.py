@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from greenplan.explain.explanation_model import CitationView, PlantExplanation
+from greenplan.explain.plan_metrics import CostEstimate, PlanMetrics, VolumeStatement
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,3 +60,6 @@ class PlantingReport:
     rejection_reasons: tuple[RejectionReasonRow, ...]
     plants: tuple[PlantExplanation, ...]
     rejections: tuple[PlantExplanation, ...]
+    metrics: PlanMetrics | None = None
+    volumes: VolumeStatement | None = None
+    cost: CostEstimate | None = None

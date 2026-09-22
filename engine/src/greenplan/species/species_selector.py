@@ -61,6 +61,7 @@ class SpeciesOutcome:
     rejections: tuple[PlantingDecision, ...]
     excluded: tuple[SpeciesAlternative, ...] = ()
     territory_note: SelectionReason | None = None
+    territory_id: str = ""
 
 
 class _AssignmentMemory:
@@ -121,7 +122,17 @@ class SpeciesSelector:
             memory.remember(decision.candidate.position, assignment.species.key)
             usage.record(target, assignment.species.key)
             assignments.append(assignment)
-        return SpeciesOutcome(tuple(assignments), tuple(rejections), self._excluded(), self._territory_note())
+        return SpeciesOutcome(
+            tuple(assignments),
+            tuple(rejections),
+            self._excluded(),
+            self._territory_note(),
+            self._territory_id(),
+        )
+
+    def _territory_id(self) -> str:
+        policy = self._suitability.territory
+        return policy.category.category_id if policy is not None else ""
 
     def _excluded(self) -> tuple[SpeciesAlternative, ...]:
         found = [*self._suitability.excluded(TREE), *self._suitability.excluded(SHRUB)]

@@ -10,6 +10,7 @@ from greenplan.domain.site import SiteModel
 from greenplan.explain.explanation_builder import DEFAULT_MAX_SATISFIED_CLEARANCES, ExplanationBuilder
 from greenplan.explain.explanation_model import ClearanceView, PlantExplanation
 from greenplan.explain.number_format import format_number, structure_value
+from greenplan.explain.plan_metrics import CostCatalog, plan_metrics, volume_statement
 from greenplan.explain.report_model import (
     AppliedNormRow,
     PlantingReport,
@@ -34,16 +35,21 @@ class _NormAccumulator:
 
 
 class ReportBuilder:
-    def __init__(self, explanations: ExplanationBuilder, engine_version: str) -> None:
+    def __init__(
+        self, explanations: ExplanationBuilder, engine_version: str, costs: CostCatalog | None = None
+    ) -> None:
         self._explanations = explanations
         self._engine_version = engine_version
+        self._costs = costs
 
     @classmethod
     def from_knowledge(
         cls, knowledge_root: Path, max_satisfied_clearances: int = DEFAULT_MAX_SATISFIED_CLEARANCES
     ) -> "ReportBuilder":
         return cls(
-            ExplanationBuilder.from_knowledge(knowledge_root, max_satisfied_clearances), installed_version()
+            ExplanationBuilder.from_knowledge(knowledge_root, max_satisfied_clearances),
+            installed_version(),
+            CostCatalog.from_knowledge(knowledge_root),
         )
 
     def build(
@@ -53,14 +59,30 @@ class ReportBuilder:
         rejected_decisions = (*plan.rejections, *species.rejections)
         rejections = tuple(self._explanations.for_decision(decision) for decision in rejected_decisions)
         terms = self._explanations.terms
+        summary = _summary(site, plan, species, plants, rejections, terms)
+        volumes = volume_statement(
+            plants, site.plantable_surface.area, summary.root_barrier_length_m
+        )
+        listed = [
+            assignment.species.key
+            for assignment in species.assignments
+            if assignment.species.territory_table_name
+        ]
         return PlantingReport(
             title=title,
             engine_version=self._engine_version,
-            summary=_summary(site, plan, species, plants, rejections, terms),
+            summary=summary,
             applied_norms=applied_norm_rows((*plants, *rejections), terms),
             rejection_reasons=rejection_reason_rows(rejections, terms),
             plants=plants,
             rejections=rejections,
+            metrics=plan_metrics(site, plants, listed),
+            volumes=volumes,
+            cost=(
+                self._costs.estimate(volumes, site.plantable_surface.area, species.territory_id)
+                if self._costs is not None
+                else None
+            ),
         )
 
 

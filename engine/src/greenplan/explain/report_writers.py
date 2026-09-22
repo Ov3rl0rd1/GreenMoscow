@@ -7,11 +7,14 @@ from typing import Protocol
 
 from greenplan.explain.explanation_model import PlantExplanation
 from greenplan.explain.number_format import format_number
+from greenplan.explain.plan_metrics import CostEstimate, PlanMetrics, VolumeStatement
 from greenplan.explain.report_model import AppliedNormRow, PlantingReport
 
 JSON_REPORT_NAME = "planting_report.json"
 CSV_REPORT_NAME = "planting_report.csv"
 MARKDOWN_REPORT_NAME = "planting_report.md"
+VOLUMES_REPORT_NAME = "volumes.csv"
+VOLUME_COLUMNS = ("name_ru", "plant_type", "count")
 CSV_DELIMITER = ";"
 CSV_ENCODING = "utf-8-sig"
 CSV_COLUMNS = (
@@ -58,6 +61,22 @@ class CsvReportWriter:
         return path
 
 
+class VolumesReportWriter:
+    file_name = VOLUMES_REPORT_NAME
+
+    def write(self, report: PlantingReport, directory: Path) -> Path:
+        path = directory / self.file_name
+        volumes = report.volumes
+        with path.open("w", encoding=CSV_ENCODING, newline="") as stream:
+            writer = csv.writer(stream, delimiter=CSV_DELIMITER)
+            writer.writerow(VOLUME_COLUMNS)
+            if volumes is not None:
+                writer.writerows([row.name_ru, row.plant_type, row.count] for row in volumes.plants)
+                writer.writerow(["газон, м²", "lawn", volumes.lawn_area_m2])
+                writer.writerow(["корнезащита, м", "root_barrier", volumes.root_barrier_length_m])
+        return path
+
+
 class MarkdownReportWriter:
     file_name = MARKDOWN_REPORT_NAME
 
@@ -73,7 +92,9 @@ class ReportWriterSet:
 
     @classmethod
     def default(cls) -> "ReportWriterSet":
-        return cls((JsonReportWriter(), CsvReportWriter(), MarkdownReportWriter()))
+        return cls(
+            (JsonReportWriter(), CsvReportWriter(), VolumesReportWriter(), MarkdownReportWriter())
+        )
 
     def write_all(self, report: PlantingReport, directory: Path) -> dict[str, Path]:
         directory.mkdir(parents=True, exist_ok=True)
@@ -116,6 +137,9 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Версия движка: {report.engine_version}",
         "",
         *_warning_lines(summary.warnings),
+        *_metric_lines(report.metrics),
+        *_volume_lines(report.volumes),
+        *_cost_lines(report.cost),
         *_excluded_lines(summary.excluded_species),
     ]
 
@@ -124,6 +148,60 @@ def _warning_lines(warnings: Sequence[str]) -> list[str]:
     if not warnings:
         return []
     return ["## Предупреждения", "", *(f"- {_capital(text)}" for text in warnings), ""]
+
+
+def _metric_lines(metrics: PlanMetrics | None) -> list[str]:
+    if metrics is None:
+        return []
+    share = format_number(metrics.max_species_share * 100)
+    listed = format_number(metrics.listed_species_share * 100)
+    crown = format_number(metrics.crown_share_of_plantable * 100)
+    return [
+        "## Показатели плана",
+        "",
+        f"- Видов в плане: {metrics.species_count}; максимальная доля одного вида: {share} %",
+        f"- Ярусы: {', '.join(metrics.tiers) if metrics.tiers else 'не сформированы'}",
+        f"- Проекция крон: {format_number(metrics.crown_projection_m2)} м² ({crown} % газона)",
+        f"- Фронт вдоль проезжей части под кронами: {format_number(metrics.street_front_covered_m)} м",
+        f"- Доля пород из перечня по категории насаждений: {listed} %",
+        "",
+    ]
+
+
+def _volume_lines(volumes: VolumeStatement | None) -> list[str]:
+    if volumes is None:
+        return []
+    rows = [f"| {_cell(row.name_ru)} | {row.plant_type} | {row.count} |" for row in volumes.plants]
+    return [
+        "## Ведомость объёмов",
+        "",
+        "| Порода | Тип | Количество, шт. |",
+        "|---|---|---|",
+        *rows,
+        "",
+        f"- Газон в границе работ: {format_number(volumes.lawn_area_m2)} м²",
+        f"- Корнезащита: {format_number(volumes.root_barrier_length_m)} м",
+        "",
+    ]
+
+
+def _cost_lines(cost: CostEstimate | None) -> list[str]:
+    if cost is None:
+        return []
+    lines = [
+        "## Ориентировочная стоимость",
+        "",
+        f"- Итого: {format_number(cost.total_rub)} ₽ "
+        f"({format_number(cost.per_hectare_rub)} ₽ на гектар озеленяемой площади)",
+    ]
+    if cost.reference_range_rub is not None:
+        low, high = cost.reference_range_rub
+        verdict = "в ориентире" if cost.within_reference_range else "вне ориентира"
+        lines.append(
+            f"- Ориентир постановщика: {format_number(low)}–{format_number(high)} ₽ на гектар — {verdict}"
+        )
+    lines.extend(["- Значения индикативные: прайсы питомников и нормативы обновляются регулярно", ""])
+    return lines
 
 
 def _excluded_lines(excluded: Sequence[str]) -> list[str]:
