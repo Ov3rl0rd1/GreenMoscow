@@ -5,6 +5,7 @@ from shapely.geometry import Point
 
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.decisions import (
+    CONDITIONALLY_ACCEPTED,
     REJECTED,
     TOO_CLOSE_TO_EXISTING_TREE,
     Clearance,
@@ -232,3 +233,26 @@ def test_repeated_violations_of_one_rule_are_reported_once_with_worst_margin(
     assert len(gas_violations) == 1
     assert gas_violations[0].actual_m == pytest.approx(0.9 - 0.055 - 0.05, abs=1e-3)
     assert explanation.explanation_ru.count("Нарушено") == 1
+
+
+def test_repeated_citation_is_printed_once_per_planting(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    site = open_site(
+        (
+            network("water_supply", [(-50, 0), (50, 0)], outer_radius_m=0.1),
+            network("gas_pipeline", [(-50, 6), (50, 6)], outer_radius_m=0.055),
+        )
+    )
+    text = builder.for_decision(tree_decision(toolkit, site, 0, 3.0)).explanation_ru
+    assert text.count("примечание 4 к таблице 9.1") == 1
+
+
+def test_barrier_minimum_is_merged_into_the_conditional_sentence(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    explanation = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 1.3))
+    text = explanation.explanation_ru
+    assert explanation.status == CONDITIONALLY_ACCEPTED
+    assert "Даже с корнезащитой нельзя ближе" in text
+    assert text.count("Расстояние от газопровода") == 1
