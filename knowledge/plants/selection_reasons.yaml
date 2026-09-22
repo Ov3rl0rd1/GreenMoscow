@@ -1,0 +1,50 @@
+# Тексты обоснований выбора породы (Ф15). Постановщик требует объяснять, почему выбрана
+# именно эта порода именно здесь (docs/18, п. 3). Шаблоны подставляются кодом без изменения
+# смысла; source_ref — ключ knowledge/rules/citations.yaml (номер пункта выводится только
+# для сверенных источников).
+
+meta:
+  version: "1.0.0"
+  updated: "2026-09-16"
+
+territory:
+  recommended:
+    text: "рекомендуется для насаждений {column}"
+    source_ref: tsn_tV6
+  limited:
+    text: "допускается с ограничением для насаждений {column}"
+    source_ref: tsn_tV6
+  unlisted:
+    text: "в перечне пород по категориям насаждений не приведён — выбран по практике эталонных проектов пилота"
+  composition:
+    text: "категория территории — {category}: {composition}"
+    source_ref: qa_session_2026_09_16
+
+traits:
+  gas_high_near_road:
+    text: "высокая газоустойчивость — выдерживает загазованность у проезжей части"
+    source_ref: species_reference_traits
+  salt_high_near_road:
+    text: "устойчив к противогололёдным реагентам у проезжей части"
+    source_ref: species_reference_traits
+  dust_high_near_road:
+    text: "хорошо задерживает пыль от проезжей части"
+    source_ref: species_reference_traits
+  shade_tolerant_near_building:
+    text: "теневынослив — подходит для затенённой полосы у здания"
+    source_ref: species_reference_traits
+  noise_barrier:
+    text: "входит в перечень пород для шумозащитных насаждений"
+    source_ref: tsn_tV5_noise_note
+
+practice:
+  reference_usage:
+    text: "применяется в эталонных проектах пилота: {count} шт."
+
+alternatives:
+  lower_rank: "ниже по пригодности для этой точки"
+  rejected: "не проходит нормативные отступы при своей кроне"
+  conditional: "потребовал бы корнезащиты"
+  advisory: "нарушил бы рекомендацию по размещению"
+  excluded_territory: "не рекомендуется для насаждений {column}"
+  excluded_conifer: "хвойные не применяются у проезжей части в категории «{category}»"

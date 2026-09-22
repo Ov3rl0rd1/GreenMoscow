@@ -7,6 +7,7 @@ from greenplan.domain.decisions import Clearance, PlantingDecision, SiteViolatio
 from greenplan.domain.norms import ADVISORY, CONDITIONAL, CONDITIONAL_MEASURE, PROHIBITIVE
 from greenplan.explain.citation_policy import CitationPolicy
 from greenplan.explain.explanation_model import (
+    AlternativeView,
     ClearanceView,
     CompetingView,
     PlantExplanation,
@@ -187,5 +188,8 @@ class ExplanationBuilder:
                 )
                 for reason in assignment.reasons
                 if reason.reason_ru
+            ),
+            alternatives=tuple(
+                AlternativeView(item.name_ru, item.reason_ru) for item in assignment.alternatives
             ),
         )

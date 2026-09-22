@@ -1,0 +1,114 @@
+# Категории территорий для подбора пород и состава посадок (Ф15).
+#
+# Категория задаётся параметром прогона (territory.category). От неё зависят:
+#   tsn_column       — столбец таблицы В.6 ТСН 30-307 (territory_suitability.yaml);
+#   density_context  — контекст правила tsn_max_density (norms.yaml) для лимита плотности;
+#   conifers_near_carriageway — допустимы ли хвойные у проезжей части;
+#   composition_ru   — принцип состава посадок для объяснения.
+# Категории и принципы состава — по ответам постановщика 16.09.2026 (docs/18, п. 12):
+# вдоль дорог — многоярусная аллея для снижения шума и пыли; во дворах аллей нет, разве что
+# плотная живая изгородь вокруг детских площадок; хвойные неустойчивы вдоль дорог и магистралей.
+
+meta:
+  version: "1.0.0"
+  updated: "2026-09-16"
+  default: district_street
+  source_refs: [tsn_tV6, tsn_tV1, qa_session_2026_09_16]
+
+categories:
+
+  - id: magistral
+    name_ru: "магистральная улица"
+    tsn_column: streets_roads
+    density_context: streets_embankments
+    conifers_near_carriageway: false
+    noise_protection: true
+    composition_ru: "многоярусная посадка вдоль проезжей части: высокие деревья, кустарник, газон — снижение шума и пыли"
+
+  - id: district_street
+    name_ru: "улица районного значения"
+    tsn_column: streets_roads
+    density_context: streets_embankments
+    conifers_near_carriageway: false
+    noise_protection: true
+    composition_ru: "рядовая посадка деревьев вдоль проезжей части с подкроновым кустарником и газоном"
+
+  - id: embankment
+    name_ru: "набережная"
+    tsn_column: streets_roads
+    density_context: streets_embankments
+    conifers_near_carriageway: false
+    noise_protection: false
+    composition_ru: "рядовая посадка вдоль проезда, влаголюбивые породы у воды"
+
+  - id: residential_yard
+    name_ru: "дворовая территория"
+    tsn_column: residential_quarters
+    density_context: residential
+    conifers_near_carriageway: true
+    noise_protection: false
+    composition_ru: "группы деревьев и кустарников без аллей; плотная живая изгородь вокруг детских площадок"
+
+  - id: school_kindergarten
+    name_ru: "школа, детский сад"
+    tsn_column: special
+    density_context: residential
+    conifers_near_carriageway: true
+    noise_protection: false
+    composition_ru: "безопасные неядовитые и неколючие породы, живые изгороди по границе участка"
+
+  - id: healthcare
+    name_ru: "учреждение здравоохранения"
+    tsn_column: special
+    density_context: residential
+    conifers_near_carriageway: true
+    noise_protection: true
+    composition_ru: "защитные посадки от шума и пыли, группы для прогулочной зоны"
+
+  - id: sport
+    name_ru: "спортивный объект"
+    tsn_column: special
+    density_context: residential
+    conifers_near_carriageway: true
+    noise_protection: false
+    composition_ru: "ветрозащитные и теневые группы по периметру площадок"
+
+  - id: industrial
+    name_ru: "территория производственного назначения"
+    tsn_column: special
+    density_context: residential
+    conifers_near_carriageway: false
+    noise_protection: true
+    composition_ru: "газоустойчивые защитные посадки"
+
+  - id: park
+    name_ru: "парк, сад"
+    tsn_column: parks
+    density_context: residential
+    conifers_near_carriageway: true
+    noise_protection: false
+    composition_ru: "ландшафтные группы и массивы, разнообразие видов"
+
+  - id: boulevard
+    name_ru: "бульвар"
+    tsn_column: squares_boulevards
+    density_context: boulevards
+    conifers_near_carriageway: false
+    noise_protection: true
+    composition_ru: "многорядная аллейная посадка с кустарниковыми полосами"
+
+  - id: square
+    name_ru: "сквер"
+    tsn_column: squares_boulevards
+    density_context: squares
+    conifers_near_carriageway: false
+    noise_protection: false
+    composition_ru: "групповые посадки и солитеры, цветники"
+
+  - id: public_space
+    name_ru: "общественное пространство, площадь"
+    tsn_column: squares_boulevards
+    density_context: squares
+    conifers_near_carriageway: false
+    noise_protection: false
+    composition_ru: "солитеры и группы с сохранением проходов"

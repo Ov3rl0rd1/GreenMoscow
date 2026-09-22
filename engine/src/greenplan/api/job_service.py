@@ -11,7 +11,7 @@ from greenplan.domain.errors import GreenPlanError, InvalidUploadError, JobNotFo
 from greenplan.ingest.input_selection import prefer_dxf, unique_paths
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
-from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
+from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritorySettings
 
 INPUT_DIRECTORY = "input"
 OUTPUT_DIRECTORY = "output"
@@ -54,6 +54,7 @@ class JobService:
         title: str,
         main_file: str | None,
         config_text: str | None,
+        territory: str | None = None,
     ) -> JobRecord:
         if not uploads:
             raise InvalidUploadError("no drawings were uploaded")
@@ -76,6 +77,7 @@ class JobService:
             updated_at=now,
             upload_name=", ".join(upload.name for upload in uploads),
             main_file=relative_name(stored.main, input_directory),
+            territory=territory or "",
             overlay_files=[relative_name(path, input_directory) for path in stored.overlays],
         )
         self._repository.save(record)
@@ -131,6 +133,8 @@ class JobService:
     def _run_pipeline(self, record: JobRecord, directory: Path) -> PipelineResult:
         config_path = directory / CONFIG_FILE_NAME
         config = self._config_loader.load(config_path if config_path.is_file() else None)
+        if record.territory:
+            config = replace(config, territory=TerritorySettings(record.territory))
         input_directory = directory / INPUT_DIRECTORY
         request = PipelineRequest(
             input_path=input_directory / record.main_file,

@@ -58,6 +58,12 @@ class ReasonView:
 
 
 @dataclass(frozen=True, slots=True)
+class AlternativeView:
+    name_ru: str
+    reason_ru: str
+
+
+@dataclass(frozen=True, slots=True)
 class SpeciesView:
     key: str
     name_ru: str
@@ -68,6 +74,7 @@ class SpeciesView:
     invasive_text_ru: str
     invasive_citations: tuple[CitationView, ...]
     reasons: tuple[ReasonView, ...]
+    alternatives: tuple[AlternativeView, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

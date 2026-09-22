@@ -3,7 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from greenplan.cli.commands import InspectCommand, RunCommand, VerifyCommand, model_score_map, tree_score_map
+from greenplan.cli.commands import (
+    InspectCommand,
+    RunCommand,
+    VerifyCommand,
+    model_score_map,
+    tree_score_map,
+    with_territory,
+)
 from greenplan.cli.main import build_parser
 from greenplan.domain.errors import ConfigurationError
 from greenplan.pipeline.run_config import RunConfig
@@ -32,6 +39,12 @@ def test_commands_without_the_flag_still_carry_the_defaults() -> None:
     for arguments in (inspected, verified):
         assert arguments.model is None
         assert arguments.no_ml is False
+
+
+def test_territory_reaches_the_configuration() -> None:
+    arguments = run_arguments("--territory", "residential_yard")
+    assert with_territory(RunConfig(), arguments.territory).territory.category == "residential_yard"
+    assert with_territory(RunConfig(), None).territory.category == ""
 
 
 def test_without_a_model_the_rules_decide() -> None:

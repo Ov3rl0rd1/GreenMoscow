@@ -17,6 +17,15 @@ INTEGER_PATTERN = re.compile(r"\d+")
 
 
 @dataclass(frozen=True, slots=True)
+class SpeciesTraits:
+    gas_tolerance: str
+    salt_tolerance: str
+    moisture: str
+    shade_tolerance: str
+    dust_capture: str
+
+
+@dataclass(frozen=True, slots=True)
 class Species:
     key: str
     name_ru: str
@@ -31,6 +40,9 @@ class Species:
     invasive_status: str | None = None
     block_candidates: tuple[str, ...] = ()
     reference_usage_total: int = 0
+    traits: SpeciesTraits | None = None
+    territory_table_name: str | None = None
+    noise_barrier: bool = False
 
     @property
     def target(self) -> str | None:
@@ -94,6 +106,21 @@ def _species_from(entry: Mapping[str, Any]) -> Species:
         invasive_status=entry.get("invasive_status"),
         block_candidates=tuple(entry.get("block_candidates", ())),
         reference_usage_total=_usage_total(entry.get("reference_usage") or {}),
+        traits=_traits_from(entry.get("traits")),
+        territory_table_name=entry.get("tsn_v6_name"),
+        noise_barrier=bool(entry.get("noise_barrier", False)),
+    )
+
+
+def _traits_from(entry: Mapping[str, Any] | None) -> SpeciesTraits | None:
+    if not entry:
+        return None
+    return SpeciesTraits(
+        gas_tolerance=entry["gas"],
+        salt_tolerance=entry["salt"],
+        moisture=entry["moisture"],
+        shade_tolerance=entry["shade"],
+        dust_capture=entry["dust"],
     )
 
 

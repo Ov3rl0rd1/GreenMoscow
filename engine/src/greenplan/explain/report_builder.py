@@ -147,6 +147,8 @@ def _summary(
         unresolved_references=diagnostics.unresolved_references,
         root_barrier_length_m=structure_value(sum(plant.root_barrier_length_m for plant in plants)),
         warnings=tuple(terms.site_warning(code) for code in diagnostics.warnings),
+        territory_ru=species.territory_note.reason_ru if species.territory_note else "",
+        excluded_species=tuple(f"{item.name_ru} — {item.reason_ru}" for item in species.excluded),
     )
 
 

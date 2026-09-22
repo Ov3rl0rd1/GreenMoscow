@@ -17,6 +17,7 @@ from greenplan.domain.errors import (
     KnowledgeValidationError,
 )
 from greenplan.knowledge.norms_repository import NormsRepository
+from greenplan.knowledge.territory_catalog import TerritoryCatalog
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import (
     current_timestamp,
@@ -45,6 +46,7 @@ REQUEST_ERRORS = (InvalidUploadError, ConfigurationError, KnowledgeValidationErr
 def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: bool) -> FastAPI:
     app = FastAPI(title=API_TITLE, version=__version__, description=API_DESCRIPTION)
     norms = norms_payload(NormsRepository.from_knowledge(knowledge_root))
+    territories = TerritoryCatalog.from_knowledge(knowledge_root)
 
     @app.get("/healthz", response_model=HealthResponse, tags=["service"])
     def health() -> HealthResponse:
@@ -53,6 +55,13 @@ def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: boo
     @app.get(f"{API_PREFIX}/norms", tags=["norms"])
     def get_norms() -> dict[str, Any]:
         return norms
+
+    @app.get(f"{API_PREFIX}/territories", tags=["norms"])
+    def get_territories() -> list[dict[str, str]]:
+        return [
+            {"id": item.category_id, "name_ru": item.name_ru, "composition_ru": item.composition_ru}
+            for item in territories.categories()
+        ]
 
     @app.post(f"{API_PREFIX}/jobs", response_model=JobResponse, status_code=HTTP_ACCEPTED, tags=["jobs"])
     async def create_job(
@@ -66,11 +75,14 @@ def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: boo
             str | None, Form(description="главный чертёж; без него выбирается по имени и размеру")
         ] = None,
         config: Annotated[UploadFile | None, File(description="YAML с настройками прогона")] = None,
+        territory: Annotated[
+            str | None, Form(description="категория территории: /api/v1/territories")
+        ] = None,
     ) -> JobResponse:
         uploads = [UploadedFile(item.filename or "", await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
-            record = service.create(uploads, title, main_file, config_text)
+            record = service.create(uploads, title, main_file, config_text, territory)
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
         background_tasks.add_task(service.execute, record.job_id)

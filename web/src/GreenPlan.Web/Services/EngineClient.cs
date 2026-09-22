@@ -9,6 +9,7 @@ namespace GreenPlan.Web.Services;
 public sealed class EngineClient(HttpClient http) : IEngineClient
 {
     public const string JobsPath = "api/v1/jobs";
+    public const string TerritoriesPath = "api/v1/territories";
     public const string HealthPath = "healthz";
     private const string DefaultContentType = "application/octet-stream";
     private const string DetailProperty = "detail";
@@ -46,6 +47,13 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
         using var response = await SendAsync(token => http.GetAsync(JobsPath, token), cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
         return await ReadJsonAsync<List<JobDto>>(response, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<TerritoryDto>> ListTerritoriesAsync(CancellationToken cancellationToken)
+    {
+        using var response = await SendAsync(token => http.GetAsync(TerritoriesPath, token), cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await ReadJsonAsync<List<TerritoryDto>>(response, cancellationToken);
     }
 
     public async Task<EngineArtifact?> GetArtifactAsync(string jobId, string name, CancellationToken cancellationToken)
@@ -91,6 +99,11 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
         }
 
         content.Add(new StringContent(submission.Title), "title");
+        if (!string.IsNullOrWhiteSpace(submission.Territory))
+        {
+            content.Add(new StringContent(submission.Territory), "territory");
+        }
+
         if (!string.IsNullOrWhiteSpace(submission.MainFile))
         {
             content.Add(new StringContent(submission.MainFile), "main_file");

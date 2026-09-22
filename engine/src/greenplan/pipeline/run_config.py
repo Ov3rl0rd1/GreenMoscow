@@ -18,6 +18,11 @@ ROOT_CONTEXT = "config"
 
 
 @dataclass(frozen=True, slots=True)
+class TerritorySettings:
+    category: str = ""
+
+
+@dataclass(frozen=True, slots=True)
 class ExplanationSettings:
     max_satisfied_clearances: int = DEFAULT_MAX_SATISFIED_CLEARANCES
 
@@ -28,6 +33,7 @@ class RunConfig:
     design: DesignConstraints = field(default_factory=DesignConstraints)
     placement: PlacementSettings = field(default_factory=PlacementSettings)
     species: SpeciesSettings = field(default_factory=SpeciesSettings)
+    territory: TerritorySettings = field(default_factory=TerritorySettings)
     explanation: ExplanationSettings = field(default_factory=ExplanationSettings)
     export: ExportSettings = field(default_factory=ExportSettings)
     preview: PreviewSettings = field(default_factory=PreviewSettings)

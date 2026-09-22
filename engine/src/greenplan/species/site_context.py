@@ -5,7 +5,13 @@ from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
 from shapely.strtree import STRtree
 
-from greenplan.domain.obstacle_kinds import BUS_SHELTER, CARRIAGEWAY_EDGE, HEATING_NETWORK, OVERHEAD_LINE
+from greenplan.domain.obstacle_kinds import (
+    BUILDING_WALL,
+    BUS_SHELTER,
+    CARRIAGEWAY_EDGE,
+    HEATING_NETWORK,
+    OVERHEAD_LINE,
+)
 from greenplan.domain.site import SiteModel
 from greenplan.species.species_settings import SpeciesSettings
 
@@ -13,6 +19,7 @@ STREET_CARRIAGEWAY_ADJACENT = "street_carriageway_adjacent"
 NEAR_HEATING_NETWORK = "near_heating_network"
 BUS_STOP = "bus_stop"
 UNDER_OVERHEAD_LINE = "under_overhead_line"
+NEAR_BUILDING = "near_building"
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,6 +29,7 @@ class PlantingContext:
     bus_shelter_distance_m: float
     overhead_line_distance_m: float
     tags: frozenset[str]
+    building_distance_m: float = float("inf")
 
 
 class _NearestGeometry:
@@ -42,6 +50,7 @@ class SiteContextDetector:
         self._heating = _nearest_of(site, HEATING_NETWORK)
         self._shelters = _nearest_of(site, BUS_SHELTER)
         self._overhead_lines = _nearest_of(site, OVERHEAD_LINE)
+        self._buildings = _nearest_of(site, BUILDING_WALL)
 
     def detect(self, position: Point) -> PlantingContext:
         distances = (
@@ -50,15 +59,20 @@ class SiteContextDetector:
             self._shelters.distance_m(position),
             self._overhead_lines.distance_m(position),
         )
-        return PlantingContext(*distances, tags=self._tags(*distances))
+        building = self._buildings.distance_m(position)
+        tags = self._tags(*distances, building)
+        return PlantingContext(*distances, tags=tags, building_distance_m=building)
 
-    def _tags(self, carriageway: float, heating: float, shelter: float, overhead: float) -> frozenset[str]:
+    def _tags(
+        self, carriageway: float, heating: float, shelter: float, overhead: float, building: float
+    ) -> frozenset[str]:
         settings = self._settings
         thresholds = (
             (STREET_CARRIAGEWAY_ADJACENT, carriageway, settings.carriageway_context_distance_m),
             (NEAR_HEATING_NETWORK, heating, settings.heating_context_distance_m),
             (BUS_STOP, shelter, settings.bus_stop_context_distance_m),
             (UNDER_OVERHEAD_LINE, overhead, settings.overhead_line_context_distance_m),
+            (NEAR_BUILDING, building, settings.building_context_distance_m),
         )
         return frozenset(tag for tag, distance, limit in thresholds if distance <= limit)
 

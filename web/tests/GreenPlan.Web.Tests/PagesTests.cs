@@ -26,6 +26,32 @@ public sealed class PagesTests
     }
 
     [Fact]
+    public async Task IndexOffersTerritoryCategoriesFromTheEngine()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateClient();
+
+        var html = await client.GetStringAsync("/");
+
+        Assert.Contains("дворовая территория", html);
+        Assert.Contains("Form.Territory", html);
+    }
+
+    [Fact]
+    public async Task ChosenTerritoryReachesTheEngine()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Двор", drawing: DrawingBytes, territory: "residential_yard");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("residential_yard", factory.Engine.LastSubmission?.Territory);
+    }
+
+    [Fact]
     public async Task IndexWarnsWhenEngineIsUnavailable()
     {
         using var factory = new GreenPlanWebFactory();
@@ -180,7 +206,8 @@ public sealed class PagesTests
         string token,
         string title,
         string? mainFile = null,
-        byte[]? drawing = null)
+        byte[]? drawing = null,
+        string? territory = null)
     {
         var content = new MultipartFormDataContent
         {
@@ -191,6 +218,11 @@ public sealed class PagesTests
         if (mainFile is not null)
         {
             content.Add(new StringContent(mainFile, Encoding.UTF8), "Form.MainFile");
+        }
+
+        if (territory is not null)
+        {
+            content.Add(new StringContent(territory, Encoding.UTF8), "Form.Territory");
         }
 
         if (drawing is not null)

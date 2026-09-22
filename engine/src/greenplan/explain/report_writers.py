@@ -103,6 +103,7 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"(условно допустимых: {summary.conditional})",
         f"- Отклонено кандидатов (с объяснением причин): {summary.rejected}",
         f"- Корнезащита у условно допустимых деревьев: {format_number(summary.root_barrier_length_m)} м",
+        *([f"- {_capital(summary.territory_ru)}"] if summary.territory_ru else []),
         f"- Лимиты плотности: деревьев не более {summary.max_trees}, "
         f"кустарников не более {summary.max_shrubs}; "
         f"шаг деревьев {format_number(summary.tree_spacing_m)} м, "
@@ -115,6 +116,7 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Версия движка: {report.engine_version}",
         "",
         *_warning_lines(summary.warnings),
+        *_excluded_lines(summary.excluded_species),
     ]
 
 
@@ -122,6 +124,13 @@ def _warning_lines(warnings: Sequence[str]) -> list[str]:
     if not warnings:
         return []
     return ["## Предупреждения", "", *(f"- {_capital(text)}" for text in warnings), ""]
+
+
+def _excluded_lines(excluded: Sequence[str]) -> list[str]:
+    if not excluded:
+        return []
+    heading = "## Породы ассортимента, не применённые в этой категории территории"
+    return [heading, "", *(f"- {text}" for text in excluded), ""]
 
 
 def _capital(text: str) -> str:

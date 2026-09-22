@@ -13,6 +13,8 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
 
     public IReadOnlyList<JobDto> Jobs { get; private set; } = [];
 
+    public IReadOnlyList<TerritoryDto> Territories { get; private set; } = [];
+
     public bool EngineAvailable { get; private set; }
 
     public string? ErrorMessage { get; private set; }
@@ -49,7 +51,7 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
         try
         {
             var configYaml = await ReadTextAsync(Form.Config, cancellationToken);
-            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml);
+            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml, Form.Territory);
             return await engine.CreateJobAsync(submission, cancellationToken);
         }
         finally
@@ -72,6 +74,7 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
         try
         {
             Jobs = await engine.ListJobsAsync(cancellationToken);
+            Territories = await engine.ListTerritoriesAsync(cancellationToken);
         }
         catch (EngineRequestException error)
         {

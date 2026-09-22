@@ -9,6 +9,7 @@ class SpeciesSettings:
     heating_context_distance_m: float = 4.0
     bus_stop_context_distance_m: float = 10.0
     overhead_line_context_distance_m: float = 3.0
+    building_context_distance_m: float = 8.0
     allow_conditional_species: bool = False
     tree_grouping_distance_m: float = 8.0
     shrub_grouping_distance_m: float = 3.0
@@ -17,6 +18,11 @@ class SpeciesSettings:
     crown_class_bonus: float = 3.0
     reference_usage_weight: float = 1.0
     diversity_penalty: float = 8.0
+    trait_bonus: float = 4.0
+    noise_bonus: float = 3.0
+    territory_limited_penalty: float = 2.0
+    unlisted_penalty: float = 3.0
+    max_alternatives: int = 3
 
     def grouping_distance_m(self, target: str) -> float:
         return self.tree_grouping_distance_m if target == TREE else self.shrub_grouping_distance_m

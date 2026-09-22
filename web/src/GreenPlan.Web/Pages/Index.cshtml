@@ -32,6 +32,15 @@
         <input asp-for="Form.Title" />
         <span asp-validation-for="Form.Title" class="field-error"></span>
 
+        <label asp-for="Form.Territory"></label>
+        <select asp-for="Form.Territory">
+            <option value="">по умолчанию — улица районного значения</option>
+            @foreach (var territory in Model.Territories)
+            {
+                <option value="@territory.Id">@territory.NameRu — @territory.CompositionRu</option>
+            }
+        </select>
+
         <label asp-for="Form.MainFile"></label>
         <input asp-for="Form.MainFile" placeholder="Генплан.dxf" />
 

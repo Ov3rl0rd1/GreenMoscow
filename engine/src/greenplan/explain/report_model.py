@@ -46,6 +46,8 @@ class ReportSummary:
     unresolved_references: tuple[str, ...]
     root_barrier_length_m: float = 0.0
     warnings: tuple[str, ...] = ()
+    territory_ru: str = ""
+    excluded_species: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

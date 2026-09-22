@@ -18,6 +18,9 @@ public sealed class UploadForm
     [Display(Name = "Главный чертёж (имя файла или путь в архиве; если не указан — выбирается автоматически)")]
     public string? MainFile { get; set; }
 
+    [Display(Name = "Категория территории")]
+    public string? Territory { get; set; }
+
     [Display(Name = "Настройки прогона (YAML, необязательно)")]
     public IFormFile? Config { get; set; }
 }

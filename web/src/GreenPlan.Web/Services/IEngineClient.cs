@@ -13,6 +13,8 @@ public interface IEngineClient
     Task<EngineArtifact?> GetArtifactAsync(string jobId, string name, CancellationToken cancellationToken);
 
     Task<HealthDto?> GetHealthAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<TerritoryDto>> ListTerritoriesAsync(CancellationToken cancellationToken);
 }
 
 public sealed class EngineRequestException(string message, Exception? innerException = null)

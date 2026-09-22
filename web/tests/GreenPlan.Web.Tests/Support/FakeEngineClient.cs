@@ -7,6 +7,7 @@ namespace GreenPlan.Web.Tests.Support;
 public sealed record SubmittedJob(
     IReadOnlyList<string> FileNames,
     string Title,
+    string? Territory,
     string? MainFile,
     string? ConfigYaml,
     IReadOnlyList<string> Contents)
@@ -34,6 +35,7 @@ public sealed class FakeEngineClient : IEngineClient
         LastSubmission = new SubmittedJob(
             submission.Drawings.Select(drawing => drawing.FileName).ToList(),
             submission.Title,
+            submission.Territory,
             submission.MainFile,
             submission.ConfigYaml,
             submission.Drawings.Select(drawing => ReadAll(drawing.Content)).ToList());
@@ -61,4 +63,8 @@ public sealed class FakeEngineClient : IEngineClient
         Task.FromResult(Artifacts.GetValueOrDefault(name));
 
     public Task<HealthDto?> GetHealthAsync(CancellationToken cancellationToken) => Task.FromResult(Health);
+
+    public Task<IReadOnlyList<TerritoryDto>> ListTerritoriesAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<TerritoryDto>>(
+            [new TerritoryDto("residential_yard", "дворовая территория", "группы без аллей")]);
 }

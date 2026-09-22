@@ -1,0 +1,93 @@
+# Таблица В.6 ТСН 30-307-2002 (623-ПП, приложение В) «Виды растений в различных категориях
+# насаждений» — разобрана 16.09.2026 из research/norms-texts/PPM_623-PP_prilozhenie_V_ozelenenie.txt.
+# Значения ячеек сохранены как в источнике: «+», «-», «+ с огр.» (с ограничением),
+# «+ только ул.» (только улицы), «+ бульв. с огр.» (бульвары с ограничением).
+# Строка «Барбарис обыкновенный» в выгрузке повреждена (4 ячейки из 5) и не используется.
+
+meta:
+  version: "1.0.0"
+  updated: "2026-09-16"
+  source_ref: tsn_tV6
+  columns:
+    parks: "садов, парков"
+    squares_boulevards: "скверов, бульваров"
+    streets_roads: "улиц и дорог"
+    residential_quarters: "внутриквартальных"
+    special: "специальных"
+  excluded:
+    - {name_ru: "Барбарис обыкновенный", reason_ru: "в выгрузке таблицы потеряна одна ячейка"}
+
+species:
+  - {name_ru: "Ель колючая", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "-", special: "+"}
+  - {name_ru: "Лиственница русская", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Туя западная", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+ только ул., с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Белая акация", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Береза повислая", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+ только ул., с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Боярышник даурский", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "-"}
+  - {name_ru: "Боярышник колючий", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Боярышник кроваво-красный", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "-", special: "-"}
+  - {name_ru: "Боярышник Максимовича", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "-", special: "-"}
+  - {name_ru: "Боярышник полумягкий", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Боярышник приречный", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Вишня обыкновенная", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "-"}
+  - {name_ru: "Вяз гладкий", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Вяз приземистый", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Груша обыкновенная", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+ маг с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Груша уссурийская", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Дуб красный (северный)", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Дуб черешчатый", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+ с огр.", special: "+"}
+  - {name_ru: "Жостер слабительный", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Ива белая", group: tree, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "+ только ул.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Ива ломкая", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "-", special: "-"}
+  - {name_ru: "Ива ломкая (ф.шаровидная)", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Клен Гиннала", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Клен остролистный и его формы", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Клен серебристый", group: tree, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Клен татарский", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Конский каштан обыкновенный", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Липа голландская", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Липа мелколистная", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Липа крупнолистная", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Лох узколистный", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Орех маньчжурский", group: tree, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Рябина гибридная", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Рябина обыкновенная", group: tree, parks: "+", squares_boulevards: "+ огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Рябина обыкновенная (ф. плакучая)", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ (только для улиц)", residential_quarters: "+", special: "+"}
+  - {name_ru: "Тополь бальзамический", group: tree, parks: "-", squares_boulevards: "+ с огр.", streets_roads: "+ с огр.", residential_quarters: "+", special: "+ с огр."}
+  - {name_ru: "Тополь белый", group: tree, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "+ только ул., с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Тополь берлинский", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Тополь канадский", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "-"}
+  - {name_ru: "Тополь китайский", group: tree, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "+ только ул.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Тополь советский (ф. пирамидальный)", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Тополь черный", group: tree, parks: "+ с огр.", squares_boulevards: "-", streets_roads: "-", residential_quarters: "+ с огр.", special: "+ с огр."}
+  - {name_ru: "Черемуха Маака", group: tree, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Черемуха обыкновенная", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+ с огр.", special: "+ с огр."}
+  - {name_ru: "Яблоня домашняя", group: tree, parks: "-", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "-", special: "-"}
+  - {name_ru: "Яблоня Недзведского", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "-", special: "-"}
+  - {name_ru: "Яблоня ягодная", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "-", special: "-"}
+  - {name_ru: "Ясень пенсильванский", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Ясень обыкновенный", group: tree, parks: "+", squares_boulevards: "+", streets_roads: "+ с огр.", residential_quarters: "+", special: "+"}
+  - {name_ru: "Барбарис обыкновенный (ф. пурпурный)", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Барбарис Тунберга", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Бирючина обыкновенная", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Вишня войлочная", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Дерен белый", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Карагана древовидная (желтая акация)", group: shrub, parks: "+", squares_boulevards: "-", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Карагана кустарник", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Кизильник обыкновенный", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Жимолость (различные виды)", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Ирга (различные виды)", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Калина Гордовина", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Калина обыкновенная", group: shrub, parks: "+", squares_boulevards: "+ бульв. с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Кизильник блестящий", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Пузыреплодник калинолистный", group: shrub, parks: "-", squares_boulevards: "-", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Роза (различные виды)", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+с огр.", special: "+"}
+  - {name_ru: "Сирень венгерская", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Сирень обыкновенная", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Смородина альпийская", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+", residential_quarters: "+", special: "+"}
+  - {name_ru: "Смородина золотистая", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Снежноягодник белый", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Спирея (различные виды)", group: shrub, parks: "+", squares_boulevards: "+", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Форзиция", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "+ с огр", residential_quarters: "+", special: "+"}
+  - {name_ru: "Чубушник венечный", group: shrub, parks: "+", squares_boulevards: "+ с огр.", streets_roads: "-", residential_quarters: "+", special: "+"}
+  - {name_ru: "Девичий виноград", group: vine, parks: "+", squares_boulevards: "+", streets_roads: "-", residential_quarters: "+", special: "+"}

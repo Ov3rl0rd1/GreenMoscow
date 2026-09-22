@@ -16,6 +16,10 @@ meta:
   version: "0.2.0"
   updated: "2026-09-15"
   crown_values_status: assumption
+  traits_status: assumption
+  traits_source_ref: species_reference_traits
+  territory_table: knowledge/plants/territory_suitability.yaml
+  noise_barrier_source_ref: tsn_tV5_noise_note
   invasive_filter: knowledge/plants/invasive_moscow.yaml
 
 # ---------------------------------------------------------------------------
@@ -56,6 +60,9 @@ plant_types:
 species:
 
   - key: tilia_cordata
+    traits: {gas: medium, salt: low, moisture: moderate, shade: tolerant, dust: high}
+    tsn_v6_name: "Липа мелколистная"
+    noise_barrier: true
     ru: "Липа мелколистная"
     latin: "Tilia cordata"
     type: tree
@@ -68,6 +75,8 @@ species:
     notes_ru: "Широкая крона: у жилых помещений — не ближе 10 м (743-ПП, прим. 3 к табл. 3.6.1)."
 
   - key: tilia_europaea_pallida
+    traits: {gas: high, salt: low, moisture: moderate, shade: tolerant, dust: high}
+    tsn_v6_name: "Липа голландская"
     ru: "Липа европейская 'Pallida'"
     latin: "Tilia × europaea 'Pallida'"
     type: tree
@@ -80,6 +89,9 @@ species:
     reference_usage: {"5. Багрицкого": 51, "9. Измайловская": 15}
 
   - key: acer_platanoides
+    traits: {gas: medium, salt: low, moisture: moderate, shade: tolerant, dust: high}
+    tsn_v6_name: "Клен остролистный и его формы"
+    noise_barrier: true
     ru: "Клён остролистный"
     latin: "Acer platanoides"
     type: tree
@@ -92,6 +104,7 @@ species:
     reference_usage: {"5. Багрицкого": 22, "10. Старый Гай": "сорта 'Drummondii', 'Globosum'"}
 
   - key: acer_rubrum
+    traits: {gas: medium, salt: low, moisture: moist, shade: medium, dust: medium}
     ru: "Клён красный"
     latin: "Acer rubrum"
     type: tree
@@ -104,6 +117,8 @@ species:
     reference_usage: {"5. Багрицкого": 42, "1. Олимпийская": 150}
 
   - key: acer_ginnala
+    traits: {gas: high, salt: medium, moisture: dry, shade: medium, dust: medium}
+    tsn_v6_name: "Клен Гиннала"
     ru: "Клён Гиннала (приречный)"
     latin: "Acer tataricum subsp. ginnala"
     type: large_shrub
@@ -115,6 +130,8 @@ species:
     reference_usage: {"5. Багрицкого": 51, "10. Старый Гай": 17}
 
   - key: crataegus_pauls_scarlet
+    traits: {gas: high, salt: medium, moisture: dry, shade: medium, dust: medium}
+    tsn_v6_name: "Боярышник колючий"
     ru: "Боярышник 'Paul's Scarlet'"
     latin: "Crataegus laevigata 'Paul's Scarlet'"
     type: tree
@@ -126,6 +143,8 @@ species:
     reference_usage: {"5. Багрицкого": 35}
 
   - key: betula_pendula
+    traits: {gas: low, salt: low, moisture: moderate, shade: intolerant, dust: medium}
+    tsn_v6_name: "Береза повислая"
     ru: "Берёза повислая"
     latin: "Betula pendula"
     type: tree
@@ -138,6 +157,8 @@ species:
     notes_ru: "ТСН табл. В.6: для улиц и дорог — «+ только ул., с огр.»."
 
   - key: quercus_robur
+    traits: {gas: medium, salt: medium, moisture: moderate, shade: medium, dust: high}
+    tsn_v6_name: "Дуб черешчатый"
     ru: "Дуб черешчатый"
     latin: "Quercus robur"
     type: tree
@@ -149,6 +170,8 @@ species:
     notes_ru: "Не путать с дубом красным (Quercus rubra) — III группа 369-ПП по вторичным источникам."
 
   - key: sorbus_aucuparia
+    traits: {gas: low, salt: low, moisture: moderate, shade: medium, dust: medium}
+    tsn_v6_name: "Рябина обыкновенная"
     ru: "Рябина обыкновенная"
     latin: "Sorbus aucuparia"
     type: tree
@@ -160,6 +183,8 @@ species:
     reference_usage: {"5. Багрицкого": 23, "1. Олимпийская": 162}
 
   - key: prunus_maackii
+    traits: {gas: medium, salt: low, moisture: moist, shade: medium, dust: medium}
+    tsn_v6_name: "Черемуха Маака"
     ru: "Черёмуха Маака"
     latin: "Prunus maackii"
     type: tree
@@ -171,6 +196,8 @@ species:
     reference_usage: {"1. Олимпийская": 100}
 
   - key: malus_decorative
+    traits: {gas: medium, salt: low, moisture: moderate, shade: intolerant, dust: medium}
+    tsn_v6_name: "Яблоня Недзведского"
     ru: "Яблоня Недзвецкого / декоративная"
     latin: "Malus niedzwetzkyana, Malus spp."
     type: tree
@@ -182,6 +209,8 @@ species:
     reference_usage: {"1. Олимпийская": 338, "5. Багрицкого": "19 ('Rudolph')", "9. Измайловская": "47 ('Эверест')"}
 
   - key: prunus_cerasus_domestica
+    traits: {gas: low, salt: low, moisture: moderate, shade: intolerant, dust: low}
+    tsn_v6_name: "Вишня обыкновенная"
     ru: "Вишня обыкновенная, слива 'Венгерка'"
     latin: "Prunus cerasus, Prunus domestica"
     type: tree
@@ -192,6 +221,7 @@ species:
     reference_usage: {"1. Олимпийская": "160 + 150"}
 
   - key: ulmus_parvifolia
+    traits: {gas: high, salt: high, moisture: dry, shade: intolerant, dust: high}
     ru: "Вяз мелколистный"
     latin: "Ulmus parvifolia"
     type: tree
@@ -201,6 +231,8 @@ species:
     block_candidates: ["Вяз мелколистный 10", "Вяз"]
 
   - key: aesculus_hippocastanum
+    traits: {gas: medium, salt: low, moisture: moderate, shade: medium, dust: high}
+    tsn_v6_name: "Конский каштан обыкновенный"
     ru: "Каштан конский"
     latin: "Aesculus hippocastanum"
     type: tree
@@ -210,6 +242,7 @@ species:
     block_candidates: ["Каштан конский", "Каштан"]
 
   - key: larix_decidua
+    traits: {gas: medium, salt: low, moisture: moderate, shade: intolerant, dust: medium}
     ru: "Лиственница европейская"
     latin: "Larix decidua"
     type: tree
@@ -221,6 +254,7 @@ species:
     block_candidates: ["Лиственница европейская", "Лиственница"]
 
   - key: picea_abies
+    traits: {gas: low, salt: low, moisture: moist, shade: tolerant, dust: high}
     ru: "Ель обыкновенная"
     latin: "Picea abies"
     type: tree
@@ -232,6 +266,7 @@ species:
     reference_usage: {"5. Багрицкого": 32, "1. Олимпийская": 46}
 
   - key: pinus_sylvestris
+    traits: {gas: low, salt: low, moisture: dry, shade: intolerant, dust: medium}
     ru: "Сосна обыкновенная (крупномер)"
     latin: "Pinus sylvestris"
     type: tree
@@ -243,6 +278,8 @@ species:
     reference_usage: {"10. Старый Гай": 24}
 
   - key: thuja_occidentalis
+    traits: {gas: medium, salt: medium, moisture: moist, shade: tolerant, dust: medium}
+    tsn_v6_name: "Туя западная"
     ru: "Туя западная"
     latin: "Thuja occidentalis"
     type: large_shrub
@@ -253,6 +290,8 @@ species:
 
   # ------------------------------ КУСТАРНИКИ ------------------------------
   - key: syringa
+    traits: {gas: high, salt: medium, moisture: dry, shade: medium, dust: medium}
+    tsn_v6_name: "Сирень обыкновенная"
     ru: "Сирень (обыкновенная, Мейера 'Palibin')"
     latin: "Syringa vulgaris, Syringa meyeri"
     type: large_shrub
@@ -263,6 +302,9 @@ species:
     reference_usage: {"5. Багрицкого": "119 Мейера + 42 обыкн.", "1. Олимпийская": "902 'Michel Buchner'"}
 
   - key: cornus_alba
+    traits: {gas: high, salt: medium, moisture: moist, shade: tolerant, dust: medium}
+    tsn_v6_name: "Дерен белый"
+    noise_barrier: true
     ru: "Дёрен белый (сорта 'Elegantissima', 'Kesselringii', 'Ivory Halo', 'Aurea', 'Сибирика')"
     latin: "Cornus alba"
     type: shrub
@@ -275,6 +317,7 @@ species:
     notes_ru: "По вторичным источникам — III группа 369-ПП. До ответа экспертов: «условно, проверить по 369-ПП»."
 
   - key: cornus_sericea
+    traits: {gas: high, salt: medium, moisture: moist, shade: tolerant, dust: medium}
     ru: "Дёрен отпрысковый 'Flaviramea'"
     latin: "Cornus sericea"
     type: shrub
@@ -285,6 +328,8 @@ species:
     reference_usage: {"9. Измайловская": 89}
 
   - key: spiraea
+    traits: {gas: high, salt: medium, moisture: moderate, shade: medium, dust: medium}
+    tsn_v6_name: "Спирея (различные виды)"
     ru: "Спирея (японская 'Darts Red', Вангутта, серая 'Грефшайм', берёзолистная 'Tor')"
     latin: "Spiraea spp."
     type: shrub
@@ -294,6 +339,9 @@ species:
     reference_usage: {"5. Багрицкого": "699 японская + 397 Вангутта", "1. Олимпийская": "1325 Вангутта"}
 
   - key: physocarpus_opulifolius
+    traits: {gas: high, salt: medium, moisture: moderate, shade: medium, dust: medium}
+    tsn_v6_name: "Пузыреплодник калинолистный"
+    noise_barrier: true
     ru: "Пузыреплодник калинолистный ('Andre', 'Aurea', 'Red Baron', 'Luteus')"
     latin: "Physocarpus opulifolius"
     type: shrub
@@ -303,6 +351,8 @@ species:
     reference_usage: {"10. Старый Гай": "≈530", "16. Берзарина": "≈750"}
 
   - key: symphoricarpos
+    traits: {gas: high, salt: medium, moisture: moderate, shade: tolerant, dust: medium}
+    tsn_v6_name: "Снежноягодник белый"
     ru: "Снежноягодник (Доренбоза, белый)"
     latin: "Symphoricarpos × doorenbosii, S. albus"
     type: shrub
@@ -312,6 +362,7 @@ species:
     reference_usage: {"1. Олимпийская": 1504, "5. Багрицкого": 210}
 
   - key: hydrangea_paniculata
+    traits: {gas: medium, salt: low, moisture: moist, shade: medium, dust: low}
     ru: "Гортензия метельчатая ('Limelight', 'Candlelight', 'Levana', 'Vanilla Fraise')"
     latin: "Hydrangea paniculata"
     type: shrub
@@ -321,6 +372,7 @@ species:
     reference_usage: {"1. Олимпийская": 1060, "5. Багрицкого": 257}
 
   - key: hydrangea_arborescens
+    traits: {gas: medium, salt: low, moisture: moist, shade: tolerant, dust: low}
     ru: "Гортензия древовидная 'Annabelle'"
     latin: "Hydrangea arborescens"
     type: shrub
@@ -329,6 +381,8 @@ species:
     block_candidates: ["Гортензия древовидная"]
 
   - key: cotoneaster_lucidus
+    traits: {gas: high, salt: medium, moisture: dry, shade: medium, dust: high}
+    tsn_v6_name: "Кизильник блестящий"
     ru: "Кизильник блестящий"
     latin: "Cotoneaster lucidus"
     type: hedge
@@ -339,6 +393,8 @@ species:
     notes_ru: "Основная порода живых изгородей; у теплотрасс — не ближе 3–4 м от оси (ТСН п. 4.2.8)."
 
   - key: philadelphus
+    traits: {gas: medium, salt: medium, moisture: moderate, shade: medium, dust: medium}
+    tsn_v6_name: "Чубушник венечный"
     ru: "Чубушник"
     latin: "Philadelphus spp."
     type: shrub
@@ -348,6 +404,8 @@ species:
     reference_usage: {"1. Олимпийская": 911}
 
   - key: viburnum_opulus_roseum
+    traits: {gas: medium, salt: low, moisture: moist, shade: medium, dust: medium}
+    tsn_v6_name: "Калина обыкновенная"
     ru: "Калина обыкновенная 'Roseum'"
     latin: "Viburnum opulus 'Roseum'"
     type: large_shrub
@@ -357,6 +415,8 @@ species:
     reference_usage: {"1. Олимпийская": 369, "5. Багрицкого": 56}
 
   - key: berberis
+    traits: {gas: high, salt: medium, moisture: dry, shade: medium, dust: medium}
+    tsn_v6_name: "Барбарис Тунберга"
     ru: "Барбарис (Тунберга 'Cabernet', оттавский 'Superba')"
     latin: "Berberis thunbergii, B. × ottawensis"
     type: shrub
@@ -366,6 +426,7 @@ species:
     reference_usage: {"5. Багрицкого": "101 + 38"}
 
   - key: juniperus_sabina
+    traits: {gas: high, salt: medium, moisture: dry, shade: intolerant, dust: low}
     ru: "Можжевельник казацкий ('Arcadia', 'Рокери Джем')"
     latin: "Juniperus sabina"
     type: groundcover
@@ -376,6 +437,7 @@ species:
     reference_usage: {"9. Измайловская": 378, "5. Багрицкого": 67}
 
   - key: pinus_mugo_mops
+    traits: {gas: medium, salt: medium, moisture: dry, shade: intolerant, dust: low}
     ru: "Сосна горная 'Mops'"
     latin: "Pinus mugo 'Mops'"
     type: shrub
@@ -386,6 +448,7 @@ species:
     reference_usage: {"9. Измайловская": 255, "5. Багрицкого": 24}
 
   - key: dasiphora_fruticosa
+    traits: {gas: medium, salt: medium, moisture: dry, shade: intolerant, dust: low}
     ru: "Лапчатка кустарниковая 'Mount Everest'"
     latin: "Dasiphora fruticosa"
     type: shrub
@@ -395,6 +458,8 @@ species:
     reference_usage: {"9. Измайловская": 297, "1. Олимпийская": 226}
 
   - key: rosa_rugosa
+    traits: {gas: high, salt: high, moisture: dry, shade: intolerant, dust: medium}
+    tsn_v6_name: "Роза (различные виды)"
     ru: "Роза морщинистая"
     latin: "Rosa rugosa"
     type: shrub
@@ -405,6 +470,7 @@ species:
     notes_ru: "По вторичным источникам — III группа 369-ПП; в Приказе МПР № 77 — только для СЗФО. Не предлагать без ответа экспертов."
 
   - key: microbiota_decussata
+    traits: {gas: medium, salt: low, moisture: moderate, shade: tolerant, dust: low}
     ru: "Микробиота перекрёстнопарная"
     latin: "Microbiota decussata"
     type: groundcover

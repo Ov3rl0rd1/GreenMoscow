@@ -91,6 +91,9 @@ class ExplanationTextRenderer:
             f"Основание выбора породы: {_lowercased(reason.text_ru.rstrip('.'))}{_cite(reason.citations)}."
             for reason in species.reasons
         )
+        if species.alternatives:
+            listed = "; ".join(f"{item.name_ru} — {item.reason_ru}" for item in species.alternatives)
+            sentences.append(f"Рассмотрены также: {listed}.")
         sentences.append(f"{_capitalized(species.invasive_text_ru)}{_cite(species.invasive_citations)}.")
         return sentences
 

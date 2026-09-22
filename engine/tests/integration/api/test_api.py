@@ -67,6 +67,34 @@ def test_dxf_job_runs_to_completion_and_serves_artifacts(client: TestClient, dra
     assert client.get(f"{JOBS}/{job['job_id']}/artifacts/job.json").status_code == 404
 
 
+def test_territory_categories_are_listed(client: TestClient) -> None:
+    items = client.get("/api/v1/territories").json()
+    assert {"district_street", "residential_yard", "park"} <= {item["id"] for item in items}
+    assert all(item["name_ru"] and item["composition_ru"] for item in items)
+
+
+def test_job_accepts_a_territory_category(client: TestClient, drawing_bytes: bytes) -> None:
+    created = submit(
+        client,
+        {"drawing": ("street.dxf", drawing_bytes)},
+        {"title": "Двор", "territory": "residential_yard"},
+    )
+    assert created.json()["territory"] == "residential_yard"
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == SUCCEEDED, job["error"]
+
+
+def test_unknown_territory_makes_the_job_fail_with_a_message(
+    client: TestClient, drawing_bytes: bytes
+) -> None:
+    created = submit(
+        client, {"drawing": ("street.dxf", drawing_bytes)}, {"title": "Двор", "territory": "подъезд"}
+    )
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == FAILED
+    assert "подъезд" in job["error"]
+
+
 def zipped(entries: dict[str, bytes]) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:

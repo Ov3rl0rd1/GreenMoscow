@@ -1,6 +1,6 @@
 import argparse
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 from typing import Protocol
 
@@ -15,7 +15,7 @@ from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
-from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
+from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritorySettings
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
 from greenplan.verify.verification_model import VerificationReport
@@ -44,6 +44,9 @@ class RunCommand:
         add_environment_arguments(parser)
         parser.add_argument("--output", required=True, type=Path, help="каталог результатов")
         parser.add_argument("--title", help="название участка в отчётах")
+        parser.add_argument(
+            "--territory", help="категория территории: улица, двор, парк и т. д. (knowledge/plants)"
+        )
         parser.add_argument("--model", type=Path, help="ONNX-модель подсказок размещения деревьев")
         parser.add_argument("--no-ml", action="store_true", help="игнорировать модель и считать по правилам")
         parser.set_defaults(command=self)
@@ -161,7 +164,7 @@ class ServeCommand:
 
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.set_defaults(model=None, no_ml=False)
+    parser.set_defaults(model=None, no_ml=False, territory=None)
     parser.add_argument(
         "--input",
         required=True,
@@ -188,7 +191,7 @@ def select_inputs(arguments: argparse.Namespace) -> DrawingInputs:
 
 def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
     knowledge_root = locate_knowledge_root(arguments.knowledge)
-    config = RunConfigLoader().load(arguments.config)
+    config = with_territory(RunConfigLoader().load(arguments.config), arguments.territory)
     components = PipelineComponents.assemble(
         knowledge_root,
         config,
@@ -197,6 +200,12 @@ def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
         tree_score_map(arguments, config),
     )
     return PlanningPipeline(components, config)
+
+
+def with_territory(config: RunConfig, category: str | None) -> RunConfig:
+    if not category:
+        return config
+    return replace(config, territory=TerritorySettings(category))
 
 
 def tree_score_map(arguments: argparse.Namespace, config: RunConfig) -> ScoreMapProvider | None:

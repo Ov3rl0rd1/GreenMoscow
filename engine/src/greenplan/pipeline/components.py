@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from greenplan.explain.report_builder import ReportBuilder
@@ -10,6 +10,7 @@ from greenplan.ingest.drawing_file_opener import DrawingFileOpener, DxfDocumentL
 from greenplan.ingest.drawing_set_builder import DrawingSetBuilder
 from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.xref_reference_reader import XrefReferenceReader
+from greenplan.knowledge.territory_catalog import TerritoryCatalog
 from greenplan.pipeline.run_config import RunConfig
 from greenplan.placement.planting_plan import PlantingPlanComposer
 from greenplan.placement.score_maps import ScoreMapProvider
@@ -43,16 +44,19 @@ class PipelineComponents:
     ) -> "PipelineComponents":
         converter = LibreDwgConverter(dwg2dxf, cache_directory) if dwg2dxf is not None else None
         opener = DrawingFileOpener(DxfDocumentLoader(), converter)
+        territories = TerritoryCatalog.from_knowledge(knowledge_root)
+        category = territories.category(config.territory.category or None)
+        placement = replace(config.placement, density_context=category.density_context)
         return cls(
             opener=opener,
             drawing_set_builder=DrawingSetBuilder(opener, XrefReferenceReader()),
             content_reader=DrawingContentReader(),
             site_builder=SiteModelBuilder.from_knowledge(knowledge_root, config.recognition),
             composer=PlantingPlanComposer.from_knowledge(
-                knowledge_root, config.placement, config.design, tree_score_map
+                knowledge_root, placement, config.design, tree_score_map
             ),
             species_factory=SpeciesSelectorFactory.from_knowledge(
-                knowledge_root, config.species, config.design
+                knowledge_root, config.species, config.design, category.category_id
             ),
             report_builder=ReportBuilder.from_knowledge(
                 knowledge_root, config.explanation.max_satisfied_clearances
@@ -61,6 +65,6 @@ class PipelineComponents:
             exporter=PlanExporter.from_knowledge(knowledge_root, config.export),
             preview_renderer=PreviewRenderer(config.preview),
             verifier=PlanVerifier.from_knowledge(
-                knowledge_root, config.export, config.design, config.placement, config.verification
+                knowledge_root, config.export, config.design, placement, config.verification
             ),
         )

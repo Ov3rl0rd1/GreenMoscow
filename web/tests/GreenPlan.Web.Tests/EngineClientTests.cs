@@ -40,6 +40,19 @@ public sealed class EngineClientTests
     }
 
     [Fact]
+    public async Task TerritoryIsSentAsAFormField()
+    {
+        var handler = FakeHttpMessageHandler.Returning(HttpStatusCode.Accepted, TestJobs.SucceededJson);
+        var submission = new JobSubmission([Drawing("street.dxf")], "Двор", null, null, "residential_yard");
+
+        await ClientFor(handler).CreateJobAsync(submission, CancellationToken.None);
+        var body = handler.Requests.Single().Body ?? string.Empty;
+
+        Assert.Contains("name=territory", body);
+        Assert.Contains("residential_yard", body);
+    }
+
+    [Fact]
     public async Task SeveralDrawingsAreSentAsRepeatedParts()
     {
         var handler = FakeHttpMessageHandler.Returning(HttpStatusCode.Accepted, TestJobs.SucceededJson);

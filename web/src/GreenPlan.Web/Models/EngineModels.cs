@@ -17,13 +17,16 @@ public sealed record JobDto(
 
 public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable);
 
+public sealed record TerritoryDto(string Id, string NameRu, string CompositionRu);
+
 public sealed record UploadedDrawing(Stream Content, string FileName);
 
 public sealed record JobSubmission(
     IReadOnlyList<UploadedDrawing> Drawings,
     string Title,
     string? MainFile,
-    string? ConfigYaml);
+    string? ConfigYaml,
+    string? Territory = null);
 
 public sealed record EngineArtifact(byte[] Content, string ContentType);
 
