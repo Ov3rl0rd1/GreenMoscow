@@ -7,6 +7,8 @@ from ezdxf import path as ezdxf_path
 from ezdxf.document import Drawing
 from ezdxf.entities import DXFGraphic
 
+from greenplan.domain.text_repair import repaired_text
+
 FLOAT_DECIMALS = 6
 FLATTENING_DISTANCE = 0.01
 COMPARED_ATTRIBUTES = (
@@ -84,7 +86,9 @@ def _attributes_text(entity: DXFGraphic) -> str:
 
 
 def _value_text(value: Any) -> str:
-    if value is None or isinstance(value, str | bool):
+    if isinstance(value, str):
+        return repaired_text(value)
+    if value is None or isinstance(value, bool):
         return str(value)
     if isinstance(value, int | float):
         return f"{float(value):.{FLOAT_DECIMALS}f}"

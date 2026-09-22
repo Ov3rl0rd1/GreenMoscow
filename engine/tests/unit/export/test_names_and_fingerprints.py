@@ -90,3 +90,13 @@ def test_integer_and_float_forms_of_one_value_have_equal_fingerprints() -> None:
     as_float = FINGERPRINTER.fingerprint(insert)
     insert.dxf.zscale = 1
     assert FINGERPRINTER.fingerprint(insert) == as_float
+
+
+def test_text_with_broken_encoding_is_fingerprinted_without_failure() -> None:
+    document = create_document()
+    text = document.modelspace().add_text("примечание", dxfattribs={"layer": "ПРИМ"})
+    text.dxf.text = "смотровы\udcd1\udc85 колодцах"
+    first = FINGERPRINTER.fingerprint(text)
+    assert first == FINGERPRINTER.fingerprint(text)
+    text.dxf.text = "смотровых колодцах"
+    assert FINGERPRINTER.fingerprint(text) == first

@@ -10,6 +10,7 @@ from greenplan.domain.drawing import (
     LoadedDrawing,
     TextAnnotation,
 )
+from greenplan.domain.text_repair import repaired_text
 from greenplan.ingest.entity_geometry import (
     BlockReferenceExtractor,
     EntityGeometryExtractor,
@@ -92,5 +93,11 @@ class DrawingContentReader:
         if geometry is None:
             return
         accumulator.geometries.append(
-            LayerGeometry(entity.dxf.layer, entity.dxftype(), geometry, drawing.name, entity.dxf.handle)
+            LayerGeometry(
+                repaired_text(entity.dxf.layer),
+                entity.dxftype(),
+                geometry,
+                drawing.name,
+                entity.dxf.handle,
+            )
         )

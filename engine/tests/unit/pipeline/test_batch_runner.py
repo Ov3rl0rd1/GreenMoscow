@@ -122,3 +122,21 @@ def test_batch_report_is_written_in_json_and_markdown(catalog: PilotCatalog, tmp
     assert "Пакетный прогон объектов" in text
     assert "## Не прошли" in text
     assert "second" in text
+
+
+class BrokenPipeline(FakePipeline):
+    def run(self, request):
+        if request.title == "Первая улица":
+            raise UnicodeEncodeError("utf-8", "\udcd1", 0, 1, "surrogates not allowed")
+        return super().run(request)
+
+
+def test_unexpected_error_is_recorded_and_the_batch_continues(
+    catalog: PilotCatalog, tmp_path: Path
+) -> None:
+    outcomes = BatchRunner(BrokenPipeline(failing=set())).run(
+        catalog, tmp_path / "data", tmp_path / "out"
+    )
+    assert not outcomes[0].succeeded
+    assert "UnicodeEncodeError" in outcomes[0].reason
+    assert outcomes[1].succeeded

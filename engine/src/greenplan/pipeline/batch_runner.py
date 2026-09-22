@@ -3,7 +3,6 @@ from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from greenplan.domain.errors import GreenPlanError
 from greenplan.knowledge.pilot_objects import PilotCatalog, PilotObject
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
@@ -61,7 +60,7 @@ class BatchRunner:
         )
         try:
             return _succeeded(item, self._pipeline.run(request))
-        except GreenPlanError as error:
+        except Exception as error:
             return BatchOutcome(item.object_id, item.level, False, f"{type(error).__name__}: {error}")
 
 

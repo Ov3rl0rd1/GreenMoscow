@@ -9,6 +9,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.validation import make_valid
 
 from greenplan.domain.drawing import BlockReference, TextAnnotation
+from greenplan.domain.text_repair import repaired_text
 
 DEFAULT_MAX_SAGITTA_M = 0.05
 MINIMUM_RING_POINTS = 3
@@ -64,13 +65,17 @@ class EntityGeometryExtractor:
 
 class TextAnnotationExtractor:
     def extract(self, entity: DXFGraphic, transform: Matrix44, source_name: str) -> TextAnnotation | None:
-        text = self._plain_text(entity).strip()
+        text = repaired_text(self._plain_text(entity)).strip()
         if not text:
             return None
         position = transform.transform(entity.dxf.insert)
         rotation = self._entity_rotation(entity) + transform_rotation_deg(transform)
         return TextAnnotation(
-            entity.dxf.layer, text, Point(position.x, position.y), rotation % 360.0, source_name
+            repaired_text(entity.dxf.layer),
+            text,
+            Point(position.x, position.y),
+            rotation % 360.0,
+            source_name,
         )
 
     def _plain_text(self, entity: DXFGraphic) -> str:
@@ -83,10 +88,13 @@ class TextAnnotationExtractor:
 class BlockReferenceExtractor:
     def extract(self, insert: DXFGraphic, transform: Matrix44, source_name: str) -> BlockReference:
         position = transform.transform(insert.dxf.insert)
-        attributes = tuple((attribute.dxf.tag, attribute.dxf.text) for attribute in insert.attribs)
+        attributes = tuple(
+            (repaired_text(attribute.dxf.tag), repaired_text(attribute.dxf.text))
+            for attribute in insert.attribs
+        )
         return BlockReference(
-            layer=insert.dxf.layer,
-            block_name=insert.dxf.name,
+            layer=repaired_text(insert.dxf.layer),
+            block_name=repaired_text(insert.dxf.name),
             position=Point(position.x, position.y),
             scale=abs(insert.dxf.xscale) * transform_scale(transform),
             rotation_deg=(insert.dxf.rotation + transform_rotation_deg(transform)) % 360.0,

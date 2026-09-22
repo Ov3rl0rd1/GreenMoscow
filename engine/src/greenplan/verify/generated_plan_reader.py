@@ -5,6 +5,7 @@ from ezdxf.document import Drawing
 from ezdxf.entities import Insert
 from shapely.geometry import Point
 
+from greenplan.domain.text_repair import repaired_text
 from greenplan.export.export_settings import ExportSettings
 from greenplan.export.layer_names import SEPARATOR
 from greenplan.export.plan_layer_writer import XDATA_EMPTY_VALUE, XDATA_REAL_CODE, XDATA_STRING_CODE
@@ -62,7 +63,7 @@ class GeneratedPlanReader:
             status=strings[STATUS_INDEX],
             position=Point(position.x, position.y),
             crown_diameter_m=reals[0],
-            layer=insert.dxf.layer,
+            layer=repaired_text(insert.dxf.layer),
             handle=insert.dxf.handle,
         )
 
