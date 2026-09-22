@@ -43,6 +43,7 @@ class PlacementSettings:
     density_rule_id: str = "tsn_max_density"
     density_context: str = "streets_embankments"
     range_bound: str = "upper"
+    street_piece_gap_m: float = 100.0
     rejection_spacing_m: float = 3.0
     max_rejections_per_reason: int = 25
     max_rejections: int = 400

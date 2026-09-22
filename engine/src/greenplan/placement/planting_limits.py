@@ -5,6 +5,7 @@ from typing import Any
 
 from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
+from shapely.ops import unary_union
 
 from greenplan.domain.errors import ConfigurationError
 from greenplan.domain.site import SiteModel
@@ -41,7 +42,7 @@ class PlantingLimitsResolver:
         spacing = self._repository.rule(settings.spacing_rule_id).parameters["spacing_m"]
         density = self._repository.rule(settings.density_rule_id).parameters
         unit = _density_unit(density["per"], settings.density_context)
-        measure = _density_measure(site, unit)
+        measure = _density_measure(site, unit, settings.street_piece_gap_m)
         caps = density["max_count"][settings.density_context]
         return PlantingLimits(
             tree_spacing_m=self._bound(spacing[settings.tree_spacing_key]),
@@ -63,19 +64,25 @@ def _density_unit(per: Mapping[str, str], context: str) -> str:
     return per.get(context, per[OTHER_CONTEXT])
 
 
-def _density_measure(site: SiteModel, unit: str) -> float:
+def _density_measure(site: SiteModel, unit: str, piece_gap_m: float) -> float:
     if unit == PER_KILOMETER:
-        return street_length_m(site) / METERS_IN_KILOMETER
+        return street_length_m(site, piece_gap_m) / METERS_IN_KILOMETER
     if unit == PER_HECTARE:
         return site.plantable_surface.area / SQUARE_METERS_IN_HECTARE
     raise ConfigurationError(f"unsupported density unit '{unit}'")
 
 
-def street_length_m(site: SiteModel) -> float:
+def street_length_m(site: SiteModel, piece_gap_m: float) -> float:
     inside = sum(axis.intersection(site.boundary).length for axis in site.street_axes)
     if inside > 0:
         return inside
-    return sum(longest_side_m(part) for part in polygonal_parts(site.boundary))
+    return sum(longest_side_m(cluster) for cluster in boundary_clusters(site.boundary, piece_gap_m))
+
+
+def boundary_clusters(boundary: BaseGeometry, gap_m: float) -> list[BaseGeometry]:
+    parts = polygonal_parts(boundary)
+    reaches = polygonal_parts(unary_union([part.buffer(gap_m / 2) for part in parts]))
+    return [unary_union([part for part in parts if part.intersects(reach)]) for reach in reaches]
 
 
 def longest_side_m(area: BaseGeometry) -> float:

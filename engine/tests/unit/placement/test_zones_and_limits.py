@@ -107,6 +107,13 @@ def test_distant_boundary_pieces_are_measured_separately(toolkit: NormsToolkit) 
     assert limits.density_measure == pytest.approx(0.15)
 
 
+def test_strips_on_both_sides_of_a_street_count_as_one_street(toolkit: NormsToolkit) -> None:
+    site = street_site(False)
+    both_sides = replace(site, boundary=box(0, -2, 100, 10).union(box(0, 30, 100, 42)))
+    limits = PlantingLimitsResolver(toolkit.repository, PlacementSettings()).resolve(both_sides)
+    assert limits.density_measure == pytest.approx(0.1)
+
+
 def test_non_street_context_is_limited_per_hectare_of_lawn(toolkit: NormsToolkit) -> None:
     settings = PlacementSettings(density_context="squares")
     limits = PlantingLimitsResolver(toolkit.repository, settings).resolve(street_site())
