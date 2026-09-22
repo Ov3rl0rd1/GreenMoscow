@@ -5,7 +5,7 @@ import pytest
 
 from greenplan.domain.errors import ConversionError
 from greenplan.ingest.command_runner import CommandResult
-from greenplan.ingest.dwg_converter import LibreDwgConverter
+from greenplan.ingest.dwg_converter import DRAFT_SUFFIX, LibreDwgConverter, publish_conversion
 from greenplan.ingest.executable_locator import (
     DWG2DXF_ENVIRONMENT_VARIABLE,
     Dwg2DxfLocator,
@@ -60,6 +60,7 @@ def test_failed_conversion_raises_and_leaves_no_partial_file(tmp_path: Path) -> 
     with pytest.raises(ConversionError):
         converter.convert(source)
     assert not converter.cached_path_for(source).exists()
+    assert not list((tmp_path / "cache").glob(f"*{DRAFT_SUFFIX}"))
 
 
 def test_missing_source_raises(tmp_path: Path) -> None:
@@ -85,3 +86,36 @@ def test_locator_finds_binary_in_search_directory(tmp_path: Path) -> None:
     bundled = tmp_path / dwg2dxf_binary_name()
     bundled.write_text("", encoding="utf-8")
     assert Dwg2DxfLocator([tmp_path], environment={}).locate() == bundled
+
+
+class CacheWatchingRunner(RecordingRunner):
+    def __init__(self, cached_path: Path) -> None:
+        super().__init__()
+        self._cached_path = cached_path
+        self.cached_path_existed_during_run = True
+
+    def run(self, arguments: Sequence[str], timeout_s: int) -> CommandResult:
+        self.cached_path_existed_during_run = self._cached_path.exists()
+        return super().run(arguments, timeout_s)
+
+
+def test_cache_entry_appears_only_after_conversion_finished(tmp_path: Path) -> None:
+    source = make_dwg(tmp_path)
+    cache = tmp_path / "cache"
+    probe = LibreDwgConverter(Path("dwg2dxf"), cache, RecordingRunner())
+    runner = CacheWatchingRunner(probe.cached_path_for(source))
+    converter = LibreDwgConverter(Path("dwg2dxf"), cache, runner)
+    result = converter.convert(source)
+    assert not runner.cached_path_existed_during_run
+    assert result.is_file()
+    assert not list(cache.glob(f"*{DRAFT_SUFFIX}"))
+
+
+def test_publishing_keeps_entry_written_by_another_process(tmp_path: Path) -> None:
+    target = tmp_path / "tile.dxf"
+    target.write_text("earlier", encoding="utf-8")
+    draft = tmp_path / f"tile.dxf.1{DRAFT_SUFFIX}"
+    draft.write_text("later", encoding="utf-8")
+    publish_conversion(draft, target)
+    assert target.read_text(encoding="utf-8") == "earlier"
+    assert not draft.exists()

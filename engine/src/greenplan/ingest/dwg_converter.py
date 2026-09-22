@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 from typing import Protocol
@@ -10,6 +11,7 @@ DIGEST_PREFIX_LENGTH = 16
 DEFAULT_TIMEOUT_S = 600
 STDERR_TAIL_LENGTH = 500
 UNSAFE_FILENAME_CHARACTERS = re.compile(r"[^\w\-.]+")
+DRAFT_SUFFIX = ".part"
 
 
 class DwgConverter(Protocol):
@@ -45,13 +47,22 @@ class LibreDwgConverter:
         return self._cache_directory / f"{digest}_{safe_stem}.dxf"
 
     def _run_conversion(self, dwg_path: Path, target: Path) -> None:
-        arguments = [str(self._executable), "-y", "-o", str(target), str(dwg_path)]
+        draft = target.with_name(f"{target.name}.{os.getpid()}{DRAFT_SUFFIX}")
+        arguments = [str(self._executable), "-y", "-o", str(draft), str(dwg_path)]
         result = self._runner.run(arguments, self._timeout_s)
-        if result.succeeded and is_usable_file(target):
+        if result.succeeded and is_usable_file(draft):
+            publish_conversion(draft, target)
             return
-        target.unlink(missing_ok=True)
+        draft.unlink(missing_ok=True)
         raise ConversionError(f"dwg2dxf failed for {dwg_path}: {result.stderr[-STDERR_TAIL_LENGTH:]}")
 
 
 def is_usable_file(path: Path) -> bool:
     return path.is_file() and path.stat().st_size > 0
+
+
+def publish_conversion(draft: Path, target: Path) -> None:
+    if is_usable_file(target):
+        draft.unlink(missing_ok=True)
+        return
+    os.replace(draft, target)
