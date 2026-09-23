@@ -70,26 +70,27 @@ class ExplanationTextRenderer:
         obstacle = self._terms.obstacle(clearance.obstacle_kind)
         cite = ledger.cite(clearance.citations)
         distance = f"{format_number(clearance.actual_m)} м"
+        measured = distance_phrase(clearance.actual_m)
         required = f"{format_number(clearance.required_m)} м"
         if clearance.satisfied:
             core = (
-                f"Расстояние {obstacle.from_ru} {clearance.measurement_ru} — {distance} "
+                f"Расстояние {obstacle.from_ru} {clearance.measurement_ru} {measured} "
                 f"при требуемых {required}{cite}."
             )
         elif clearance.severity == PROHIBITIVE:
             deficit = format_number(abs(clearance.margin_m))
             core = (
-                f"Нарушено: расстояние {obstacle.from_ru} {clearance.measurement_ru} — {distance} "
+                f"Нарушено: расстояние {obstacle.from_ru} {clearance.measurement_ru} {measured} "
                 f"при требуемых {required}, дефицит {deficit} м{cite}."
             ) + _barrier_minimum_note(clearance)
         elif clearance.severity == CONDITIONAL_MEASURE:
             core = (
-                f"Расстояние {obstacle.from_ru} {clearance.measurement_ru} — {distance}, меньше нормы "
+                f"Расстояние {obstacle.from_ru} {clearance.measurement_ru} {measured}, меньше нормы "
                 f"{required}: посадка допустима только при условии — {clearance.condition_ru}{cite}."
             ) + _reduced_minimum_note(barrier_minimum_m)
         elif clearance.severity == ADVISORY:
             core = (
-                f"Рекомендация не выполнена: расстояние {obstacle.from_ru} — {distance} "
+                f"Рекомендация не выполнена: расстояние {obstacle.from_ru} {measured} "
                 f"при рекомендуемых {required}{cite}."
             )
         else:
@@ -135,20 +136,25 @@ def barrier_minimums(clearances: Sequence[ClearanceView]) -> dict[str, float]:
 
 
 def reported_clearances(clearances: Sequence[ClearanceView]) -> list[ClearanceView]:
-    merged_kinds = {
+    below_barrier_minimum = {
         clearance.obstacle_kind
         for clearance in clearances
-        if clearance.severity == CONDITIONAL_MEASURE and not clearance.satisfied
+        if is_barrier_rule(clearance) and not clearance.satisfied
     }
     return [
         clearance
         for clearance in clearances
-        if not (
-            is_barrier_rule(clearance)
-            and clearance.satisfied
-            and clearance.obstacle_kind in merged_kinds
+        if not (is_barrier_rule(clearance) and clearance.satisfied)
+        and not (
+            clearance.severity == CONDITIONAL_MEASURE and clearance.obstacle_kind in below_barrier_minimum
         )
     ]
+
+
+def distance_phrase(actual_m: float) -> str:
+    if actual_m >= 0:
+        return f"— {format_number(actual_m)} м"
+    return f"отрицательное: поверхности пересекаются на {format_number(abs(actual_m))} м"
 
 
 def _reduced_minimum_note(barrier_minimum_m: float | None) -> str:

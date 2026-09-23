@@ -256,3 +256,26 @@ def test_barrier_minimum_is_merged_into_the_conditional_sentence(
     assert explanation.status == CONDITIONALLY_ACCEPTED
     assert "Даже с корнезащитой нельзя ближе" in text
     assert text.count("Расстояние от газопровода") == 1
+
+
+def test_overlap_with_a_network_is_not_printed_as_a_negative_distance(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    text = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 0.0)).explanation_ru
+    assert "поверхности пересекаются" in text
+    assert "— -" not in text
+
+
+def test_point_below_the_barrier_minimum_is_not_offered_the_barrier_condition(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    explanation = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 0.6))
+    assert explanation.status == REJECTED
+    assert "допустима только при условии" not in explanation.explanation_ru
+
+
+def test_satisfied_barrier_minimum_is_not_repeated_as_its_own_sentence(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    text = builder.for_decision(tree_decision(toolkit, gas_site(), 0, 3.0)).explanation_ru
+    assert text.count("Расстояние от газопровода") == 1
