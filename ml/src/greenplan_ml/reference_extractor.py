@@ -39,6 +39,7 @@ class ReferencePlanting:
     species_ru: str
     layer: str
     scheme_id: str
+    from_area: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,7 +112,9 @@ class ReferencePlantingExtractor:
                 continue
             positions = self._area_fill.positions([item.geometry for item in items])
             plantings.extend(
-                ReferencePlanting(position, SHRUB, match.plant_type, match.species_ru, layer, match.scheme_id)
+                ReferencePlanting(
+                    position, SHRUB, match.plant_type, match.species_ru, layer, match.scheme_id, True
+                )
                 for position in positions
             )
         return plantings

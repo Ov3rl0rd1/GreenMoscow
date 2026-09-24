@@ -3,7 +3,7 @@ from pathlib import Path
 
 from shapely.geometry import Point, box
 
-from greenplan.domain.norms import TREE
+from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteDiagnostics, SiteModel
 from greenplan_ml.dataset_builder import (
     MANIFEST_FILE,
@@ -28,6 +28,15 @@ def planting_at(x: float, y: float) -> ReferencePlanting:
 def test_share_counts_plantings_inside_the_boundary() -> None:
     plantings = [planting_at(10.0, 10.0), planting_at(20.0, 20.0), planting_at(500.0, 500.0)]
     assert inside_share(site_with_boundary(), plantings) == 2 / 3
+
+
+def test_share_ignores_shrubs_filled_into_outlines_when_blocks_exist() -> None:
+    legend = [
+        ReferencePlanting(Point(900.0 + index, 900.0), SHRUB, "shrub", "спирея", "layer", "scheme", True)
+        for index in range(20)
+    ]
+    assert inside_share(site_with_boundary(), [planting_at(10.0, 10.0), *legend]) == 1.0
+    assert inside_share(site_with_boundary(), legend) == 0.0
 
 
 def test_share_is_zero_without_plantings() -> None:

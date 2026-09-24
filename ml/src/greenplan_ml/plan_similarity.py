@@ -7,10 +7,13 @@ import numpy as np
 from scipy.spatial import cKDTree
 
 from greenplan.domain.norms import SHRUB, TREE
+from greenplan.placement.raster import RasterGrid
+from greenplan_ml.feature_channels import PLANTABLE_CHANNEL_INDEX
 from greenplan_ml.sample_store import StoredObject
 
 REPORT_NAME = "planting_report.json"
 REJECTED_STATUS = "rejected"
+PLANTABLE_LEVEL = 0.5
 SIMILARITY_JSON = "similarity.json"
 SIMILARITY_MARKDOWN = "similarity.md"
 TARGETS = (TREE, SHRUB)
@@ -53,8 +56,21 @@ def planned_positions(report_path: Path, target: str) -> np.ndarray:
 
 
 def reference_positions(stored: StoredObject, target: str) -> np.ndarray:
-    points = [[item.x, item.y] for item in stored.meta.plantings_of(target)]
-    return np.array(points, dtype=float).reshape(-1, 2)
+    points = np.array([[item.x, item.y] for item in stored.meta.plantings_of(target)], dtype=float)
+    points = points.reshape(-1, 2)
+    grid = stored.meta.grid.to_grid()
+    rows, columns = cell_rows_and_columns(grid, points)
+    inside = (rows >= 0) & (rows < grid.rows) & (columns >= 0) & (columns < grid.columns)
+    on_lawn = np.zeros(len(points), dtype=bool)
+    plantable = np.asarray(stored.features[PLANTABLE_CHANNEL_INDEX])
+    on_lawn[inside] = plantable[rows[inside], columns[inside]] > PLANTABLE_LEVEL
+    return points[on_lawn]
+
+
+def cell_rows_and_columns(grid: RasterGrid, points: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    columns = np.floor((points[:, 0] - grid.origin_x) / grid.cell_size_m).astype(int)
+    rows = np.floor((points[:, 1] - grid.origin_y) / grid.cell_size_m).astype(int)
+    return rows, columns
 
 
 def matched_pairs(planned: np.ndarray, reference: np.ndarray, tolerance_m: float) -> int:

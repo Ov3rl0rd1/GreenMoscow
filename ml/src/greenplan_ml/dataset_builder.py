@@ -182,11 +182,12 @@ class DatasetBuilder:
 
 
 def inside_share(site: SiteModel, plantings: Sequence[ReferencePlanting]) -> float:
-    if not plantings or site.boundary.is_empty:
+    counted = [planting for planting in plantings if not planting.from_area] or list(plantings)
+    if not counted or site.boundary.is_empty:
         return 0.0
     shapely.prepare(site.boundary)
-    xs = np.array([planting.position.x for planting in plantings], dtype=float)
-    ys = np.array([planting.position.y for planting in plantings], dtype=float)
+    xs = np.array([planting.position.x for planting in counted], dtype=float)
+    ys = np.array([planting.position.y for planting in counted], dtype=float)
     return float(shapely.contains_xy(site.boundary, xs, ys).mean())
 
 
@@ -224,5 +225,3 @@ def _planting_meta(planting: ReferencePlanting) -> PlantingMeta:
         target=planting.target,
         species_ru=planting.species_ru,
     )
-
-
