@@ -6,6 +6,7 @@ from greenplan.domain.obstacle_kinds import BUILDING_WALL
 from greenplan.domain.site import (
     BUILDINGS_NOT_FOUND,
     NETWORKS_NOT_FOUND,
+    PLANTING_AREA_NOT_FOUND,
     PROTECTED_AREAS_NOT_CHECKED,
     Obstacle,
 )
@@ -35,9 +36,18 @@ def test_complete_site_leaves_only_the_protected_area_note() -> None:
     assert site_warnings((building(), gas_pipeline())) == (PROTECTED_AREAS_NOT_CHECKED,)
 
 
+def test_site_without_a_planting_area_is_reported_first() -> None:
+    assert site_warnings((building(), gas_pipeline()), nothing_to_plant=True)[0] == PLANTING_AREA_NOT_FOUND
+
+
 def test_every_warning_has_a_russian_text(knowledge_root: Path) -> None:
     terms = ExplanationTerms.from_file(knowledge_root / "rules" / "explanation_terms.yaml")
-    for code in (NETWORKS_NOT_FOUND, BUILDINGS_NOT_FOUND, PROTECTED_AREAS_NOT_CHECKED):
+    for code in (
+        PLANTING_AREA_NOT_FOUND,
+        NETWORKS_NOT_FOUND,
+        BUILDINGS_NOT_FOUND,
+        PROTECTED_AREAS_NOT_CHECKED,
+    ):
         text = terms.site_warning(code)
         assert text != code
         assert any("а" <= letter <= "я" for letter in text.lower())

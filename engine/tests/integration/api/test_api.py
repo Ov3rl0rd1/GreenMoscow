@@ -1,5 +1,7 @@
+import base64
 import io
 import json
+import urllib.parse
 import zipfile
 from pathlib import Path
 
@@ -15,13 +17,14 @@ from fixtures.drawing_factory import add_line, create_document, save_document
 from fixtures.export_pipeline import source_drawing
 
 JOBS = "/api/v1/jobs"
+CRLF = "\r\n"
 
 
 @pytest.fixture(scope="module")
 def client(knowledge_root: Path, tmp_path_factory: pytest.TempPathFactory) -> TestClient:
     jobs_root = tmp_path_factory.mktemp("jobs")
     app = create_app_from_environment(
-        jobs_root=jobs_root, knowledge=knowledge_root, cache=jobs_root / "cache"
+        jobs_root=jobs_root, knowledge=knowledge_root, cache=jobs_root / "cache", isolated=False
     )
     return TestClient(app)
 
@@ -118,6 +121,44 @@ def test_zip_upload_picks_the_main_drawing_or_takes_the_given_one(
     assert guessed.json()["overlay_files"] == []
     assert given.json()["main_file"] == "объект/ссылки/борт.dxf"
     assert client.get(f"{JOBS}/{guessed.json()['job_id']}").json()["status"] == SUCCEEDED
+
+
+def dotnet_multipart(file_name: str, content: bytes) -> tuple[bytes, dict[str, str]]:
+    boundary = "dotnet-boundary"
+    encoded = base64.b64encode(file_name.encode("utf-8")).decode("ascii")
+    disposition = (
+        f'form-data; name=drawing; filename="=?utf-8?B?{encoded}?="; '
+        f"filename*=utf-8''{urllib.parse.quote(file_name)}"
+    )
+    lines = [f"--{boundary}", f"Content-Disposition: {disposition}", "Content-Type: application/octet-stream"]
+    head = CRLF.join([*lines, "", ""]).encode("ascii")
+    tail = f"{CRLF}--{boundary}--{CRLF}".encode("ascii")
+    return head + content + tail, {"Content-Type": f"multipart/form-data; boundary={boundary}"}
+
+
+def test_cyrillic_archive_name_with_spaces_sent_by_the_web_client_is_accepted(
+    client: TestClient, drawing_bytes: bytes
+) -> None:
+    archive = zipped({"Объект 5/ГП и ПБ ул Багрицкого.dxf": drawing_bytes})
+    body, headers = dotnet_multipart("5. Багрицкого улица.zip", archive)
+    created = client.post(JOBS, content=body, headers=headers)
+    assert created.status_code == 202, created.text
+    assert created.json()["upload_name"] == "5. Багрицкого улица.zip"
+    assert created.json()["main_file"] == "Объект 5/ГП и ПБ ул Багрицкого.dxf"
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == SUCCEEDED, job["error"]
+
+
+def test_isolated_worker_runs_the_job_outside_the_api_process(
+    knowledge_root: Path, drawing_bytes: bytes, tmp_path: Path
+) -> None:
+    app = create_app_from_environment(jobs_root=tmp_path, knowledge=knowledge_root, cache=tmp_path / "cache")
+    isolated = TestClient(app)
+    created = submit(isolated, {"drawing": ("Улица с пробелами.dxf", drawing_bytes)})
+    job = isolated.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == SUCCEEDED, job["error"]
+    assert job["stage"] == ""
+    assert "Улица_с_пробелами_greenplan.dxf" in job["artifacts"]
 
 
 def test_separate_general_plan_and_base_drawing_run_as_one_site(

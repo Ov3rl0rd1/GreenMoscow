@@ -29,6 +29,7 @@ app.UseRouting();
 app.UseAntiforgery();
 app.MapRazorPages();
 app.MapArtifactEndpoints();
+app.MapJobStatusEndpoints();
 app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 
 app.Run();

@@ -3,7 +3,7 @@ import pytest
 from shapely.geometry import Polygon
 
 from greenplan.domain.site import SiteDiagnostics, SiteModel
-from greenplan.placement.raster import RasterGrid, SiteRaster
+from greenplan.placement.raster import RasterGrid, SiteRaster, affordable_cell_size
 from greenplan.placement.score_maps import RuleScoreMap, RuleScoreWeights
 
 BARE_SITE = SiteModel(Polygon(), Polygon(), (), (), (), SiteDiagnostics())
@@ -32,6 +32,16 @@ def raster_row(clearance, edge_distance, allowed=None, conditional=None) -> Site
 
 def test_grid_covers_bounds_with_whole_cells() -> None:
     assert RasterGrid.covering((0.0, 0.0, 10.2, 4.0), 0.5).shape == (8, 21)
+
+
+def test_huge_extent_gets_coarser_cells_within_the_cell_budget() -> None:
+    grid = RasterGrid.covering((0.0, 0.0, 2000.0, 15000.0), 0.5, max_cells=1_000_000)
+    assert grid.cell_size_m == pytest.approx(affordable_cell_size(2000.0, 15000.0, 0.5, 1_000_000))
+    assert grid.rows * grid.columns <= 1_000_000 + grid.rows + grid.columns + 1
+
+
+def test_ordinary_extent_keeps_the_configured_cell() -> None:
+    assert RasterGrid.covering((0.0, 0.0, 800.0, 300.0), 0.5, max_cells=1_000_000).cell_size_m == 0.5
 
 
 def test_cell_center_and_cell_index_are_consistent() -> None:

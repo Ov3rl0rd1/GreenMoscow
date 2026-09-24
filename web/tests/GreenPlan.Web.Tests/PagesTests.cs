@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using GreenPlan.Web.Services;
 using GreenPlan.Web.Tests.Support;
@@ -158,16 +159,61 @@ public sealed class PagesTests
     }
 
     [Fact]
-    public async Task RunningJobPageRefreshesItself()
+    public async Task RunningJobPageFollowsProgressWithoutReloading()
     {
         using var factory = new GreenPlanWebFactory();
-        factory.Engine.Jobs.Add(TestJobs.Running());
+        factory.Engine.Jobs.Add(TestJobs.Running() with { Stage = "place_plants" });
         using var client = factory.CreateClient();
 
         var html = await client.GetStringAsync($"/Jobs/Details/{TestJobs.RunningId}");
 
-        Assert.Contains("http-equiv=\"refresh\"", html);
+        Assert.DoesNotContain("http-equiv=\"refresh\"", html);
         Assert.Contains("выполняется", html);
+        Assert.Contains("Этап 3 из 7: Размещение посадок.", html);
+        Assert.Contains($"data-status-url=\"/jobs/{TestJobs.RunningId}/status\"", html);
+        Assert.Contains("/js/job-status.js", html);
+    }
+
+    [Fact]
+    public async Task FinishedJobPageDoesNotPoll()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateClient();
+
+        var html = await client.GetStringAsync($"/Jobs/Details/{TestJobs.SucceededId}");
+
+        Assert.DoesNotContain("/js/job-status.js", html);
+    }
+
+    [Fact]
+    public async Task StatusEndpointReturnsCompactProgress()
+    {
+        using var factory = new GreenPlanWebFactory();
+        factory.Engine.Jobs.Add(TestJobs.Running() with { Stage = "verify" });
+        using var client = factory.CreateClient();
+
+        using var response = await client.GetAsync($"/jobs/{TestJobs.RunningId}/status");
+        using var status = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        using var missing = await client.GetAsync("/jobs/unknown/status");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+        Assert.Equal("running", status.RootElement.GetProperty("status").GetString());
+        Assert.False(status.RootElement.GetProperty("finished").GetBoolean());
+        Assert.Equal("Этап 7 из 7: Независимая проверка.", status.RootElement.GetProperty("progressText").GetString());
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+    }
+
+    [Fact]
+    public async Task StatusEndpointMarksFinishedJobs()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateClient();
+
+        using var status = JsonDocument.Parse(await client.GetStringAsync($"/jobs/{TestJobs.SucceededId}/status"));
+
+        Assert.True(status.RootElement.GetProperty("finished").GetBoolean());
+        Assert.Equal("готово", status.RootElement.GetProperty("statusText").GetString());
     }
 
     [Fact]

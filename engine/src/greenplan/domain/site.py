@@ -13,6 +13,7 @@ BOUNDARY_SELF_INTERSECTION_FIXED = "boundary_self_intersection_fixed"
 NETWORKS_NOT_FOUND = "networks_not_found"
 BUILDINGS_NOT_FOUND = "buildings_not_found"
 PROTECTED_AREAS_NOT_CHECKED = "protected_areas_not_checked"
+PLANTING_AREA_NOT_FOUND = "planting_area_not_found"
 
 
 @dataclass(frozen=True, slots=True)

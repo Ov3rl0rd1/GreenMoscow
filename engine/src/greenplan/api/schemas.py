@@ -17,6 +17,7 @@ class JobResponse(BaseModel):
     error: str | None
     overlay_files: list[str] = []
     territory: str = ""
+    stage: str = ""
     artifacts: list[str]
     summary: dict[str, Any]
 

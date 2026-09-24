@@ -21,18 +21,42 @@ public static class JobStatusText
 
 public static class StageNames
 {
-    private static readonly IReadOnlyDictionary<string, string> Names = new Dictionary<string, string>
-    {
-        ["read_drawings"] = "Чтение чертежей и внешних ссылок",
-        ["recognize_site"] = "Распознавание участка",
-        ["place_plants"] = "Размещение посадок",
-        ["select_species"] = "Подбор пород",
-        ["explain"] = "Объяснения и отчёты",
-        ["export_dxf"] = "Экспорт DXF и превью",
-        ["verify"] = "Независимая проверка",
-    };
+    private static readonly IReadOnlyList<KeyValuePair<string, string>> Ordered =
+    [
+        new("read_drawings", "Чтение чертежей и внешних ссылок"),
+        new("recognize_site", "Распознавание участка"),
+        new("place_plants", "Размещение посадок"),
+        new("select_species", "Подбор пород"),
+        new("explain", "Объяснения и отчёты"),
+        new("export_dxf", "Экспорт DXF и превью"),
+        new("verify", "Независимая проверка"),
+    ];
+
+    private static readonly IReadOnlyDictionary<string, string> Names = Ordered.ToDictionary();
+
+    public static int Count => Ordered.Count;
 
     public static string For(string stage) => Names.TryGetValue(stage, out var name) ? name : stage;
+
+    public static int NumberOf(string stage) => Ordered.Select(item => item.Key).ToList().IndexOf(stage) + 1;
+}
+
+public static class JobProgressText
+{
+    public static string For(JobDto job) => job.Status switch
+    {
+        JobStatuses.Queued => "Ждёт своей очереди: расчёты выполняются по одному.",
+        JobStatuses.Running when !string.IsNullOrEmpty(job.Stage) && StageNames.NumberOf(job.Stage) > 0 =>
+            $"Этап {StageNames.NumberOf(job.Stage)} из {StageNames.Count}: {StageNames.For(job.Stage)}.",
+        JobStatuses.Running => "Запуск расчёта.",
+        _ => string.Empty,
+    };
+}
+
+public sealed record JobStatusView(string Status, string StatusText, string ProgressText, bool Finished)
+{
+    public static JobStatusView From(JobDto job) =>
+        new(job.Status, JobStatusText.For(job.Status), JobProgressText.For(job), JobStatusText.IsFinished(job.Status));
 }
 
 public sealed record StageTiming(string Stage, double Seconds)

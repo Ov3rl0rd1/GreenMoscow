@@ -2,6 +2,7 @@ import shutil
 import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,8 @@ from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritoryS
 INPUT_DIRECTORY = "input"
 OUTPUT_DIRECTORY = "output"
 CONFIG_FILE_NAME = "config.yaml"
+UNFINISHED_STATUSES = frozenset({QUEUED, RUNNING})
+INTERRUPTED_MESSAGE = "Расчёт прерван перезапуском сервиса. Запустите задачу заново."
 
 PipelineFactory = Callable[[RunConfig], PlanningPipeline]
 Clock = Callable[[], str]
@@ -89,11 +92,24 @@ class JobService:
         try:
             result = self._run_pipeline(record, directory)
         except Exception as error:
-            self._update(record, status=FAILED, error=f"{type(error).__name__}: {error}")
+            self._change(job_id, status=FAILED, error=f"{type(error).__name__}: {error}")
             return
-        self._update(
-            record, status=SUCCEEDED, artifacts=sorted(result.artifacts), summary=job_summary(result)
+        self._change(
+            job_id,
+            status=SUCCEEDED,
+            stage="",
+            artifacts=sorted(result.artifacts),
+            summary=job_summary(result),
         )
+
+    def fail_unfinished(self, job_id: str, message: str) -> None:
+        record = self._repository.load(job_id)
+        if record.status in UNFINISHED_STATUSES:
+            self._update(record, status=FAILED, error=message)
+
+    def fail_interrupted(self) -> None:
+        for record in self._repository.all():
+            self.fail_unfinished(record.job_id, INTERRUPTED_MESSAGE)
 
     def get(self, job_id: str) -> JobRecord:
         return self._repository.load(job_id)
@@ -144,7 +160,13 @@ class JobService:
             generated_at=self._clock(),
             overlay_paths=tuple(input_directory / name for name in record.overlay_files),
         )
-        return self._pipeline_factory(config).run(request)
+        return self._pipeline_factory(config).run(request, partial(self._report_stage, record.job_id))
+
+    def _report_stage(self, job_id: str, stage: str) -> None:
+        self._change(job_id, stage=stage)
+
+    def _change(self, job_id: str, **changes: Any) -> JobRecord:
+        return self._update(self._repository.load(job_id), **changes)
 
     def _update(self, record: JobRecord, **changes: Any) -> JobRecord:
         updated = replace(record, updated_at=self._clock(), **changes)

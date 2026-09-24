@@ -3,10 +3,6 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @if (ViewData["AutoRefresh"] is true)
-    {
-        <meta http-equiv="refresh" content="3" />
-    }
     <title>@ViewData["Title"] — GreenPlan</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -22,5 +18,6 @@
         Посадки размещаются на отдельных слоях DXF, исходные слои чертежа не изменяются.
         Каждая посадка и каждый отказ объяснены со ссылкой на норму.
     </footer>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

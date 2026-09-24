@@ -18,6 +18,7 @@ from greenplan.domain.obstacle_kinds import (
 from greenplan.domain.site import (
     BUILDINGS_NOT_FOUND,
     NETWORKS_NOT_FOUND,
+    PLANTING_AREA_NOT_FOUND,
     PROJECTED_STATUS,
     PROTECTED_AREAS_NOT_CHECKED,
     Obstacle,
@@ -32,7 +33,11 @@ from greenplan.recognition.existing_tree_extractor import ExistingTreeExtractor
 from greenplan.recognition.network_annotation_parser import NetworkAnnotationParser
 from greenplan.recognition.network_builder import NetworkBuilder
 from greenplan.recognition.settings import RecognitionSettings
-from greenplan.recognition.site_boundary_extractor import SiteBoundary, SiteBoundaryExtractor
+from greenplan.recognition.site_boundary_extractor import (
+    CONTENT_EXTENT_SOURCE,
+    SiteBoundary,
+    SiteBoundaryExtractor,
+)
 from greenplan.recognition.surface_classifier import SurfaceClassifier, SurfaceMap
 from greenplan.recognition.symbol_clusterer import SymbolClusterer
 
@@ -92,8 +97,10 @@ class SiteModelBuilder:
         surfaces = self._surface_classifier.classify(content.geometries)
         obstacles = self._collect_obstacles(content, classifications, surfaces)
         trees = self._tree_extractor.extract(content.geometries, content.block_references, classifications)
-        plantable = surfaces.lawn.intersection(boundary.area) if not surfaces.lawn.is_empty else boundary.area
-        diagnostics = self._diagnostics(classifications, obstacles, unresolved_references, boundary, surfaces)
+        plantable = plantable_surface(surfaces, boundary)
+        diagnostics = self._diagnostics(
+            classifications, obstacles, unresolved_references, boundary, surfaces, plantable.is_empty
+        )
         return SiteModel(
             boundary=boundary.area,
             plantable_surface=_as_areal(plantable),
@@ -188,6 +195,7 @@ class SiteModelBuilder:
         unresolved_references: Sequence[str],
         boundary: SiteBoundary,
         surfaces: SurfaceMap,
+        nothing_to_plant: bool,
     ) -> SiteDiagnostics:
         networks = [obstacle for obstacle in obstacles if obstacle.kind in UNDERGROUND_NETWORK_KINDS]
         total_length = sum(obstacle.geometry.length for obstacle in networks)
@@ -204,15 +212,24 @@ class SiteModelBuilder:
             boundary_repairs=boundary.repairs,
             lawn_source=surfaces.lawn_source,
             annotated_network_share=annotated_length / total_length if total_length > 0 else 0.0,
-            warnings=site_warnings(obstacles),
+            warnings=site_warnings(obstacles, nothing_to_plant),
         )
 
 
-def site_warnings(obstacles: Sequence[Obstacle]) -> tuple[str, ...]:
+def plantable_surface(surfaces: SurfaceMap, boundary: SiteBoundary) -> Polygon | MultiPolygon:
+    if not surfaces.lawn.is_empty:
+        return surfaces.lawn.intersection(boundary.area)
+    if boundary.source == CONTENT_EXTENT_SOURCE:
+        return Polygon()
+    return boundary.area
+
+
+def site_warnings(obstacles: Sequence[Obstacle], nothing_to_plant: bool = False) -> tuple[str, ...]:
     kinds = {obstacle.kind for obstacle in obstacles}
     missing = [
         code
         for code, present in (
+            (PLANTING_AREA_NOT_FOUND, not nothing_to_plant),
             (NETWORKS_NOT_FOUND, bool(kinds & set(UNDERGROUND_NETWORK_KINDS))),
             (BUILDINGS_NOT_FOUND, BUILDING_WALL in kinds),
         )

@@ -29,6 +29,7 @@ def default_shrub_score_weights() -> RuleScoreWeights:
 @dataclass(frozen=True, slots=True)
 class PlacementSettings:
     cell_size_m: float = 0.5
+    max_raster_cells: int = 24_000_000
     tree_crown_diameter_m: float = 5.0
     shrub_crown_diameter_m: float = 1.5
     allow_conditional: bool = True

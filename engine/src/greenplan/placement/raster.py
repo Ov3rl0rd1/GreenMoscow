@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import ceil
+from math import ceil, sqrt
 
 import numpy as np
 
@@ -13,11 +13,14 @@ class RasterGrid:
     columns: int
 
     @classmethod
-    def covering(cls, bounds: tuple[float, float, float, float], cell_size_m: float) -> "RasterGrid":
+    def covering(
+        cls, bounds: tuple[float, float, float, float], cell_size_m: float, max_cells: int | None = None
+    ) -> "RasterGrid":
         min_x, min_y, max_x, max_y = bounds
-        columns = max(1, ceil((max_x - min_x) / cell_size_m))
-        rows = max(1, ceil((max_y - min_y) / cell_size_m))
-        return cls(min_x, min_y, cell_size_m, rows, columns)
+        cell = affordable_cell_size(max_x - min_x, max_y - min_y, cell_size_m, max_cells)
+        columns = max(1, ceil((max_x - min_x) / cell))
+        rows = max(1, ceil((max_y - min_y) / cell))
+        return cls(min_x, min_y, cell, rows, columns)
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -36,6 +39,12 @@ class RasterGrid:
 
     def cell_of(self, x: float, y: float) -> tuple[int, int]:
         return int((y - self.origin_y) // self.cell_size_m), int((x - self.origin_x) // self.cell_size_m)
+
+
+def affordable_cell_size(width: float, height: float, cell_size_m: float, max_cells: int | None) -> float:
+    if max_cells is None or width * height <= max_cells * cell_size_m**2:
+        return cell_size_m
+    return sqrt(width * height / max_cells)
 
 
 @dataclass(frozen=True, slots=True, eq=False)

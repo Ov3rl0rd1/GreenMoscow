@@ -4,13 +4,20 @@
     var job = Model.Job!;
     var summary = new JobSummaryView(job.Summary);
     ViewData["Title"] = job.Title;
-    ViewData["AutoRefresh"] = !JobStatusText.IsFinished(job.Status);
+    var finished = JobStatusText.IsFinished(job.Status);
 }
 
 <section class="card">
     <p><a asp-page="/Index">← Новый расчёт</a></p>
     <h1>@job.Title</h1>
-    <p>Статус: <span class="status status-@job.Status">@JobStatusText.For(job.Status)</span></p>
+    <div data-status-url="@JobStatusEndpoints.UrlFor(job.JobId)">
+        <p>Статус: <span class="status status-@job.Status" data-status-text>@JobStatusText.For(job.Status)</span></p>
+        @if (!finished)
+        {
+            <p class="lead"><span data-progress-text>@JobProgressText.For(job)</span> Страница покажет итог сама, как только расчёт завершится.</p>
+            <p class="lead" data-connection-text hidden>Нет связи с сервисом расчёта, повторим попытку чуть позже.</p>
+        }
+    </div>
     <p>Загружено: @job.UploadName; главный чертёж: <code>@job.MainFile</code></p>
     @if (job.OverlayFiles is { Count: > 0 })
     {
@@ -21,11 +28,14 @@
     {
         <pre class="alert">@job.Error</pre>
     }
-    @if (!JobStatusText.IsFinished(job.Status))
-    {
-        <p class="lead">Расчёт идёт, страница обновится автоматически.</p>
-    }
 </section>
+
+@if (!finished)
+{
+    @section Scripts {
+        <script src="~/js/job-status.js" asp-append-version="true"></script>
+    }
+}
 
 @if (job.Status == JobStatuses.Succeeded)
 {

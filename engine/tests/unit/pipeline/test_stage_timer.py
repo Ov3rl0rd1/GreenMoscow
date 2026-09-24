@@ -25,5 +25,15 @@ def test_peak_keeps_the_largest_stage() -> None:
     assert timer.peak_memory_mb >= 10.0
 
 
+def test_listener_hears_each_stage_as_it_starts() -> None:
+    heard: list[str] = []
+    timer = StageTimer(heard.append)
+    with timer.stage("read"):
+        assert heard == ["read"]
+    with timer.stage("place"):
+        pass
+    assert heard == ["read", "place"]
+
+
 def test_memory_reading_is_available() -> None:
     assert process_memory_mb() > 0

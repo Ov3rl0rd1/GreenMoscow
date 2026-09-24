@@ -77,7 +77,9 @@ class PlantingPlanComposer:
         selector = PeakSelector()
         zone_builder = PlantingZoneBuilder(ZoneBuilder(resolver, meter), resolver, constraints)
         return cls(
-            planner=PlantPlacementPlanner(zone_builder, SiteRasterizer(placement.cell_size_m), selector),
+            planner=PlantPlacementPlanner(
+                zone_builder, SiteRasterizer(placement.cell_size_m, placement.max_raster_cells), selector
+            ),
             limits_resolver=PlantingLimitsResolver(repository, placement),
             rejection_sampler=RejectionSampler(
                 selector,

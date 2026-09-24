@@ -5,11 +5,12 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadF
 from fastapi.responses import FileResponse
 
 from greenplan import __version__
-from greenplan.api.job_repository import JobRepository
+from greenplan.api.job_runner import InProcessJobRunner, IsolatedJobRunner, JobRunner
 from greenplan.api.job_service import JobService, UploadedFile
 from greenplan.api.norms_view import norms_payload
 from greenplan.api.schemas import HealthResponse, JobResponse
-from greenplan.api.upload_storage import UploadStorage
+from greenplan.api.service_factory import ServiceLocation, build_job_service
+from greenplan.api.upload_names import upload_file_name
 from greenplan.domain.errors import (
     ConfigurationError,
     InvalidUploadError,
@@ -18,16 +19,6 @@ from greenplan.domain.errors import (
 )
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.knowledge.territory_catalog import TerritoryCatalog
-from greenplan.pipeline.components import PipelineComponents
-from greenplan.pipeline.environment import (
-    current_timestamp,
-    locate_dwg2dxf,
-    locate_knowledge_root,
-    resolve_cache_directory,
-    resolve_jobs_root,
-)
-from greenplan.pipeline.planning_pipeline import PlanningPipeline
-from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
 
 API_PREFIX = "/api/v1"
 API_TITLE = "GreenPlan API"
@@ -43,7 +34,9 @@ HTTP_NOT_FOUND = 404
 REQUEST_ERRORS = (InvalidUploadError, ConfigurationError, KnowledgeValidationError)
 
 
-def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: bool) -> FastAPI:
+def create_app(
+    service: JobService, runner: JobRunner, knowledge_root: Path, dwg2dxf_available: bool
+) -> FastAPI:
     app = FastAPI(title=API_TITLE, version=__version__, description=API_DESCRIPTION)
     norms = norms_payload(NormsRepository.from_knowledge(knowledge_root))
     territories = TerritoryCatalog.from_knowledge(knowledge_root)
@@ -79,13 +72,13 @@ def create_app(service: JobService, knowledge_root: Path, dwg2dxf_available: boo
             str | None, Form(description="категория территории: /api/v1/territories")
         ] = None,
     ) -> JobResponse:
-        uploads = [UploadedFile(item.filename or "", await item.read()) for item in drawing]
+        uploads = [UploadedFile(upload_file_name(item.filename or ""), await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
             record = service.create(uploads, title, main_file, config_text, territory)
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
-        background_tasks.add_task(service.execute, record.job_id)
+        background_tasks.add_task(runner.run, record.job_id)
         return JobResponse.from_record(record)
 
     @app.get(f"{API_PREFIX}/jobs", response_model=list[JobResponse], tags=["jobs"])
@@ -115,21 +108,10 @@ def create_app_from_environment(
     knowledge: Path | None = None,
     cache: Path | None = None,
     dwg2dxf: Path | None = None,
+    isolated: bool = True,
 ) -> FastAPI:
-    knowledge_root = locate_knowledge_root(knowledge)
-    converter = locate_dwg2dxf(dwg2dxf, knowledge_root)
-    cache_directory = resolve_cache_directory(cache, knowledge_root)
-
-    def pipeline_factory(config: RunConfig) -> PlanningPipeline:
-        return PlanningPipeline(
-            PipelineComponents.assemble(knowledge_root, config, converter, cache_directory), config
-        )
-
-    service = JobService(
-        JobRepository(resolve_jobs_root(jobs_root)),
-        UploadStorage(),
-        pipeline_factory,
-        RunConfigLoader(),
-        current_timestamp,
-    )
-    return create_app(service, knowledge_root, converter is not None)
+    location = ServiceLocation.resolve(jobs_root, knowledge, cache, dwg2dxf)
+    service = build_job_service(location)
+    service.fail_interrupted()
+    runner: JobRunner = IsolatedJobRunner(service, location) if isolated else InProcessJobRunner(service)
+    return create_app(service, runner, location.knowledge_root, location.converter is not None)

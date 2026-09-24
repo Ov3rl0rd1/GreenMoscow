@@ -11,7 +11,7 @@ from greenplan.pipeline.environment import current_timestamp
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.run_config import RunConfig
 from greenplan.pipeline.run_summary import RunSummary
-from greenplan.pipeline.stage_timer import StageTimer
+from greenplan.pipeline.stage_timer import StageListener, StageTimer, ignore_stage
 from greenplan.verify.verification_model import VerificationReport
 from greenplan.verify.verification_writers import write_verification_json, write_verification_markdown
 
@@ -70,9 +70,9 @@ class PlanningPipeline:
     def verify_output(self, recognized: RecognizedSite, output_dxf: Path) -> VerificationReport:
         return self._components.verifier.verify(recognized.source_dxf, output_dxf, recognized.site)
 
-    def run(self, request: PipelineRequest) -> PipelineResult:
+    def run(self, request: PipelineRequest, on_stage: StageListener = ignore_stage) -> PipelineResult:
         components = self._components
-        timer = StageTimer()
+        timer = StageTimer(on_stage)
         generated_at = request.generated_at or current_timestamp()
         directory = request.output_directory
         directory.mkdir(parents=True, exist_ok=True)

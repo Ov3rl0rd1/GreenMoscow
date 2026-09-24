@@ -13,7 +13,8 @@ public sealed record JobDto(
     string? Error,
     IReadOnlyList<string> Artifacts,
     IReadOnlyDictionary<string, JsonElement> Summary,
-    IReadOnlyList<string>? OverlayFiles = null);
+    IReadOnlyList<string>? OverlayFiles = null,
+    string? Stage = null);
 
 public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable);
 
