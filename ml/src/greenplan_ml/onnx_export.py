@@ -6,7 +6,7 @@ import onnx
 import torch
 
 from greenplan_ml.feature_channels import CHANNEL_NAMES
-from greenplan_ml.inference import ModelMetadata, OnnxHeatmapModel
+from greenplan_ml.inference import ModelCalibration, ModelMetadata, OnnxHeatmapModel
 from greenplan_ml.model import HeatmapUNet, UNetSettings
 from greenplan_ml.targets import TARGET_CHANNELS
 
@@ -91,10 +91,24 @@ def parity_error(checkpoint: Checkpoint, onnx_path: Path, sample: np.ndarray) ->
     return float(np.max(np.abs(expected - actual)))
 
 
+def write_calibration(source: Path, calibration: ModelCalibration, output: Path) -> Path:
+    model = onnx.load(str(source))
+    _set_properties(model, calibration.as_properties())
+    output.parent.mkdir(parents=True, exist_ok=True)
+    onnx.save(model, str(output))
+    return output
+
+
 def _write_metadata(path: Path, metadata: ModelMetadata) -> None:
     model = onnx.load(str(path))
-    for key, value in metadata.as_properties().items():
+    _set_properties(model, metadata.as_properties())
+    onnx.save(model, str(path))
+
+
+def _set_properties(model: onnx.ModelProto, properties: dict[str, str]) -> None:
+    kept = [(entry.key, entry.value) for entry in model.metadata_props if entry.key not in properties]
+    del model.metadata_props[:]
+    for key, value in [*kept, *properties.items()]:
         entry = model.metadata_props.add()
         entry.key = key
         entry.value = value
-    onnx.save(model, str(path))

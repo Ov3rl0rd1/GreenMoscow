@@ -9,6 +9,7 @@ from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
 class GuidanceMaps:
     tree: ScoreMapProvider
     shrub: ScoreMapProvider
+    spacing_bound: str | None = None
 
 
 GuidanceFactory = Callable[[PlacementSettings], GuidanceMaps]

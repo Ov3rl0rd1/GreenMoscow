@@ -17,6 +17,7 @@ PER_KILOMETER = "1 км"
 PER_HECTARE = "1 га"
 OTHER_CONTEXT = "other"
 UPPER_BOUND = "upper"
+LOWER_BOUND = "lower"
 METERS_IN_KILOMETER = 1000.0
 SQUARE_METERS_IN_HECTARE = 10_000.0
 
@@ -37,27 +38,29 @@ class PlantingLimitsResolver:
         self._repository = repository
         self._settings = settings
 
-    def resolve(self, site: SiteModel) -> PlantingLimits:
+    def resolve(self, site: SiteModel, spacing_bound: str | None = None) -> PlantingLimits:
         settings = self._settings
+        spacing_side = spacing_bound or settings.range_bound
         spacing = self._repository.rule(settings.spacing_rule_id).parameters["spacing_m"]
         density = self._repository.rule(settings.density_rule_id).parameters
         unit = _density_unit(density["per"], settings.density_context)
         measure = _density_measure(site, unit, settings.street_piece_gap_m)
         caps = density["max_count"][settings.density_context]
         return PlantingLimits(
-            tree_spacing_m=self._bound(spacing[settings.tree_spacing_key]),
-            shrub_spacing_m=self._bound(spacing[settings.shrub_spacing_key]),
-            max_trees=math.floor(self._bound(caps["trees"]) * measure),
-            max_shrubs=math.floor(self._bound(caps["shrubs"]) * measure),
+            tree_spacing_m=bound_of(spacing[settings.tree_spacing_key], spacing_side),
+            shrub_spacing_m=bound_of(spacing[settings.shrub_spacing_key], spacing_side),
+            max_trees=math.floor(bound_of(caps["trees"], settings.range_bound) * measure),
+            max_shrubs=math.floor(bound_of(caps["shrubs"], settings.range_bound) * measure),
             density_measure=measure,
             density_unit=unit,
             rule_ids=(settings.spacing_rule_id, settings.density_rule_id),
         )
 
-    def _bound(self, value: Any) -> float:
-        if isinstance(value, Sequence) and not isinstance(value, str):
-            return float(value[-1] if self._settings.range_bound == UPPER_BOUND else value[0])
-        return float(value)
+
+def bound_of(value: Any, side: str) -> float:
+    if isinstance(value, Sequence) and not isinstance(value, str):
+        return float(value[-1] if side == UPPER_BOUND else value[0])
+    return float(value)
 
 
 def _density_unit(per: Mapping[str, str], context: str) -> str:

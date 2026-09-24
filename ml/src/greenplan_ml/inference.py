@@ -10,9 +10,56 @@ CELL_SIZE_KEY = "cell_size_m"
 CHANNELS_KEY = "channels"
 TARGET_CHANNELS_KEY = "target_channels"
 SIZE_MULTIPLE_KEY = "size_multiple"
+CALIBRATION_PREFIX = "calibration"
+THRESHOLD_FIELD = "threshold"
+COUNT_SCALE_FIELD = "count_scale"
+CALIBRATION_OBJECTS_KEY = "calibration.objects"
 METADATA_SEPARATOR = ","
 DEFAULT_TILE_CELLS = 512
 DEFAULT_TILE_OVERLAP_CELLS = 64
+
+
+@dataclass(frozen=True, slots=True)
+class ChannelCalibration:
+    threshold: float
+    count_scale: float
+
+
+@dataclass(frozen=True, slots=True)
+class ModelCalibration:
+    channels: dict[str, ChannelCalibration]
+    objects: tuple[str, ...] = ()
+
+    def for_channel(self, channel: str) -> ChannelCalibration | None:
+        return self.channels.get(channel)
+
+    def as_properties(self) -> dict[str, str]:
+        properties = {CALIBRATION_OBJECTS_KEY: METADATA_SEPARATOR.join(self.objects)}
+        for channel, values in self.channels.items():
+            properties[calibration_key(channel, THRESHOLD_FIELD)] = f"{values.threshold:.6g}"
+            properties[calibration_key(channel, COUNT_SCALE_FIELD)] = f"{values.count_scale:.6g}"
+        return properties
+
+    @classmethod
+    def from_properties(
+        cls, properties: dict[str, str], target_channels: tuple[str, ...]
+    ) -> "ModelCalibration | None":
+        channels = {
+            channel: ChannelCalibration(
+                threshold=float(properties[calibration_key(channel, THRESHOLD_FIELD)]),
+                count_scale=float(properties[calibration_key(channel, COUNT_SCALE_FIELD)]),
+            )
+            for channel in target_channels
+            if calibration_key(channel, THRESHOLD_FIELD) in properties
+        }
+        if not channels:
+            return None
+        objects = properties.get(CALIBRATION_OBJECTS_KEY, "")
+        return cls(channels, tuple(item for item in objects.split(METADATA_SEPARATOR) if item))
+
+
+def calibration_key(channel: str, field: str) -> str:
+    return f"{CALIBRATION_PREFIX}.{channel}.{field}"
 
 
 @dataclass(frozen=True, slots=True)
@@ -21,22 +68,28 @@ class ModelMetadata:
     channels: tuple[str, ...]
     target_channels: tuple[str, ...]
     size_multiple: int
+    calibration: ModelCalibration | None = None
 
     def as_properties(self) -> dict[str, str]:
-        return {
+        properties = {
             CELL_SIZE_KEY: str(self.cell_size_m),
             CHANNELS_KEY: METADATA_SEPARATOR.join(self.channels),
             TARGET_CHANNELS_KEY: METADATA_SEPARATOR.join(self.target_channels),
             SIZE_MULTIPLE_KEY: str(self.size_multiple),
         }
+        if self.calibration is not None:
+            properties.update(self.calibration.as_properties())
+        return properties
 
     @classmethod
     def from_properties(cls, properties: dict[str, str]) -> "ModelMetadata":
+        target_channels = tuple(properties[TARGET_CHANNELS_KEY].split(METADATA_SEPARATOR))
         return cls(
             cell_size_m=float(properties[CELL_SIZE_KEY]),
             channels=tuple(properties[CHANNELS_KEY].split(METADATA_SEPARATOR)),
-            target_channels=tuple(properties[TARGET_CHANNELS_KEY].split(METADATA_SEPARATOR)),
+            target_channels=target_channels,
             size_multiple=int(properties[SIZE_MULTIPLE_KEY]),
+            calibration=ModelCalibration.from_properties(properties, target_channels),
         )
 
 

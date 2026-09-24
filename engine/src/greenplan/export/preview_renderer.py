@@ -14,6 +14,7 @@ from greenplan.domain.norms import TREE
 from greenplan.domain.obstacle_kinds import UNDERGROUND_NETWORK_KINDS
 from greenplan.domain.site import SiteModel
 from greenplan.explain.report_model import PlantingReport
+from greenplan.export.shrub_groups import shrub_group_areas
 from greenplan.geometry.shapes import linear_parts, polygonal_parts
 from greenplan.placement.planting_zones import PlantingZones
 
@@ -30,6 +31,9 @@ class PreviewSettings:
     tree_color: str = "#1b7837"
     conditional_tree_color: str = "#e08214"
     shrub_color: str = "#762a83"
+    shrub_group_color: str = "#c2a5cf"
+    shrub_group_radius_m: float = 0.9
+    shrub_group_min_size: int = 3
     rejection_color: str = "#d73027"
     network_line_width: float = 0.3
     boundary_line_width: float = 0.8
@@ -97,6 +101,14 @@ class PreviewRenderer:
         ]
         axis.add_collection(PatchCollection(crowns, match_original=True))
         shrubs = [plant for plant in report.plants if plant.plant_type != TREE]
+        groups = shrub_group_areas(
+            [(plant.x, plant.y) for plant in shrubs],
+            settings.shrub_group_radius_m,
+            settings.shrub_group_min_size,
+            settings.shrub_group_radius_m / 4,
+        )
+        for group in groups:
+            _fill(axis, group, settings.shrub_group_color)
         axis.scatter(
             [plant.x for plant in shrubs],
             [plant.y for plant in shrubs],

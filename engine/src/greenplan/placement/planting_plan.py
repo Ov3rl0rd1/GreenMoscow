@@ -54,6 +54,7 @@ class PlantingPlanComposer:
         settings: PlacementSettings,
         tree_score_map: ScoreMapProvider,
         shrub_score_map: ScoreMapProvider,
+        spacing_bound: str | None = None,
     ) -> None:
         self._planner = planner
         self._limits_resolver = limits_resolver
@@ -62,6 +63,7 @@ class PlantingPlanComposer:
         self._settings = settings
         self._tree_score_map = tree_score_map
         self._shrub_score_map = shrub_score_map
+        self._spacing_bound = spacing_bound
 
     @classmethod
     def from_knowledge(
@@ -97,10 +99,11 @@ class PlantingPlanComposer:
             settings=placement,
             tree_score_map=maps.tree,
             shrub_score_map=maps.shrub,
+            spacing_bound=maps.spacing_bound,
         )
 
     def compose(self, site: SiteModel) -> PlantingPlan:
-        limits = self._limits_resolver.resolve(site)
+        limits = self._limits_resolver.resolve(site, self._spacing_bound)
         evaluator = self._evaluator_factory.for_site(site)
         tree_profile = self._tree_profile(limits)
         trees = self._planner.plan(site, tree_profile, evaluator, ())

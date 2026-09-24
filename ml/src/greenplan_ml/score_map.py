@@ -9,6 +9,7 @@ from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.placement.guidance import GuidanceFactory, GuidanceMaps
 from greenplan.placement.placement_settings import PlacementSettings
+from greenplan.placement.planting_limits import LOWER_BOUND
 from greenplan.placement.raster import RasterGrid, SiteRaster
 from greenplan.placement.score_maps import MODEL_GUIDANCE, PlacementGuidance, RuleScoreMap, ScoreMapProvider
 from greenplan_ml.feature_channels import FeatureSettings, FeatureStackBuilder
@@ -63,7 +64,7 @@ class ModelScoreMap:
         self._rules = rules
         self._target = target
         self._channel = HEATMAP_CHANNEL_BY_TARGET[target]
-        self._settings = settings or ModelScoreSettings()
+        self._settings = settings or calibrated_settings(predictions.model, self._channel)
         self._peak_sigma_m = peak_sigma_m or default_peak_sigma_m(target)
 
     @classmethod
@@ -95,7 +96,7 @@ class ModelScoreMap:
         )
 
     def _expected_count(self, heatmap: np.ndarray, raster: SiteRaster) -> int:
-        mass = float(np.clip(heatmap, 0.0, None)[raster.allowed].sum())
+        mass = float(np.clip(heatmap, 0.0, None)[raster.plantable].sum())
         sigma_cells = self._peak_sigma_m / raster.grid.cell_size_m
         return int(round(mass / peak_mass(sigma_cells) * self._settings.count_scale))
 
@@ -106,6 +107,14 @@ class ModelScoreMap:
             raise ConfigurationError(
                 f"модель обучена на клетке {expected} м, а размещение считает по {actual} м"
             )
+
+
+def calibrated_settings(model: OnnxHeatmapModel, channel: str) -> ModelScoreSettings:
+    calibration = model.metadata.calibration
+    values = calibration.for_channel(channel) if calibration is not None else None
+    if values is None:
+        return ModelScoreSettings()
+    return ModelScoreSettings(candidate_threshold=values.threshold, count_scale=values.count_scale)
 
 
 def peak_mass(sigma_cells: float) -> float:
@@ -134,6 +143,7 @@ def model_guidance(
         return GuidanceMaps(
             ModelScoreMap(predictions, RuleScoreMap(placement.tree_score), TREE, tree_settings),
             ModelScoreMap(predictions, RuleScoreMap(placement.shrub_score), SHRUB, shrub_settings),
+            spacing_bound=LOWER_BOUND,
         )
 
     return guidance

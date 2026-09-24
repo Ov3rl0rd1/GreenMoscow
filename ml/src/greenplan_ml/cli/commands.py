@@ -9,6 +9,7 @@ from greenplan.knowledge.pilot_objects import PilotCatalog
 from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.score_maps import RuleScoreMap
+from greenplan_ml.calibration import CalibrationSettings, ModelCalibrator
 from greenplan_ml.dataset_builder import DatasetBuilder
 from greenplan_ml.evaluation import EvaluationSettings, ModelEvaluator
 from greenplan_ml.inference import OnnxHeatmapModel
@@ -212,6 +213,34 @@ class EvaluateCommand:
                 f"точность {item.precision:.3f}, полнота {item.recall:.3f}, F1 {item.f1:.3f}"
             )
         print(f"Отчёт: {json_path}, {markdown_path}")
+        return EXIT_OK
+
+
+class CalibrateCommand:
+    name = "calibrate"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(self.name, help="подобрать порог уверенности и масштаб количества")
+        parser.add_argument("--dataset", required=True, type=Path, help="каталог собранных примеров")
+        parser.add_argument("--model", required=True, type=Path, help="модель .onnx")
+        parser.add_argument("--objects", nargs="+", required=True, help="отложенные объекты для калибровки")
+        parser.add_argument("--output", required=True, type=Path, help="куда записать откалиброванную модель")
+        parser.add_argument("--coverage", type=float, default=0.8, help="доля эталонных посадок в маске")
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        objects = stored_objects(arguments.dataset, arguments.objects)
+        if not objects:
+            print("нет собранных примеров")
+            return EXIT_ERROR
+        from greenplan_ml.onnx_export import write_calibration
+
+        settings = CalibrationSettings(coverage=arguments.coverage)
+        calibration = ModelCalibrator(OnnxHeatmapModel.load(arguments.model), settings).calibrate(objects)
+        write_calibration(arguments.model, calibration, arguments.output)
+        for channel, values in calibration.channels.items():
+            print(f"{channel}: порог {values.threshold:.4f}, масштаб количества {values.count_scale:.3f}")
+        print(f"Модель: {arguments.output}")
         return EXIT_OK
 
 
