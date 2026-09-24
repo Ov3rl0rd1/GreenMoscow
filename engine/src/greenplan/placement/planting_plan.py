@@ -13,6 +13,7 @@ from greenplan.domain.decisions import PlantingDecision
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
+from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.plant_placement_planner import PlantPlacementPlanner
@@ -21,7 +22,7 @@ from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
 from greenplan.placement.raster import SiteRaster
 from greenplan.placement.rejection_sampler import RejectionSampler
-from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
+from greenplan.placement.score_maps import RULES_GUIDANCE, ScoreMapProvider
 from greenplan.placement.site_rasterizer import SiteRasterizer
 
 TREE_IDENTIFIER_PREFIX = "T"
@@ -38,6 +39,9 @@ class PlantingPlan:
     tree_raster: SiteRaster
     tree_score: np.ndarray
     tree_zones: PlantingZones
+    guidance_source: str = RULES_GUIDANCE
+    expected_trees: int | None = None
+    expected_shrubs: int | None = None
 
 
 class PlantingPlanComposer:
@@ -65,9 +69,10 @@ class PlantingPlanComposer:
         knowledge_root: Path,
         settings: PlacementSettings | None = None,
         design: DesignConstraints | None = None,
-        tree_score_map: ScoreMapProvider | None = None,
+        guidance: GuidanceFactory = rule_guidance,
     ) -> "PlantingPlanComposer":
         placement = settings or PlacementSettings()
+        maps = guidance(placement)
         constraints = design or DesignConstraints()
         repository = NormsRepository.from_knowledge(knowledge_root)
         resolver = RequirementResolver(
@@ -90,8 +95,8 @@ class PlantingPlanComposer:
             ),
             evaluator_factory=CandidateEvaluatorFactory(resolver, meter, constraints),
             settings=placement,
-            tree_score_map=tree_score_map or RuleScoreMap(placement.tree_score),
-            shrub_score_map=RuleScoreMap(placement.shrub_score),
+            tree_score_map=maps.tree,
+            shrub_score_map=maps.shrub,
         )
 
     def compose(self, site: SiteModel) -> PlantingPlan:
@@ -110,6 +115,9 @@ class PlantingPlanComposer:
             tree_raster=trees.raster,
             tree_score=trees.score,
             tree_zones=trees.zones,
+            guidance_source=trees.guidance_source,
+            expected_trees=trees.expected_count,
+            expected_shrubs=shrubs.expected_count,
         )
 
     def _tree_profile(self, limits: PlantingLimits) -> PlantingProfile:

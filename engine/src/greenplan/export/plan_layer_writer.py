@@ -1,6 +1,7 @@
 from collections import Counter
 from collections.abc import Iterable
 
+from ezdxf import const
 from ezdxf.document import Drawing
 from ezdxf.entities import Insert
 from ezdxf.layouts import Modelspace
@@ -8,13 +9,14 @@ from shapely.geometry.base import BaseGeometry
 
 from greenplan.domain.decisions import CONDITIONALLY_ACCEPTED
 from greenplan.domain.errors import ExportError
-from greenplan.domain.norms import TREE
+from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.explain.explanation_model import ClearanceView, PlantExplanation
 from greenplan.explain.number_format import format_number
 from greenplan.explain.report_model import PlantingReport
 from greenplan.export.export_settings import ExportSettings
 from greenplan.export.layer_names import SEPARATOR, LayerNameSanitizer
+from greenplan.export.shrub_groups import shrub_group_areas
 from greenplan.export.symbol_blocks import SymbolBlockFactory
 from greenplan.geometry.shapes import polygonal_parts
 from greenplan.placement.planting_zones import PlantingZones
@@ -51,6 +53,8 @@ class PlanLayerWriter:
         for plant in report.plants:
             counts[self._write_plant(document, modelspace, symbols, plant)] += 1
         counts.update(self._write_root_barriers(document, modelspace, report))
+        if self._settings.include_shrub_groups:
+            counts.update(self._write_shrub_groups(document, modelspace, report))
         if self._settings.include_rejections:
             for rejection in report.rejections:
                 counts[self._write_rejection(document, modelspace, symbols, rejection)] += 1
@@ -176,6 +180,38 @@ class PlanLayerWriter:
             layer = self._layer(document, (stem,), color)
             counts[layer] += self._write_outlines(modelspace, area, layer)
         return counts
+
+    def _write_shrub_groups(
+        self, document: Drawing, modelspace: Modelspace, report: PlantingReport
+    ) -> Counter[str]:
+        settings = self._settings
+        positions = [(plant.x, plant.y) for plant in report.plants if plant.plant_type == SHRUB]
+        areas = shrub_group_areas(
+            positions,
+            settings.shrub_group_radius_m,
+            settings.shrub_group_min_size,
+            settings.shrub_group_simplify_m,
+        )
+        if not areas:
+            return Counter()
+        layer = self._layer(document, (settings.shrub_group_layer_stem,), settings.shrub_group_color)
+        written = 0
+        for area in areas:
+            written += self._write_outlines(modelspace, area, layer)
+            self._write_hatch(modelspace, area, layer)
+            written += 1
+        return Counter({layer: written})
+
+    def _write_hatch(self, modelspace: Modelspace, area: BaseGeometry, layer: str) -> None:
+        settings = self._settings
+        for polygon in polygonal_parts(area):
+            hatch = modelspace.add_hatch(color=settings.shrub_group_color, dxfattribs={"layer": layer})
+            hatch.set_pattern_fill(settings.shrub_group_hatch_pattern, scale=settings.shrub_group_hatch_scale)
+            hatch.paths.add_polyline_path(
+                list(polygon.exterior.coords)[:-1], is_closed=True, flags=const.BOUNDARY_PATH_EXTERNAL
+            )
+            for interior in polygon.interiors:
+                hatch.paths.add_polyline_path(list(interior.coords)[:-1], is_closed=True)
 
     def _write_outlines(self, modelspace: Modelspace, area: BaseGeometry, layer: str) -> int:
         written = 0

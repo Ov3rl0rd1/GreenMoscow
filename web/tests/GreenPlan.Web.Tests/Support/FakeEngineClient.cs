@@ -10,7 +10,8 @@ public sealed record SubmittedJob(
     string? Territory,
     string? MainFile,
     string? ConfigYaml,
-    IReadOnlyList<string> Contents)
+    IReadOnlyList<string> Contents,
+    string? Guidance = null)
 {
     public string FileName => FileNames[0];
 
@@ -38,7 +39,8 @@ public sealed class FakeEngineClient : IEngineClient
             submission.Territory,
             submission.MainFile,
             submission.ConfigYaml,
-            submission.Drawings.Select(drawing => ReadAll(drawing.Content)).ToList());
+            submission.Drawings.Select(drawing => ReadAll(drawing.Content)).ToList(),
+            submission.Guidance);
         if (CreateFailure is not null)
         {
             return Task.FromException<JobDto>(CreateFailure);

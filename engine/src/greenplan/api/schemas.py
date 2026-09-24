@@ -17,6 +17,7 @@ class JobResponse(BaseModel):
     error: str | None
     overlay_files: list[str] = []
     territory: str = ""
+    guidance: str = ""
     stage: str = ""
     artifacts: list[str]
     summary: dict[str, Any]
@@ -30,3 +31,4 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     dwg2dxf_available: bool
+    model_available: bool = False

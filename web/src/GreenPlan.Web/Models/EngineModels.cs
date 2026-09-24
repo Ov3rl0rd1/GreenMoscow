@@ -14,9 +14,10 @@ public sealed record JobDto(
     IReadOnlyList<string> Artifacts,
     IReadOnlyDictionary<string, JsonElement> Summary,
     IReadOnlyList<string>? OverlayFiles = null,
-    string? Stage = null);
+    string? Stage = null,
+    string? Guidance = null);
 
-public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable);
+public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable, bool ModelAvailable = false);
 
 public sealed record TerritoryDto(string Id, string NameRu, string CompositionRu);
 
@@ -27,9 +28,16 @@ public sealed record JobSubmission(
     string Title,
     string? MainFile,
     string? ConfigYaml,
-    string? Territory = null);
+    string? Territory = null,
+    string? Guidance = null);
 
 public sealed record EngineArtifact(byte[] Content, string ContentType);
+
+public static class GuidanceChoices
+{
+    public const string Model = "model";
+    public const string Rules = "rules";
+}
 
 public static class JobStatuses
 {

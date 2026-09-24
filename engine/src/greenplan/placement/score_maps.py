@@ -6,9 +6,22 @@ import numpy as np
 from greenplan.domain.site import SiteModel
 from greenplan.placement.raster import SiteRaster
 
+RULES_GUIDANCE = "rules"
+MODEL_GUIDANCE = "model"
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class PlacementGuidance:
+    score: np.ndarray
+    candidates: np.ndarray | None = None
+    expected_count: int | None = None
+    source: str = RULES_GUIDANCE
+
 
 class ScoreMapProvider(Protocol):
     def score(self, raster: SiteRaster, site: SiteModel) -> np.ndarray: ...
+
+    def guide(self, raster: SiteRaster, site: SiteModel) -> PlacementGuidance: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +37,9 @@ class RuleScoreWeights:
 class RuleScoreMap:
     def __init__(self, weights: RuleScoreWeights) -> None:
         self._weights = weights
+
+    def guide(self, raster: SiteRaster, site: SiteModel) -> PlacementGuidance:
+        return PlacementGuidance(self.score(raster, site))
 
     def score(self, raster: SiteRaster, site: SiteModel) -> np.ndarray:
         weights = self._weights

@@ -1,3 +1,4 @@
+import importlib.util
 import os
 from datetime import UTC, datetime
 from pathlib import Path
@@ -8,6 +9,9 @@ from greenplan.ingest.executable_locator import Dwg2DxfLocator
 KNOWLEDGE_ROOT_VARIABLE = "GREENPLAN_KNOWLEDGE_ROOT"
 CACHE_DIRECTORY_VARIABLE = "GREENPLAN_CACHE_DIR"
 JOBS_ROOT_VARIABLE = "GREENPLAN_JOBS_ROOT"
+MODEL_VARIABLE = "GREENPLAN_MODEL"
+MODEL_RUNTIME_PACKAGE = "greenplan_ml"
+BUNDLED_MODEL = Path("models") / "greenplan-guidance.onnx"
 KNOWLEDGE_DIRECTORY_NAME = "knowledge"
 NORMS_MARKER = Path("rules") / "norms.yaml"
 BUNDLED_CONVERTER_DIRECTORY = Path("tools") / "bin" / "libredwg"
@@ -39,6 +43,18 @@ def locate_dwg2dxf(explicit: Path | None, knowledge_root: Path) -> Path | None:
     if not explicit.is_file():
         raise ConfigurationError(f"dwg2dxf executable not found: {explicit}")
     return explicit
+
+
+def locate_model(explicit: Path | None, knowledge_root: Path) -> Path | None:
+    configured = explicit or _from_environment(MODEL_VARIABLE)
+    if configured is not None:
+        if not configured.is_file():
+            raise ConfigurationError(f"model file not found: {configured}")
+        return configured
+    bundled = knowledge_root.parent / BUNDLED_MODEL
+    if bundled.is_file() and importlib.util.find_spec(MODEL_RUNTIME_PACKAGE) is not None:
+        return bundled
+    return None
 
 
 def resolve_cache_directory(explicit: Path | None, knowledge_root: Path) -> Path:

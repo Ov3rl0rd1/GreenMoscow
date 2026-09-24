@@ -7,19 +7,22 @@ from typing import Protocol
 import uvicorn
 
 from greenplan.domain.errors import ConfigurationError
-from greenplan.domain.norms import TREE
 from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.folder_converter import FolderConverter
 from greenplan.ingest.input_selection import DrawingInputs, DrawingInputSelector
 from greenplan.knowledge.pilot_objects import PilotCatalog
 from greenplan.pipeline.batch_runner import BatchOutcome, BatchRunner
 from greenplan.pipeline.components import PipelineComponents
-from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root, resolve_cache_directory
+from greenplan.pipeline.environment import (
+    locate_dwg2dxf,
+    locate_knowledge_root,
+    locate_model,
+    resolve_cache_directory,
+)
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
 from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritorySettings
-from greenplan.placement.placement_settings import PlacementSettings
-from greenplan.placement.score_maps import RuleScoreMap, ScoreMapProvider
+from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.verify.verification_model import VerificationReport
 from greenplan.verify.verification_writers import write_verification_json, write_verification_markdown
 
@@ -49,7 +52,7 @@ class RunCommand:
         parser.add_argument(
             "--territory", help="категория территории: улица, двор, парк и т. д. (knowledge/plants)"
         )
-        parser.add_argument("--model", type=Path, help="ONNX-модель подсказок размещения деревьев")
+        parser.add_argument("--model", type=Path, help="ONNX-модель подсказок размещения посадок")
         parser.add_argument("--no-ml", action="store_true", help="игнорировать модель и считать по правилам")
         parser.set_defaults(command=self)
 
@@ -154,9 +157,7 @@ class BatchCommand:
             arguments.only,
             print_batch_outcome,
         )
-        passed = all(
-            item.succeeded and not item.violations and item.integrity_is_intact for item in outcomes
-        )
+        passed = all(item.succeeded and not item.violations and item.integrity_is_intact for item in outcomes)
         return EXIT_OK if passed else EXIT_ERROR
 
 
@@ -251,7 +252,7 @@ def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
         config,
         locate_dwg2dxf(arguments.dwg2dxf, knowledge_root),
         resolve_cache_directory(arguments.cache, knowledge_root),
-        tree_score_map(arguments, config),
+        placement_guidance(arguments, knowledge_root),
     )
     return PlanningPipeline(components, config)
 
@@ -262,20 +263,21 @@ def with_territory(config: RunConfig, category: str | None) -> RunConfig:
     return replace(config, territory=TerritorySettings(category))
 
 
-def tree_score_map(arguments: argparse.Namespace, config: RunConfig) -> ScoreMapProvider | None:
-    if arguments.model is None or arguments.no_ml:
-        return None
-    return model_score_map(arguments.model, config.placement)
+def placement_guidance(arguments: argparse.Namespace, knowledge_root: Path) -> GuidanceFactory:
+    if arguments.no_ml:
+        return rule_guidance
+    path = locate_model(arguments.model, knowledge_root)
+    return rule_guidance if path is None else model_guidance(path)
 
 
-def model_score_map(path: Path, placement: PlacementSettings) -> ScoreMapProvider:
+def model_guidance(path: Path) -> GuidanceFactory:
     try:
-        from greenplan_ml.score_map import ModelScoreMap
+        from greenplan_ml.score_map import model_guidance as load_model_guidance
     except ImportError as error:
         raise ConfigurationError(
-            "для --model нужен пакет greenplan-ml: установите его или уберите флаг"
+            "для модели подсказок нужен пакет greenplan-ml: установите его или запустите с --no-ml"
         ) from error
-    return ModelScoreMap.from_file(path, RuleScoreMap(placement.tree_score), TREE)
+    return load_model_guidance(path)
 
 
 def print_run(result: PipelineResult) -> None:

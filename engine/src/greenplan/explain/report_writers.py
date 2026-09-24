@@ -8,7 +8,8 @@ from typing import Protocol
 from greenplan.explain.explanation_model import PlantExplanation
 from greenplan.explain.number_format import format_number
 from greenplan.explain.plan_metrics import CostEstimate, PlanMetrics, VolumeStatement
-from greenplan.explain.report_model import AppliedNormRow, PlantingReport
+from greenplan.explain.report_model import AppliedNormRow, PlantingReport, ReportSummary
+from greenplan.placement.score_maps import MODEL_GUIDANCE
 
 JSON_REPORT_NAME = "planting_report.json"
 CSV_REPORT_NAME = "planting_report.csv"
@@ -92,9 +93,7 @@ class ReportWriterSet:
 
     @classmethod
     def default(cls) -> "ReportWriterSet":
-        return cls(
-            (JsonReportWriter(), CsvReportWriter(), VolumesReportWriter(), MarkdownReportWriter())
-        )
+        return cls((JsonReportWriter(), CsvReportWriter(), VolumesReportWriter(), MarkdownReportWriter()))
 
     def write_all(self, report: PlantingReport, directory: Path) -> dict[str, Path]:
         directory.mkdir(parents=True, exist_ok=True)
@@ -114,6 +113,19 @@ def markdown_lines(report: PlantingReport) -> list[str]:
     ]
 
 
+def guidance_line(summary: ReportSummary) -> str:
+    if summary.guidance_source != MODEL_GUIDANCE:
+        return (
+            "Размещение: правила движка — места выбраны по отступам и краям газона, "
+            "количество ограничено нормативом плотности"
+        )
+    return (
+        "Размещение: модель, обученная на проектных решениях датасета, предложила места и количество "
+        f"(деревьев около {summary.expected_trees}, кустарников около {summary.expected_shrubs}); "
+        "каждая точка проверена нормами, норматив плотности — верхний предел"
+    )
+
+
 def _summary_lines(report: PlantingReport) -> list[str]:
     summary = report.summary
     share = format_number(summary.annotated_network_share * 100)
@@ -125,6 +137,7 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Отклонено кандидатов (с объяснением причин): {summary.rejected}",
         f"- Корнезащита у условно допустимых деревьев: {format_number(summary.root_barrier_length_m)} м",
         *([f"- {_capital(summary.territory_ru)}"] if summary.territory_ru else []),
+        f"- {guidance_line(summary)}",
         f"- Лимиты плотности: деревьев не более {summary.max_trees}, "
         f"кустарников не более {summary.max_shrubs}; "
         f"шаг деревьев {format_number(summary.tree_spacing_m)} м, "

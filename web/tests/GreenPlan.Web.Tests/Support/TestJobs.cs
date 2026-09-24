@@ -28,6 +28,7 @@ public static class TestJobs
             "violations": 0,
             "integrity_is_intact": true,
             "warnings": ["подземные коммуникации во входных чертежах не найдены"],
+            "guidance": "model",
             "timings_s": {"read_drawings": 88.4, "verify": 27.2}
           }
         }

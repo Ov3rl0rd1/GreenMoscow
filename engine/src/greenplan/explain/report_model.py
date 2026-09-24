@@ -49,6 +49,9 @@ class ReportSummary:
     warnings: tuple[str, ...] = ()
     territory_ru: str = ""
     excluded_species: tuple[str, ...] = ()
+    guidance_source: str = "rules"
+    expected_trees: int | None = None
+    expected_shrubs: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

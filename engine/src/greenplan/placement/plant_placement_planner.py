@@ -12,6 +12,7 @@ from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
 from greenplan.placement.raster import SiteRaster
+from greenplan.placement.score_maps import RULES_GUIDANCE, PlacementGuidance
 from greenplan.placement.site_rasterizer import SiteRasterizer
 
 
@@ -21,6 +22,8 @@ class PlacementOutcome:
     raster: SiteRaster
     score: np.ndarray
     zones: PlantingZones
+    guidance_source: str = RULES_GUIDANCE
+    expected_count: int | None = None
 
 
 class PlannedPlantGuard:
@@ -76,10 +79,36 @@ class PlantPlacementPlanner:
     ) -> PlacementOutcome:
         zones = self._zone_builder.build(site, profile, planned_positions)
         raster = self._rasterizer.rasterize(site, zones, profile.reference_edge_kind)
-        score = profile.score_map.score(raster, site)
-        eligible = raster.allowed if profile.allow_conditional else raster.allowed & ~raster.conditional
+        guidance = profile.score_map.guide(raster, site)
         admission = _Admission(
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
         )
-        self._selector.select(raster.grid, score, eligible, profile.spacing_m, profile.max_count, admission)
-        return PlacementOutcome(tuple(admission.decisions), raster, score, zones)
+        self._selector.select(
+            raster.grid,
+            guidance.score,
+            eligible_cells(raster, guidance, profile.allow_conditional),
+            profile.spacing_m,
+            guided_count(profile.max_count, guidance.expected_count),
+            admission,
+        )
+        return PlacementOutcome(
+            tuple(admission.decisions),
+            raster,
+            guidance.score,
+            zones,
+            guidance.source,
+            guidance.expected_count,
+        )
+
+
+def eligible_cells(raster: SiteRaster, guidance: PlacementGuidance, allow_conditional: bool) -> np.ndarray:
+    eligible = raster.allowed if allow_conditional else raster.allowed & ~raster.conditional
+    return eligible if guidance.candidates is None else eligible & guidance.candidates
+
+
+def guided_count(normative_max: int | None, expected: int | None) -> int | None:
+    if expected is None:
+        return normative_max
+    if normative_max is None:
+        return expected
+    return min(normative_max, expected)

@@ -44,6 +44,15 @@
         <label asp-for="Form.MainFile"></label>
         <input asp-for="Form.MainFile" placeholder="Генплан.dxf" />
 
+        @if (Model.ModelAvailable)
+        {
+            <label class="checkbox"><input asp-for="Form.UseModel" /> @Html.DisplayNameFor(model => model.Form.UseModel)</label>
+        }
+        else
+        {
+            <input type="hidden" name="Form.UseModel" value="false" />
+        }
+
         <label asp-for="Form.Config"></label>
         <input asp-for="Form.Config" type="file" accept=".yaml,.yml" />
 

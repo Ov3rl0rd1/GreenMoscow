@@ -60,13 +60,9 @@ class ReportBuilder:
         rejections = tuple(self._explanations.for_decision(decision) for decision in rejected_decisions)
         terms = self._explanations.terms
         summary = _summary(site, plan, species, plants, rejections, terms)
-        volumes = volume_statement(
-            plants, site.plantable_surface.area, summary.root_barrier_length_m
-        )
+        volumes = volume_statement(plants, site.plantable_surface.area, summary.root_barrier_length_m)
         listed = [
-            assignment.species.key
-            for assignment in species.assignments
-            if assignment.species.official_names
+            assignment.species.key for assignment in species.assignments if assignment.species.official_names
         ]
         return PlantingReport(
             title=title,
@@ -171,6 +167,9 @@ def _summary(
         warnings=tuple(terms.site_warning(code) for code in diagnostics.warnings),
         territory_ru=species.territory_note.reason_ru if species.territory_note else "",
         excluded_species=tuple(f"{item.name_ru} — {item.reason_ru}" for item in species.excluded),
+        guidance_source=plan.guidance_source,
+        expected_trees=plan.expected_trees,
+        expected_shrubs=plan.expected_shrubs,
     )
 
 

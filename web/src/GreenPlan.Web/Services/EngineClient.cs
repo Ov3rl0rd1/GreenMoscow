@@ -104,6 +104,11 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
             content.Add(new StringContent(submission.Territory), "territory");
         }
 
+        if (!string.IsNullOrWhiteSpace(submission.Guidance))
+        {
+            content.Add(new StringContent(submission.Guidance), "guidance");
+        }
+
         if (!string.IsNullOrWhiteSpace(submission.MainFile))
         {
             content.Add(new StringContent(submission.MainFile), "main_file");

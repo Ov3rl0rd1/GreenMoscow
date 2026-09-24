@@ -41,6 +41,16 @@ public static class StageNames
     public static int NumberOf(string stage) => Ordered.Select(item => item.Key).ToList().IndexOf(stage) + 1;
 }
 
+public static class GuidanceText
+{
+    public static string For(string? guidance) => guidance switch
+    {
+        GuidanceChoices.Model => "модель, обученная на проектных решениях датасета; нормы проверены движком",
+        GuidanceChoices.Rules => "правила движка: отступы, края газона, норматив плотности",
+        _ => "—",
+    };
+}
+
 public static class JobProgressText
 {
     public static string For(JobDto job) => job.Status switch
@@ -70,6 +80,9 @@ public sealed class JobSummaryView(IReadOnlyDictionary<string, JsonElement> summ
 
     public int? Integer(string key) =>
         summary.TryGetValue(key, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetInt32() : null;
+
+    public string? Text(string key) =>
+        summary.TryGetValue(key, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 
     public bool? Flag(string key) =>
         summary.TryGetValue(key, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False

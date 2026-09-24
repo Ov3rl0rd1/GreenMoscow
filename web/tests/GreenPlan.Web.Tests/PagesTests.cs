@@ -53,6 +53,48 @@ public sealed class PagesTests
     }
 
     [Fact]
+    public async Task ModelChoiceIsOfferedOnlyWhenTheEngineHasAModel()
+    {
+        using var withModel = new GreenPlanWebFactory();
+        withModel.Engine.Health = new("ok", "0.1.0", true, ModelAvailable: true);
+        using var withoutModel = new GreenPlanWebFactory();
+
+        var offered = await withModel.CreateClient().GetStringAsync("/");
+        var hidden = await withoutModel.CreateClient().GetStringAsync("/");
+
+        Assert.Contains("type=\"checkbox\"", offered);
+        Assert.DoesNotContain("type=\"checkbox\"", hidden);
+    }
+
+    [Fact]
+    public async Task UploadWithTheModelSwitchedOffAsksForRules()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        content.Add(new StringContent("false", Encoding.UTF8), "Form.UseModel");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("rules", factory.Engine.LastSubmission?.Guidance);
+    }
+
+    [Fact]
+    public async Task UploadAsksForTheModelByDefault()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal("model", factory.Engine.LastSubmission?.Guidance);
+    }
+
+    [Fact]
     public async Task IndexWarnsWhenEngineIsUnavailable()
     {
         using var factory = new GreenPlanWebFactory();
@@ -142,6 +184,7 @@ public sealed class PagesTests
         Assert.Contains("1098", html);
         Assert.Contains("пройдена", html);
         Assert.Contains("Независимая проверка", html);
+        Assert.Contains("модель, обученная на проектных решениях датасета", html);
         Assert.Contains($"/jobs/{TestJobs.SucceededId}/artifacts/preview.png", html);
         Assert.DoesNotContain("http-equiv=\"refresh\"", html);
     }

@@ -9,11 +9,13 @@ from greenplan.pipeline.environment import (
     current_timestamp,
     locate_dwg2dxf,
     locate_knowledge_root,
+    locate_model,
     resolve_cache_directory,
     resolve_jobs_root,
 )
 from greenplan.pipeline.planning_pipeline import PlanningPipeline
 from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
+from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,6 +24,7 @@ class ServiceLocation:
     knowledge_root: Path
     cache_directory: Path
     converter: Path | None
+    model: Path | None = None
 
     @classmethod
     def resolve(
@@ -30,6 +33,7 @@ class ServiceLocation:
         knowledge: Path | None = None,
         cache: Path | None = None,
         dwg2dxf: Path | None = None,
+        model: Path | None = None,
     ) -> "ServiceLocation":
         knowledge_root = locate_knowledge_root(knowledge)
         return cls(
@@ -37,13 +41,15 @@ class ServiceLocation:
             knowledge_root=knowledge_root,
             cache_directory=resolve_cache_directory(cache, knowledge_root),
             converter=locate_dwg2dxf(dwg2dxf, knowledge_root),
+            model=locate_model(model, knowledge_root),
         )
 
 
 def build_job_service(location: ServiceLocation) -> JobService:
-    def pipeline_factory(config: RunConfig) -> PlanningPipeline:
+    def pipeline_factory(config: RunConfig, use_model: bool) -> PlanningPipeline:
+        guidance = model_guidance_of(location) if use_model else rule_guidance
         components = PipelineComponents.assemble(
-            location.knowledge_root, config, location.converter, location.cache_directory
+            location.knowledge_root, config, location.converter, location.cache_directory, guidance
         )
         return PlanningPipeline(components, config)
 
@@ -54,6 +60,14 @@ def build_job_service(location: ServiceLocation) -> JobService:
         RunConfigLoader(),
         current_timestamp,
     )
+
+
+def model_guidance_of(location: ServiceLocation) -> GuidanceFactory:
+    if location.model is None:
+        return rule_guidance
+    from greenplan_ml.score_map import model_guidance
+
+    return model_guidance(location.model)
 
 
 def execute_in_worker(location: ServiceLocation, job_id: str) -> None:

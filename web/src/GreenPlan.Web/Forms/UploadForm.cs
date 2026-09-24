@@ -21,6 +21,9 @@ public sealed class UploadForm
     [Display(Name = "Категория территории")]
     public string? Territory { get; set; }
 
+    [Display(Name = "Места и количество посадок предлагает модель, обученная на проектных решениях датасета")]
+    public bool UseModel { get; set; } = true;
+
     [Display(Name = "Настройки прогона (YAML, необязательно)")]
     public IFormFile? Config { get; set; }
 }

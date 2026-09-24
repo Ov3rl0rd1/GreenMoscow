@@ -19,8 +19,11 @@ OUTPUT_DIRECTORY = "output"
 CONFIG_FILE_NAME = "config.yaml"
 UNFINISHED_STATUSES = frozenset({QUEUED, RUNNING})
 INTERRUPTED_MESSAGE = "Расчёт прерван перезапуском сервиса. Запустите задачу заново."
+MODEL_GUIDANCE_CHOICE = "model"
+RULES_GUIDANCE_CHOICE = "rules"
+GUIDANCE_CHOICES = frozenset({MODEL_GUIDANCE_CHOICE, RULES_GUIDANCE_CHOICE})
 
-PipelineFactory = Callable[[RunConfig], PlanningPipeline]
+PipelineFactory = Callable[[RunConfig, bool], PlanningPipeline]
 Clock = Callable[[], str]
 
 
@@ -58,7 +61,10 @@ class JobService:
         main_file: str | None,
         config_text: str | None,
         territory: str | None = None,
+        guidance: str | None = None,
     ) -> JobRecord:
+        if guidance and guidance not in GUIDANCE_CHOICES:
+            raise InvalidUploadError(f"unknown guidance '{guidance}': expected model or rules")
         if not uploads:
             raise InvalidUploadError("no drawings were uploaded")
         job_id = uuid.uuid4().hex
@@ -81,6 +87,7 @@ class JobService:
             upload_name=", ".join(upload.name for upload in uploads),
             main_file=relative_name(stored.main, input_directory),
             territory=territory or "",
+            guidance=guidance or MODEL_GUIDANCE_CHOICE,
             overlay_files=[relative_name(path, input_directory) for path in stored.overlays],
         )
         self._repository.save(record)
@@ -160,7 +167,8 @@ class JobService:
             generated_at=self._clock(),
             overlay_paths=tuple(input_directory / name for name in record.overlay_files),
         )
-        return self._pipeline_factory(config).run(request, partial(self._report_stage, record.job_id))
+        pipeline = self._pipeline_factory(config, record.guidance != RULES_GUIDANCE_CHOICE)
+        return pipeline.run(request, partial(self._report_stage, record.job_id))
 
     def _report_stage(self, job_id: str, stage: str) -> None:
         self._change(job_id, stage=stage)
@@ -189,6 +197,9 @@ def job_summary(result: PipelineResult) -> dict[str, Any]:
         "violations": len(result.verification.violations),
         "integrity_is_intact": result.verification.integrity.is_intact,
         "warnings": list(summary.warnings),
+        "guidance": summary.guidance_source,
+        "expected_trees": summary.expected_trees,
+        "expected_shrubs": summary.expected_shrubs,
         "timings_s": result.timings_s,
         "peak_memory_mb": result.peak_memory_mb,
     }

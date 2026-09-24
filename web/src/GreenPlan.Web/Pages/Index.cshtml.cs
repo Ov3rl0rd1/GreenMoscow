@@ -17,6 +17,8 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
 
     public bool EngineAvailable { get; private set; }
 
+    public bool ModelAvailable { get; private set; }
+
     public string? ErrorMessage { get; private set; }
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
@@ -51,7 +53,8 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
         try
         {
             var configYaml = await ReadTextAsync(Form.Config, cancellationToken);
-            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml, Form.Territory);
+            var guidance = Form.UseModel ? GuidanceChoices.Model : GuidanceChoices.Rules;
+            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml, Form.Territory, guidance);
             return await engine.CreateJobAsync(submission, cancellationToken);
         }
         finally
@@ -65,7 +68,9 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
 
     private async Task LoadOverviewAsync(CancellationToken cancellationToken)
     {
-        EngineAvailable = await engine.GetHealthAsync(cancellationToken) is not null;
+        var health = await engine.GetHealthAsync(cancellationToken);
+        EngineAvailable = health is not null;
+        ModelAvailable = health?.ModelAvailable ?? false;
         if (!EngineAvailable)
         {
             return;

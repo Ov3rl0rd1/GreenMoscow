@@ -12,6 +12,7 @@ from greenplan.placement.score_maps import RuleScoreMap
 from greenplan_ml.dataset_builder import DatasetBuilder
 from greenplan_ml.evaluation import EvaluationSettings, ModelEvaluator
 from greenplan_ml.inference import OnnxHeatmapModel
+from greenplan_ml.plan_similarity import compare_runs, write_similarity
 from greenplan_ml.sample_builder import SampleSettings
 from greenplan_ml.sample_store import stored_objects
 
@@ -212,6 +213,52 @@ class EvaluateCommand:
             )
         print(f"Отчёт: {json_path}, {markdown_path}")
         return EXIT_OK
+
+
+class SimilarityCommand:
+    name = "similarity"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(
+            self.name, help="сравнить итоговые планы движка с проектными решениями"
+        )
+        parser.add_argument("--dataset", required=True, type=Path, help="каталог собранных примеров")
+        parser.add_argument(
+            "--runs",
+            required=True,
+            nargs="+",
+            help="прогоны вида имя=каталог, в каталоге папки объектов с planting_report.json",
+        )
+        parser.add_argument("--output", required=True, type=Path, help="куда записать отчёт")
+        parser.add_argument("--objects", nargs="*", help="id объектов, по умолчанию все")
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        objects = stored_objects(arguments.dataset, arguments.objects)
+        if not objects:
+            print("нет собранных примеров")
+            return EXIT_ERROR
+        runs = dict(named_run(item) for item in arguments.runs)
+        metrics = compare_runs(objects, runs)
+        json_path, markdown_path = write_similarity(metrics, arguments.output)
+        for item in metrics:
+            f1 = ", ".join(
+                f"F1@{tolerance} м {value:.3f}" for tolerance, value in item.f1_by_tolerance.items()
+            )
+            print(
+                f"{item.object_id} {item.source} {item.target}: "
+                f"эталон {item.reference}, план {item.planned}, "
+                f"{f1}, расхождение {item.chamfer_m:.1f} м"
+            )
+        print(f"Отчёт: {json_path}, {markdown_path}")
+        return EXIT_OK
+
+
+def named_run(text: str) -> tuple[str, Path]:
+    name, separator, directory = text.partition("=")
+    if not separator or not name or not directory:
+        raise argparse.ArgumentTypeError(f"прогон задаётся как имя=каталог: {text}")
+    return name, Path(directory)
 
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:

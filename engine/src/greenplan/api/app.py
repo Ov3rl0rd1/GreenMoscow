@@ -35,7 +35,11 @@ REQUEST_ERRORS = (InvalidUploadError, ConfigurationError, KnowledgeValidationErr
 
 
 def create_app(
-    service: JobService, runner: JobRunner, knowledge_root: Path, dwg2dxf_available: bool
+    service: JobService,
+    runner: JobRunner,
+    knowledge_root: Path,
+    dwg2dxf_available: bool,
+    model_available: bool = False,
 ) -> FastAPI:
     app = FastAPI(title=API_TITLE, version=__version__, description=API_DESCRIPTION)
     norms = norms_payload(NormsRepository.from_knowledge(knowledge_root))
@@ -43,7 +47,12 @@ def create_app(
 
     @app.get("/healthz", response_model=HealthResponse, tags=["service"])
     def health() -> HealthResponse:
-        return HealthResponse(status=HEALTHY, version=__version__, dwg2dxf_available=dwg2dxf_available)
+        return HealthResponse(
+            status=HEALTHY,
+            version=__version__,
+            dwg2dxf_available=dwg2dxf_available,
+            model_available=model_available,
+        )
 
     @app.get(f"{API_PREFIX}/norms", tags=["norms"])
     def get_norms() -> dict[str, Any]:
@@ -71,11 +80,15 @@ def create_app(
         territory: Annotated[
             str | None, Form(description="категория территории: /api/v1/territories")
         ] = None,
+        guidance: Annotated[
+            str | None,
+            Form(description="model — места и количество по модели (по умолчанию), rules — по правилам"),
+        ] = None,
     ) -> JobResponse:
         uploads = [UploadedFile(upload_file_name(item.filename or ""), await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
-            record = service.create(uploads, title, main_file, config_text, territory)
+            record = service.create(uploads, title, main_file, config_text, territory, guidance)
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
         background_tasks.add_task(runner.run, record.job_id)
@@ -114,4 +127,10 @@ def create_app_from_environment(
     service = build_job_service(location)
     service.fail_interrupted()
     runner: JobRunner = IsolatedJobRunner(service, location) if isolated else InProcessJobRunner(service)
-    return create_app(service, runner, location.knowledge_root, location.converter is not None)
+    return create_app(
+        service,
+        runner,
+        location.knowledge_root,
+        location.converter is not None,
+        location.model is not None,
+    )

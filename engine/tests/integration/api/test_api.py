@@ -71,6 +71,14 @@ def test_dxf_job_runs_to_completion_and_serves_artifacts(client: TestClient, dra
     assert client.get(f"{JOBS}/{job['job_id']}/artifacts/job.json").status_code == 404
 
 
+def test_rules_only_guidance_is_kept_with_the_job(client: TestClient, drawing_bytes: bytes) -> None:
+    created = submit(client, {"drawing": ("street.dxf", drawing_bytes)}, {"guidance": "rules"})
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["guidance"] == "rules"
+    assert job["status"] == SUCCEEDED, job["error"]
+    assert job["summary"]["guidance"] == "rules"
+
+
 def test_territory_categories_are_listed(client: TestClient) -> None:
     items = client.get("/api/v1/territories").json()
     assert {"district_street", "residential_yard", "park"} <= {item["id"] for item in items}
@@ -186,6 +194,7 @@ def test_separate_general_plan_and_base_drawing_run_as_one_site(
         ({"drawing": ("notes.txt", b"text")}, {}),
         ({"drawing": ("evil.zip", zipped({"../escape.dxf": b"0"}))}, {}),
         ({"drawing": ("street.dxf", b"0"), "config": ("config.yaml", b"placement:\n  unknown: 1\n")}, {}),
+        ({"drawing": ("street.dxf", b"0")}, {"guidance": "magic"}),
     ],
 )
 def test_invalid_uploads_are_rejected(client: TestClient, files: dict, data: dict) -> None:
