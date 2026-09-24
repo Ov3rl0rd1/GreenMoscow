@@ -8,7 +8,7 @@ from greenplan.export.export_settings import ExportSettings
 from greenplan.ingest.drawing_file_opener import DxfDocumentLoader
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.placement.placement_settings import PlacementSettings
-from greenplan.placement.planting_limits import LOWER_BOUND, PlantingLimitsResolver
+from greenplan.placement.planting_limits import LOWER_BOUND, PlantingLimitsResolver, SpacingBounds
 from greenplan.verify.generated_plan_reader import GeneratedPlanReader
 from greenplan.verify.independent_norm_checker import IndependentNormChecker
 from greenplan.verify.site_placement_checker import SitePlacementChecker
@@ -90,7 +90,7 @@ class PlanVerifier:
         )
 
     def _site_checker(self, site: SiteModel) -> SitePlacementChecker:
-        limits = self._limits_resolver.resolve(site, LOWER_BOUND)
+        limits = self._limits_resolver.resolve(site, SpacingBounds(LOWER_BOUND, LOWER_BOUND))
         return SitePlacementChecker(
             self._design,
             limits.tree_spacing_m,

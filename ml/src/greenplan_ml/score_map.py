@@ -9,7 +9,7 @@ from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.placement.guidance import GuidanceFactory, GuidanceMaps
 from greenplan.placement.placement_settings import PlacementSettings
-from greenplan.placement.planting_limits import LOWER_BOUND
+from greenplan.placement.planting_limits import LOWER_BOUND, UPPER_BOUND, SpacingBounds
 from greenplan.placement.raster import RasterGrid, SiteRaster
 from greenplan.placement.score_maps import MODEL_GUIDANCE, PlacementGuidance, RuleScoreMap, ScoreMapProvider
 from greenplan_ml.feature_channels import FeatureSettings, FeatureStackBuilder
@@ -143,7 +143,7 @@ def model_guidance(
         return GuidanceMaps(
             ModelScoreMap(predictions, RuleScoreMap(placement.tree_score), TREE, tree_settings),
             ModelScoreMap(predictions, RuleScoreMap(placement.shrub_score), SHRUB, shrub_settings),
-            spacing_bound=LOWER_BOUND,
+            spacing=SpacingBounds(tree=LOWER_BOUND, shrub=UPPER_BOUND),
         )
 
     return guidance

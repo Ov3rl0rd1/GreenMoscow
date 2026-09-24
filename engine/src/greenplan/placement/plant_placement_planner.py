@@ -83,14 +83,14 @@ class PlantPlacementPlanner:
         admission = _Admission(
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
         )
-        self._selector.select(
-            raster.grid,
-            guidance.score,
-            eligible_cells(raster, guidance, profile.allow_conditional),
-            profile.spacing_m,
-            guided_count(profile.max_count, guidance.expected_count),
-            admission,
-        )
+        eligible = eligible_cells(raster, guidance, profile.allow_conditional)
+        count = guided_count(profile.max_count, guidance.expected_count)
+        if guidance.candidates is not None and count is not None:
+            self._selector.select_by_groups(
+                raster.grid, guidance.score, eligible, profile.spacing_m, count, admission
+            )
+        else:
+            self._selector.select(raster.grid, guidance.score, eligible, profile.spacing_m, count, admission)
         return PlacementOutcome(
             tuple(admission.decisions),
             raster,

@@ -14,6 +14,7 @@ from greenplan.placement.planting_limits import (
     PER_HECTARE,
     PER_KILOMETER,
     PlantingLimitsResolver,
+    SpacingBounds,
 )
 from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder
@@ -92,7 +93,7 @@ def test_street_limits_come_from_norms(toolkit: NormsToolkit) -> None:
 
 def test_lower_spacing_bound_keeps_the_density_cap(toolkit: NormsToolkit) -> None:
     resolver = PlantingLimitsResolver(toolkit.repository, PlacementSettings())
-    limits = resolver.resolve(street_site(), LOWER_BOUND)
+    limits = resolver.resolve(street_site(), SpacingBounds(LOWER_BOUND, LOWER_BOUND))
     assert limits.tree_spacing_m == pytest.approx(5.0)
     assert limits.shrub_spacing_m == pytest.approx(0.5)
     assert (limits.max_trees, limits.max_shrubs) == (18, 72)

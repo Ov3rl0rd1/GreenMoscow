@@ -23,6 +23,12 @@ SQUARE_METERS_IN_HECTARE = 10_000.0
 
 
 @dataclass(frozen=True, slots=True)
+class SpacingBounds:
+    tree: str | None = None
+    shrub: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class PlantingLimits:
     tree_spacing_m: float
     shrub_spacing_m: float
@@ -38,17 +44,19 @@ class PlantingLimitsResolver:
         self._repository = repository
         self._settings = settings
 
-    def resolve(self, site: SiteModel, spacing_bound: str | None = None) -> PlantingLimits:
+    def resolve(self, site: SiteModel, bounds: SpacingBounds | None = None) -> PlantingLimits:
         settings = self._settings
-        spacing_side = spacing_bound or settings.range_bound
+        sides = bounds or SpacingBounds()
         spacing = self._repository.rule(settings.spacing_rule_id).parameters["spacing_m"]
         density = self._repository.rule(settings.density_rule_id).parameters
         unit = _density_unit(density["per"], settings.density_context)
         measure = _density_measure(site, unit, settings.street_piece_gap_m)
         caps = density["max_count"][settings.density_context]
         return PlantingLimits(
-            tree_spacing_m=bound_of(spacing[settings.tree_spacing_key], spacing_side),
-            shrub_spacing_m=bound_of(spacing[settings.shrub_spacing_key], spacing_side),
+            tree_spacing_m=bound_of(spacing[settings.tree_spacing_key], sides.tree or settings.range_bound),
+            shrub_spacing_m=bound_of(
+                spacing[settings.shrub_spacing_key], sides.shrub or settings.range_bound
+            ),
             max_trees=math.floor(bound_of(caps["trees"], settings.range_bound) * measure),
             max_shrubs=math.floor(bound_of(caps["shrubs"], settings.range_bound) * measure),
             density_measure=measure,

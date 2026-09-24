@@ -17,7 +17,7 @@ from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.plant_placement_planner import PlantPlacementPlanner
-from greenplan.placement.planting_limits import PlantingLimits, PlantingLimitsResolver
+from greenplan.placement.planting_limits import PlantingLimits, PlantingLimitsResolver, SpacingBounds
 from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
 from greenplan.placement.raster import SiteRaster
@@ -54,7 +54,7 @@ class PlantingPlanComposer:
         settings: PlacementSettings,
         tree_score_map: ScoreMapProvider,
         shrub_score_map: ScoreMapProvider,
-        spacing_bound: str | None = None,
+        spacing: SpacingBounds | None = None,
     ) -> None:
         self._planner = planner
         self._limits_resolver = limits_resolver
@@ -63,7 +63,7 @@ class PlantingPlanComposer:
         self._settings = settings
         self._tree_score_map = tree_score_map
         self._shrub_score_map = shrub_score_map
-        self._spacing_bound = spacing_bound
+        self._spacing = spacing
 
     @classmethod
     def from_knowledge(
@@ -99,11 +99,11 @@ class PlantingPlanComposer:
             settings=placement,
             tree_score_map=maps.tree,
             shrub_score_map=maps.shrub,
-            spacing_bound=maps.spacing_bound,
+            spacing=maps.spacing,
         )
 
     def compose(self, site: SiteModel) -> PlantingPlan:
-        limits = self._limits_resolver.resolve(site, self._spacing_bound)
+        limits = self._limits_resolver.resolve(site, self._spacing)
         evaluator = self._evaluator_factory.for_site(site)
         tree_profile = self._tree_profile(limits)
         trees = self._planner.plan(site, tree_profile, evaluator, ())
