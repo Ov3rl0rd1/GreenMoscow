@@ -80,10 +80,16 @@
 ```powershell
 .\.venv\Scripts\greenplan-ml.exe train `
   --dataset data/ml/dataset `
-  --output data/ml/runs/first `
+  --output data/ml/runs/main `
   --profile rtx3050 `
-  --validation berzarina
+  --validation kharkovskaya staryy_gay natashinskiy
 ```
+
+Замер 25.09.2026 (модель в поставке): 9 объектов с эталоном, обучение на шести, контроль на
+Харьковской, Старом Гае и Наташинском; RTX 3050, 40 эпох — несколько минут. Лучшая по
+контролю эпоха — 7-я (потеря 0,136), дальше модель начинает запоминать обучающие улицы, поэтому
+сохраняется именно лучшая эпоха. Облегчённая модель (16 каналов вместо 32) дала сопоставимую
+потерю, но заметно хуже план на Наташинском и в поставку не пошла.
 
 | Профиль | Кроп | Пакет | Эпохи | Каналы / глубина | Для чего |
 |---|---|---|---|---|---|
@@ -127,7 +133,7 @@
 .\.venv\Scripts\greenplan-ml.exe calibrate `
   --dataset data/ml/dataset `
   --model data/ml/model.onnx `
-  --objects kharkovskaya staryy_gay kamchatskaya `
+  --objects kharkovskaya staryy_gay natashinskiy `
   --output models/greenplan-guidance.onnx
 ```
 
@@ -175,9 +181,9 @@
 
 ```powershell
 .\.venv\Scripts\greenplan.exe batch --dataset-root "data/pilot/Пилотный проект 20 улиц" `
-  --output data/batch_model --only kharkovskaya staryy_gay kamchatskaya
+  --output data/batch_model --only kharkovskaya staryy_gay natashinskiy
 .\.venv\Scripts\greenplan.exe batch --dataset-root "data/pilot/Пилотный проект 20 улиц" `
-  --output data/batch_rules --only kharkovskaya staryy_gay kamchatskaya --no-ml
+  --output data/batch_rules --only kharkovskaya staryy_gay natashinskiy --no-ml
 .\.venv\Scripts\greenplan-ml.exe similarity --dataset data/ml/dataset `
   --runs rules=data/batch_rules model=data/batch_model --output data/ml/reports/similarity
 ```
