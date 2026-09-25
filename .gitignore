@@ -18,6 +18,7 @@ tools/bin/
 ml/checkpoints/
 ml/datasets/
 *.onnx
+!models/*.onnx
 *.pt
 *.npz
 *.egg-info/

@@ -40,9 +40,11 @@ WORKDIR /app
 
 COPY --from=libredwg /opt/libredwg/bin/dwg2dxf /usr/local/bin/dwg2dxf
 COPY engine /app/engine
+COPY ml /app/ml
 COPY knowledge /app/knowledge
+COPY models /app/models
 
-RUN pip install --no-cache-dir /app/engine \
+RUN pip install --no-cache-dir /app/engine /app/ml \
     && useradd --create-home --uid 10001 greenplan \
     && mkdir -p /data/jobs /data/cache \
     && chown -R greenplan:greenplan /data
