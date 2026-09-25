@@ -5,6 +5,7 @@
     var summary = new JobSummaryView(job.Summary);
     ViewData["Title"] = job.Title;
     var finished = JobStatusText.IsFinished(job.Status);
+    var timeline = Model.Timeline!;
 }
 
 <section class="card">
@@ -17,6 +18,22 @@
             <p class="lead"><span data-progress-text>@JobProgressText.For(job)</span> Страница покажет итог сама, как только расчёт завершится.</p>
             <p class="lead" data-connection-text hidden>Нет связи с сервисом расчёта, повторим попытку чуть позже.</p>
         }
+        <h2>Ход расчёта</h2>
+        <table class="summary stages">
+            <tbody>
+                @foreach (var stage in timeline.Stages)
+                {
+                    <tr class="stage stage-@stage.State" data-stage="@stage.Key" data-state="@stage.State" data-seconds="@stage.Seconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                        <th>@stage.Title</th>
+                        <td data-stage-time>@stage.TimeText</td>
+                    </tr>
+                }
+                <tr class="stage-total" data-seconds="@timeline.ElapsedSeconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                    <th>Всего</th>
+                    <td data-elapsed>@timeline.ElapsedText</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <p>Загружено: @job.UploadName; главный чертёж: <code>@job.MainFile</code></p>
     @if (job.OverlayFiles is { Count: > 0 })
@@ -69,16 +86,6 @@
                 }
             </ul>
         }
-
-        <h3>Время этапов</h3>
-        <table class="summary">
-            <tbody>
-                @foreach (var timing in summary.Timings())
-                {
-                    <tr><th>@StageNames.For(timing.Stage)</th><td>@timing.SecondsText с</td></tr>
-                }
-            </tbody>
-        </table>
     </section>
 
     @if (job.Artifacts.Contains("preview.png"))

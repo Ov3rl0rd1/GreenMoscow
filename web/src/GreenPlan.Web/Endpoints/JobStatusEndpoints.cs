@@ -18,6 +18,7 @@ public static class JobStatusEndpoints
     private static async Task<IResult> StatusAsync(
         string jobId,
         IEngineClient engine,
+        TimeProvider clock,
         HttpResponse response,
         CancellationToken cancellationToken)
     {
@@ -25,7 +26,7 @@ public static class JobStatusEndpoints
         try
         {
             var job = await engine.GetJobAsync(jobId, cancellationToken);
-            return job is null ? Results.NotFound() : Results.Ok(JobStatusView.From(job));
+            return job is null ? Results.NotFound() : Results.Ok(JobStatusView.From(job, clock.GetUtcNow()));
         }
         catch (EngineRequestException error)
         {

@@ -1,15 +1,15 @@
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 
 TIMING_DECIMALS = 3
 MEMORY_DECIMALS = 1
 BYTES_IN_MEGABYTE = 1024 * 1024
 
-StageListener = Callable[[str], None]
+StageListener = Callable[[str, Mapping[str, float]], None]
 
 
-def ignore_stage(name: str) -> None:
+def ignore_stage(name: str, finished: Mapping[str, float]) -> None:
     return None
 
 
@@ -30,7 +30,7 @@ class StageTimer:
 
     @contextmanager
     def stage(self, name: str) -> Iterator[None]:
-        self._listener(name)
+        self._listener(name, dict(self.durations))
         started = time.perf_counter()
         try:
             yield

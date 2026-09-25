@@ -19,8 +19,12 @@ class JobResponse(BaseModel):
     territory: str = ""
     guidance: str = ""
     stage: str = ""
+    started_at: str = ""
+    finished_at: str = ""
+    stage_started_at: str = ""
     artifacts: list[str]
     summary: dict[str, Any]
+    stage_timings: dict[str, float] = {}
 
     @classmethod
     def from_record(cls, record: JobRecord) -> "JobResponse":

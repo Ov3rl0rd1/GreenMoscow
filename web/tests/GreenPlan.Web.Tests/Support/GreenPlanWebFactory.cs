@@ -11,6 +11,8 @@ public sealed class GreenPlanWebFactory : WebApplicationFactory<Program>
 {
     public FakeEngineClient Engine { get; } = new();
 
+    public FixedTimeProvider Clock { get; } = new(DateTimeOffset.UtcNow);
+
     public HttpClient CreateNonRedirectingClient() =>
         CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
@@ -21,6 +23,8 @@ public sealed class GreenPlanWebFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<IEngineClient>();
             services.AddSingleton<IEngineClient>(Engine);
+            services.RemoveAll<TimeProvider>();
+            services.AddSingleton<TimeProvider>(Clock);
         });
     }
 }

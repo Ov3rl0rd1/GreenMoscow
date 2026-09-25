@@ -15,6 +15,7 @@ builder.Services.Configure<FormOptions>(options => options.MultipartBodyLengthLi
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = engineOptions.MaxUploadBytes);
 builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic));
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpClient<IEngineClient, EngineClient>((services, client) =>
 {
     var options = services.GetRequiredService<IOptions<EngineOptions>>().Value;

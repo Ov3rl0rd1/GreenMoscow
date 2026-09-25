@@ -15,7 +15,11 @@ public sealed record JobDto(
     IReadOnlyDictionary<string, JsonElement> Summary,
     IReadOnlyList<string>? OverlayFiles = null,
     string? Stage = null,
-    string? Guidance = null);
+    string? Guidance = null,
+    string? StartedAt = null,
+    string? FinishedAt = null,
+    string? StageStartedAt = null,
+    IReadOnlyDictionary<string, double>? StageTimings = null);
 
 public sealed record HealthDto(string Status, string Version, bool Dwg2dxfAvailable, bool ModelAvailable = false);
 

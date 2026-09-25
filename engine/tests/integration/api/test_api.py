@@ -167,6 +167,8 @@ def test_isolated_worker_runs_the_job_outside_the_api_process(
     assert job["status"] == SUCCEEDED, job["error"]
     assert job["stage"] == ""
     assert "Улица_с_пробелами_greenplan.dxf" in job["artifacts"]
+    assert job["started_at"] and job["finished_at"]
+    assert set(job["stage_timings"]) >= {"read_drawings", "place_plants", "verify"}
 
 
 def test_separate_general_plan_and_base_drawing_run_as_one_site(

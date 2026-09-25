@@ -29,8 +29,12 @@ class JobRecord:
     territory: str = ""
     guidance: str = ""
     stage: str = ""
+    started_at: str = ""
+    finished_at: str = ""
+    stage_started_at: str = ""
     artifacts: list[str] = field(default_factory=list)
     summary: dict[str, Any] = field(default_factory=dict)
+    stage_timings: dict[str, float] = field(default_factory=dict)
 
 
 class JobRepository:

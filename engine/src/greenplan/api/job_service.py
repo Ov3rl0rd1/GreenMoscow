@@ -1,6 +1,6 @@
 import shutil
 import uuid
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from functools import partial
 from pathlib import Path
@@ -94,17 +94,22 @@ class JobService:
         return record
 
     def execute(self, job_id: str) -> None:
-        record = self._update(self._repository.load(job_id), status=RUNNING)
+        record = self._update(self._repository.load(job_id), status=RUNNING, started_at=self._clock())
         directory = self._repository.directory(job_id)
         try:
             result = self._run_pipeline(record, directory)
         except Exception as error:
-            self._change(job_id, status=FAILED, error=f"{type(error).__name__}: {error}")
+            self._change(
+                job_id, status=FAILED, error=f"{type(error).__name__}: {error}", finished_at=self._clock()
+            )
             return
         self._change(
             job_id,
             status=SUCCEEDED,
             stage="",
+            stage_started_at="",
+            finished_at=self._clock(),
+            stage_timings=dict(result.timings_s),
             artifacts=sorted(result.artifacts),
             summary=job_summary(result),
         )
@@ -112,7 +117,7 @@ class JobService:
     def fail_unfinished(self, job_id: str, message: str) -> None:
         record = self._repository.load(job_id)
         if record.status in UNFINISHED_STATUSES:
-            self._update(record, status=FAILED, error=message)
+            self._update(record, status=FAILED, error=message, finished_at=self._clock())
 
     def fail_interrupted(self) -> None:
         for record in self._repository.all():
@@ -170,8 +175,8 @@ class JobService:
         pipeline = self._pipeline_factory(config, record.guidance != RULES_GUIDANCE_CHOICE)
         return pipeline.run(request, partial(self._report_stage, record.job_id))
 
-    def _report_stage(self, job_id: str, stage: str) -> None:
-        self._change(job_id, stage=stage)
+    def _report_stage(self, job_id: str, stage: str, finished: Mapping[str, float]) -> None:
+        self._change(job_id, stage=stage, stage_started_at=self._clock(), stage_timings=dict(finished))
 
     def _change(self, job_id: str, **changes: Any) -> JobRecord:
         return self._update(self._repository.load(job_id), **changes)

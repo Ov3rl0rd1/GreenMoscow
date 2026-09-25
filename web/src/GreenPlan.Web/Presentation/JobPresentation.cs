@@ -36,6 +36,8 @@ public static class StageNames
 
     public static int Count => Ordered.Count;
 
+    public static IEnumerable<string> Keys => Ordered.Select(item => item.Key);
+
     public static string For(string stage) => Names.TryGetValue(stage, out var name) ? name : stage;
 
     public static int NumberOf(string stage) => Ordered.Select(item => item.Key).ToList().IndexOf(stage) + 1;
@@ -63,10 +65,32 @@ public static class JobProgressText
     };
 }
 
-public sealed record JobStatusView(string Status, string StatusText, string ProgressText, bool Finished)
+public sealed record JobStatusView(
+    string Status,
+    string StatusText,
+    string ProgressText,
+    bool Finished,
+    IReadOnlyList<StageProgressView> Stages,
+    double? ElapsedSeconds,
+    string ElapsedText)
 {
-    public static JobStatusView From(JobDto job) =>
-        new(job.Status, JobStatusText.For(job.Status), JobProgressText.For(job), JobStatusText.IsFinished(job.Status));
+    public static JobStatusView From(JobDto job, DateTimeOffset now)
+    {
+        var timeline = JobTimeline.From(job, now);
+        return new JobStatusView(
+            job.Status,
+            JobStatusText.For(job.Status),
+            JobProgressText.For(job),
+            JobStatusText.IsFinished(job.Status),
+            timeline.Stages.Select(StageProgressView.From).ToList(),
+            timeline.ElapsedSeconds,
+            timeline.ElapsedText);
+    }
+}
+
+public sealed record StageProgressView(string Key, string State, double? Seconds, string TimeText)
+{
+    public static StageProgressView From(StageProgress stage) => new(stage.Key, stage.State, stage.Seconds, stage.TimeText);
 }
 
 public sealed record StageTiming(string Stage, double Seconds)

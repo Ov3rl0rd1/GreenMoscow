@@ -155,3 +155,47 @@ td {
     align-items: center;
     gap: 0.5rem;
 }
+
+.stages th {
+    font-weight: normal;
+}
+
+.stages td {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.stage-pending {
+    color: var(--muted);
+}
+
+.stage-current th,
+.stage-current td {
+    font-weight: 600;
+    color: var(--green);
+}
+
+.stage-current th::before {
+    content: "▶ ";
+}
+
+.stage-done th::before {
+    content: "✓ ";
+    color: var(--green);
+}
+
+.stage-failed th,
+.stage-failed td {
+    color: var(--red);
+}
+
+.stage-failed th::before {
+    content: "✗ ";
+}
+
+.stage-total th,
+.stage-total td {
+    font-weight: 700;
+    border-top: 1px solid var(--muted);
+}
