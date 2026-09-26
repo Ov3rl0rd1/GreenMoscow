@@ -93,6 +93,10 @@ class ExplanationTerms:
         ]
         return " ".join(str(section.get("exceeded", "{detail}")).split()).format(detail="; ".join(details))
 
+    def tree_floor(self, expected: int, planned: int, limit: int) -> str:
+        template = str(self._section("density").get("tree_floor", "{expected} → {planned}"))
+        return " ".join(template.split()).format(expected=expected, planned=planned, limit=limit)
+
     def element_edge(self, edge_kind: str) -> str:
         return (self._section("composition").get("edges") or {}).get(edge_kind, "")
 

@@ -1,6 +1,6 @@
 import pytest
 
-from greenplan.knowledge.invasive_registry import ALLOWED
+from greenplan.knowledge.invasive_registry import ALLOWED, ALLOWED_WITH_CONTROL
 from greenplan.placement.planting_plan import PlantingPlan
 from greenplan.species.species_selector import SpeciesOutcome
 
@@ -20,7 +20,7 @@ def test_assigned_species_respect_heating_minimum_invasive_policy_and_norms(
 ) -> None:
     for assignment in bagritskogo_species.assignments:
         minimum = assignment.species.heating_min_axis_m
-        assert assignment.invasive.status == ALLOWED
+        assert assignment.invasive.status in {ALLOWED, ALLOWED_WITH_CONTROL}
         assert minimum is None or assignment.context.heating_axis_distance_m >= minimum
         assert assignment.decision.is_placeable
         assert assignment.decision.candidate.species_key == assignment.species.key

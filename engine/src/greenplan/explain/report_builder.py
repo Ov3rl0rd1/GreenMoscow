@@ -151,7 +151,11 @@ def density_warnings(
         "shrubs": (sum(1 for plant in plants if plant.plant_type == SHRUB), plan.limits.max_shrubs),
     }
     exceeded = {target: pair for target, pair in counts.items() if pair[0] > pair[1]}
-    return (terms.density_exceeded(exceeded),) if exceeded else ()
+    notes = (terms.density_exceeded(exceeded),) if exceeded else ()
+    expected, planned = plan.expected_trees, plan.planned_trees
+    if expected is not None and planned is not None and planned > expected:
+        notes = (*notes, terms.tree_floor(expected, planned, plan.limits.max_trees))
+    return notes
 
 
 def _summary(

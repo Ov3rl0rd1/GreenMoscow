@@ -18,10 +18,12 @@ from greenplan.placement.composition_planner import (
     CompositionField,
     PlantLayout,
     Trial,
+    best_variant,
     contiguous,
+    shrub_shapes,
 )
 from greenplan.placement.composition_settings import CompositionSettings
-from greenplan.placement.composition_shapes import evenly_spaced, group_shape, hexagonal_patch
+from greenplan.placement.composition_shapes import evenly_spaced, group_shape
 from greenplan.placement.design_review import (
     BARE_TREE_GROUP,
     EMPTY_LAWN,
@@ -298,20 +300,13 @@ class _Session:
         for seed in self._seeds(self._shrub.field, problem.area):
             if not self._shrubs.fits(seed, composition.shrub_group_gap_m):
                 continue
-            for patch in self._patches(seed, spacing):
-                if len(patch) > self._shrub_room():
-                    continue
-                accepted = self._shrubs.attempt(patch, self._shrub.spacing_m, open_cells=True, within=within)
-                if len(accepted) >= ceil(len(patch) * self._settings.clump_min_filled_share):
+            clearance = self._shrub.field.clearance_at(seed)
+            for variants in shrub_shapes(seed, spacing, composition, clearance, self._shrub_room()):
+                needed = ceil(len(variants[0]) * self._settings.clump_min_filled_share)
+                accepted = best_variant(self._shrubs, variants, self._shrub.spacing_m, needed, within)
+                if len(accepted) >= needed:
                     return self._commit(self._shrubs, accepted, SHRUB_GROUP, self._shrub.spacing_m)
         return None
-
-    def _patches(self, seed: Point, spacing_m: float) -> Iterator[list[Point]]:
-        composition = self._composition
-        for rings in composition.shrub_group_rings:
-            yield hexagonal_patch(seed, rings, spacing_m)
-        for size in composition.shrub_group_small_sizes:
-            yield group_shape(seed, size, spacing_m, 0.0)
 
     def _line_element(
         self,

@@ -91,6 +91,7 @@ class PlantPlacementPlanner:
         edge_simplify_m: float = 0.5,
         edge_reach_m: float = 8.0,
         reserve_share: float = 0.0,
+        candidate_area_factor: float = 1.0,
     ) -> None:
         self._zone_builder = zone_builder
         self._rasterizer = rasterizer
@@ -100,6 +101,7 @@ class PlantPlacementPlanner:
         self._edge_simplify_m = edge_simplify_m
         self._edge_reach_m = edge_reach_m
         self._reserve_share = reserve_share
+        self._candidate_area_factor = candidate_area_factor
 
     def plan(
         self,
@@ -114,8 +116,14 @@ class PlantPlacementPlanner:
         admission = _Admission(
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
         )
+        count = guided_count(
+            profile.max_count, guidance.expected_count, profile.respects_density_cap, profile.min_count_share
+        )
         eligible = eligible_cells(raster, guidance, profile.allow_conditional)
-        count = guided_count(profile.max_count, guidance.expected_count, profile.respects_density_cap)
+        if count is not None and guidance.candidates is not None:
+            cells = count * (profile.spacing_m / raster.grid.cell_size_m) ** 2 * self._candidate_area_factor
+            pool = allowed_cells(raster, profile.allow_conditional)
+            eligible = widened(eligible, pool, guidance.score, cells)
         if self._composer is not None and profile.composed and count is not None:
             field = CompositionField(
                 raster.grid,
@@ -147,6 +155,7 @@ class PlantPlacementPlanner:
             zones,
             guidance.source,
             guidance.expected_count,
+            budget=count,
         )
 
     def trial(self, evaluator: CandidateEvaluator, profile: PlantingProfile) -> Trial:
@@ -183,14 +192,33 @@ class PlantPlacementPlanner:
         return EdgeClassifier(lines, self._edge_reach_m)
 
 
+def allowed_cells(raster: SiteRaster, allow_conditional: bool) -> np.ndarray:
+    return raster.allowed if allow_conditional else raster.allowed & ~raster.conditional
+
+
 def eligible_cells(raster: SiteRaster, guidance: PlacementGuidance, allow_conditional: bool) -> np.ndarray:
-    eligible = raster.allowed if allow_conditional else raster.allowed & ~raster.conditional
+    eligible = allowed_cells(raster, allow_conditional)
     return eligible if guidance.candidates is None else eligible & guidance.candidates
 
 
-def guided_count(normative_max: int | None, expected: int | None, respect_cap: bool = True) -> int | None:
+def widened(eligible: np.ndarray, pool: np.ndarray, score: np.ndarray, needed_cells: float) -> np.ndarray:
+    extra = pool & ~eligible
+    missing = min(int(needed_cells) - int(eligible.sum()), int(extra.sum()))
+    if missing <= 0:
+        return eligible
+    ranked = np.where(extra, score, -np.inf).ravel()
+    chosen = np.argpartition(-ranked, missing - 1)[:missing]
+    result = eligible.copy()
+    result.flat[chosen] = True
+    return result
+
+
+def guided_count(
+    normative_max: int | None, expected: int | None, respect_cap: bool = True, min_share: float = 0.0
+) -> int | None:
     if expected is None:
         return normative_max
-    if normative_max is None or not respect_cap:
+    if normative_max is None:
         return expected
-    return min(normative_max, expected)
+    expected = max(expected, floor(normative_max * min_share))
+    return expected if not respect_cap else min(normative_max, expected)

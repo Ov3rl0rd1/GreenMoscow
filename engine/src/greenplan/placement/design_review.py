@@ -39,7 +39,7 @@ class ReviewSettings:
     empty_plant_reach_m: float = 3.0
     empty_priority: float = 1.5
     underplanting_reach_m: float = 5.0
-    underplanting_priority: float = 1.0
+    underplanting_priority: float = 1.8
     min_band_lawn_m2: float = 15.0
 
 

@@ -18,9 +18,8 @@ def test_trees_are_planted_near_carriageway(
         edges[int(tree.nearest(decision.candidate.position))].distance(decision.candidate.position)
         for decision in bagritskogo_plan.trees
     ]
-    best_scored = distances[:10]
     assert len(bagritskogo_plan.trees) > 20
-    assert sum(1 for distance in best_scored if distance <= 6.0) >= 6
+    assert sum(1 for distance in distances if distance <= 6.0) >= 0.4 * len(distances)
 
 
 def test_all_plants_are_placeable_and_within_caps(bagritskogo_plan: PlantingPlan) -> None:

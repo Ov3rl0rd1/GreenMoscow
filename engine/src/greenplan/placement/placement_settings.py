@@ -48,6 +48,8 @@ class PlacementSettings:
     density_context: str = "streets_embankments"
     range_bound: str = "upper"
     respect_density_cap: bool = True
+    min_tree_count_share: float = 0.3
+    candidate_area_factor: float = 1.0
     street_piece_gap_m: float = 100.0
     rejection_spacing_m: float = 3.0
     max_rejections_per_reason: int = 25

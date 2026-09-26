@@ -58,3 +58,10 @@ def test_density_excess_is_reported_with_counts(knowledge_root: Path) -> None:
     text = terms.density_exceeded({"shrubs": (2766, 529)})
     assert "кустарников 2766 при нормативе 529" in text
     assert "рекомендательный норматив плотности" in text
+
+
+def test_raised_tree_count_is_explained(knowledge_root: Path) -> None:
+    terms = ExplanationTerms.from_file(knowledge_root / "rules" / "explanation_terms.yaml")
+    text = terms.tree_floor(19, 82, 274)
+    assert "около 19 деревьев" in text
+    assert "до 274" in text and "поднято до 82" in text

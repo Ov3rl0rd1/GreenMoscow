@@ -15,3 +15,4 @@ class PlantingProfile:
     planned_plant_clearance_m: float
     composed: bool = False
     respects_density_cap: bool = True
+    min_count_share: float = 0.0

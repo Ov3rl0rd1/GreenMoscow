@@ -51,6 +51,7 @@ class PlantingPlan:
     guidance_source: str = RULES_GUIDANCE
     expected_trees: int | None = None
     expected_shrubs: int | None = None
+    planned_trees: int | None = None
     elements: tuple[CompositionElement, ...] = ()
     journal: tuple[DesignResolution, ...] = ()
 
@@ -106,6 +107,7 @@ class PlantingPlanComposer:
                 placement.composition.edge_simplify_m,
                 placement.composition.edge_reach_m,
                 placement.composition.reserve_share if placement.coordinator.enabled else 0.0,
+                placement.candidate_area_factor,
             ),
             coordinator=DesignCoordinator(
                 DesignReviewer(placement.review), placement.composition, placement.coordinator
@@ -146,6 +148,7 @@ class PlantingPlanComposer:
             guidance_source=trees.guidance_source,
             expected_trees=trees.expected_count,
             expected_shrubs=shrubs.expected_count,
+            planned_trees=trees.budget,
             elements=(*trees.elements, *shrubs.elements, *added.elements),
             journal=added.journal,
         )
@@ -191,6 +194,7 @@ class PlantingPlanComposer:
             planned_plant_clearance_m=0.0,
             composed=settings.composition.enabled,
             respects_density_cap=settings.respect_density_cap,
+            min_count_share=settings.min_tree_count_share,
         )
 
     def _shrub_profile(self, limits: PlantingLimits) -> PlantingProfile:

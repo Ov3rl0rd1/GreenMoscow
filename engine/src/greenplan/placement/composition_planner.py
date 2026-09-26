@@ -11,9 +11,14 @@ from greenplan.placement.composition_settings import CompositionSettings
 from greenplan.placement.composition_shapes import (
     EdgeLine,
     LinePoints,
+    band_points,
     group_shape,
     hexagonal_patch,
+    hexagonal_size,
+    mass_offsets,
     offset_lines,
+    organic_mass,
+    tangent_at,
 )
 from greenplan.placement.peak_selector import SpatialHash
 from greenplan.placement.raster import RasterGrid
@@ -23,6 +28,9 @@ EdgeKindOf = Callable[[Point], str]
 GAP_TOLERANCE = 1.5
 LINE_SPACING_MARGIN = 1.02
 MAX_ROW_TURN_RAD = pi / 4
+MASS_CLEARANCE_SHARE = 0.8
+BAND_PROBES = 12
+BAND_PROBE_SHARE = 1.5
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -52,6 +60,12 @@ class CompositionField:
         row, column = self.grid.cell_of(point.x, point.y)
         inside = 0 <= row < self.grid.rows and 0 <= column < self.grid.columns
         return inside and bool(mask[row, column])
+
+    def clearance_at(self, point: Point) -> float:
+        row, column = self.grid.cell_of(point.x, point.y)
+        if 0 <= row < self.grid.rows and 0 <= column < self.grid.columns:
+            return float(self.lawn_clearance_m[row, column])
+        return 0.0
 
     def score_at(self, point: Point) -> float:
         row, column = self.grid.cell_of(point.x, point.y)
@@ -109,6 +123,20 @@ class PlantLayout:
     def fits(self, point: Point, distance_m: float) -> bool:
         return not self._placed.has_point_closer_than(point.x, point.y, distance_m)
 
+    def feasible(
+        self,
+        points: Sequence[Point],
+        spacing_m: float,
+        open_cells: bool = False,
+        within: Callable[[Point], bool] | None = None,
+    ) -> int:
+        usable = self._field.is_open if open_cells else self._field.is_eligible
+        return sum(
+            1
+            for point in points
+            if (within is None or within(point)) and usable(point) and self.fits(point, spacing_m)
+        )
+
     def attempt(
         self,
         points: Sequence[Point],
@@ -117,17 +145,19 @@ class PlantLayout:
         within: Callable[[Point], bool] | None = None,
     ) -> list[PlantingDecision]:
         accepted: list[PlantingDecision] = []
+        taken = SpatialHash(spacing_m)
         usable = self._field.is_open if open_cells else self._field.is_eligible
         for point in points:
             if within is not None and not within(point):
                 continue
             if not usable(point) or not self.fits(point, spacing_m):
                 continue
-            if any(point.distance(other.candidate.position) < spacing_m for other in accepted):
+            if taken.has_point_closer_than(point.x, point.y, spacing_m):
                 continue
             decision = self._trial(point)
             if decision is not None and (not self._strict or decision.status == ACCEPTED):
                 accepted.append(decision)
+                taken.add(point.x, point.y)
         return accepted
 
     def commit(
@@ -194,6 +224,7 @@ class CompositionPlanner:
             settings.hedge_min_size,
             floor(budget * settings.hedge_budget_share),
             HEDGE,
+            settings.hedge_band_rows,
         )
         self._shrub_groups(layout, field, spacing_m, budget)
         relaxed = field.relaxed_field()
@@ -211,6 +242,7 @@ class CompositionPlanner:
         min_size: int,
         budget: int,
         kind: str,
+        band_rows: Sequence[int] = (1,),
     ) -> None:
         step = max(line_spacing_m, min_spacing_m * LINE_SPACING_MARGIN)
         lines = offset_lines(field.edges, offsets_m, step)
@@ -219,12 +251,42 @@ class CompositionPlanner:
             remaining = budget - layout.count
             if remaining < min_size:
                 return
+            if self._band(layout, field, run, step, min_spacing_m, min_size, remaining, kind, band_rows):
+                continue
             window = best_window(field, run.points, remaining)
             accepted = layout.attempt(window, min_spacing_m, open_cells=True)
             for segment in contiguous(accepted, step * GAP_TOLERANCE):
                 if len(segment) >= min_size and layout.count + len(segment) <= budget:
                     middle = segment[len(segment) // 2].candidate.position
                     layout.commit(segment, kind, step, run.kind or field.edge_kind_at(middle))
+
+    def _band(
+        self,
+        layout: PlantLayout,
+        field: CompositionField,
+        run: LinePoints,
+        step: float,
+        min_spacing_m: float,
+        min_size: int,
+        remaining: int,
+        kind: str,
+        band_rows: Sequence[int],
+    ) -> bool:
+        for rows in (rows for rows in band_rows if rows > 1):
+            window = best_window(field, run.points, remaining // rows)
+            side = inward_side(field, window, step)
+            if len(window) < min_size or side is None:
+                continue
+            points = band_points(window, rows, step, side)
+            needed = max(min_size * rows, ceil(len(points) * self._settings.hedge_band_min_filled_share))
+            if layout.feasible(points, min_spacing_m, open_cells=True) < needed:
+                continue
+            accepted = layout.attempt(points, min_spacing_m, open_cells=True)
+            if len(accepted) >= needed and len(accepted) <= remaining:
+                middle = window[len(window) // 2]
+                layout.commit(accepted, kind, step, run.kind or field.edge_kind_at(middle))
+                return True
+        return False
 
     def _tree_groups(
         self, layout: PlantLayout, field: CompositionField, spacing_m: float, budget: int
@@ -280,25 +342,116 @@ class CompositionPlanner:
         self, layout: PlantLayout, field: CompositionField, spacing_m: float, budget: int
     ) -> None:
         settings = self._settings
-        for seed in field.seeds(budget * settings.seed_pool_factor):
-            if layout.count >= budget:
+        step = spacing_m * LINE_SPACING_MARGIN
+        pool = budget * settings.seed_pool_factor
+        for radius in sorted(settings.shrub_mass_radii_m, reverse=True):
+            self._clumps(
+                layout,
+                field.seeds(pool, radius * MASS_CLEARANCE_SHARE),
+                budget,
+                spacing_m,
+                lambda seed, room, radius=radius: mass_shapes(seed, step, settings, room, (radius,)),
+                settings.shrub_mass_min_filled_share,
+            )
+        self._clumps(
+            layout,
+            field.seeds(pool),
+            budget,
+            spacing_m,
+            lambda seed, room: clump_shapes(seed, step, settings, room),
+            settings.shrub_group_min_filled_share,
+        )
+
+    def _clumps(
+        self,
+        layout: PlantLayout,
+        seeds: Iterator[Point],
+        budget: int,
+        spacing_m: float,
+        shapes: Callable[[Point, int], Iterator[list[list[Point]]]],
+        filled_share: float,
+    ) -> None:
+        settings = self._settings
+        smallest = smallest_shrub_shape(settings)
+        for seed in seeds:
+            room = budget - layout.count
+            if room < smallest:
                 return
             if not layout.fits(seed, settings.shrub_group_gap_m):
                 continue
-            for patch in self._shrub_patches(seed, spacing_m):
-                if len(patch) > budget - layout.count:
-                    continue
-                accepted = layout.attempt(patch, spacing_m, open_cells=True)
-                if len(accepted) >= ceil(len(patch) * settings.shrub_group_min_filled_share):
+            for variants in shapes(seed, room):
+                needed = ceil(len(variants[0]) * filled_share)
+                accepted = best_variant(layout, variants, spacing_m, needed)
+                if len(accepted) >= needed:
                     layout.commit(accepted, SHRUB_GROUP, spacing_m)
                     break
 
-    def _shrub_patches(self, seed: Point, spacing_m: float) -> Iterator[list[Point]]:
-        settings = self._settings
-        for rings in settings.shrub_group_rings:
-            yield hexagonal_patch(seed, rings, spacing_m * LINE_SPACING_MARGIN)
-        for size in settings.shrub_group_small_sizes:
-            yield group_shape(seed, size, spacing_m * LINE_SPACING_MARGIN, 0.0)
+
+def shrub_shapes(
+    seed: Point, spacing_m: float, settings: CompositionSettings, clearance_m: float, room: int
+) -> Iterator[list[list[Point]]]:
+    radii = [radius for radius in settings.shrub_mass_radii_m if clearance_m >= radius * MASS_CLEARANCE_SHARE]
+    yield from mass_shapes(seed, spacing_m, settings, room, radii)
+    yield from clump_shapes(seed, spacing_m, settings, room)
+
+
+def mass_shapes(
+    seed: Point, spacing_m: float, settings: CompositionSettings, room: int, radii: Sequence[float]
+) -> Iterator[list[list[Point]]]:
+    rotations = settings.shrub_mass_rotations
+    turns = [2 * pi * step / rotations for step in range(rotations)]
+    for radius in radii:
+        if len(mass_offsets(radius, spacing_m, turns[0])) <= room:
+            yield [organic_mass(seed, radius, spacing_m, turn) for turn in turns]
+
+
+def clump_shapes(
+    seed: Point, spacing_m: float, settings: CompositionSettings, room: int
+) -> Iterator[list[list[Point]]]:
+    for rings in settings.shrub_group_rings:
+        if hexagonal_size(rings) <= room:
+            yield [hexagonal_patch(seed, rings, spacing_m)]
+    for size in settings.shrub_group_small_sizes:
+        if size <= room:
+            yield [group_shape(seed, size, spacing_m, 0.0)]
+
+
+def smallest_shrub_shape(settings: CompositionSettings) -> int:
+    rings = [hexagonal_size(count) for count in settings.shrub_group_rings]
+    return min((*settings.shrub_group_small_sizes, *rings), default=1)
+
+
+def best_variant(
+    layout: PlantLayout,
+    variants: Sequence[Sequence[Point]],
+    spacing_m: float,
+    needed: int,
+    within: Callable[[Point], bool] | None = None,
+) -> list[PlantingDecision]:
+    best: list[PlantingDecision] = []
+    for points in variants:
+        if layout.feasible(points, spacing_m, True, within) < max(needed, len(best) + 1):
+            continue
+        accepted = layout.attempt(points, spacing_m, open_cells=True, within=within)
+        if len(accepted) > len(best):
+            best = accepted
+        if len(best) == len(points):
+            break
+    return best
+
+
+def inward_side(field: CompositionField, points: Sequence[Point], step_m: float) -> float | None:
+    probes = points[:: max(1, len(points) // BAND_PROBES)]
+    gap = step_m * BAND_PROBE_SHARE
+    counts = {}
+    for side in (1.0, -1.0):
+        found = 0
+        for index, point in enumerate(probes):
+            tx, ty = tangent_at(probes, index)
+            found += field.is_open(Point(point.x - ty * side * gap, point.y + tx * side * gap))
+        counts[side] = found
+    side = max(counts, key=lambda key: counts[key])
+    return side if counts[side] > counts[-side] else None
 
 
 def ranked_runs(
