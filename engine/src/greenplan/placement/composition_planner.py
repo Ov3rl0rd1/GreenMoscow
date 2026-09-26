@@ -6,7 +6,7 @@ import numpy as np
 from shapely.geometry import Point
 
 from greenplan.domain.composition import GROUP, HEDGE, ROW, SHRUB_GROUP, SOLITARY, CompositionElement
-from greenplan.domain.decisions import PlantingDecision
+from greenplan.domain.decisions import ACCEPTED, PlantingDecision
 from greenplan.placement.composition_settings import CompositionSettings
 from greenplan.placement.composition_shapes import (
     EdgeLine,
@@ -83,11 +83,13 @@ class _Layout:
         self._trial = trial
         self._target = target
         self._placed = SpatialHash(bucket_m)
+        self._strict = True
         self.decisions: list[PlantingDecision] = []
         self.elements: list[CompositionElement] = []
 
     def use(self, field: CompositionField) -> None:
         self._field = field
+        self._strict = False
 
     @property
     def count(self) -> int:
@@ -97,17 +99,17 @@ class _Layout:
         return not self._placed.has_point_closer_than(point.x, point.y, distance_m)
 
     def attempt(
-        self, points: Sequence[Point], spacing_m: float, along_line: bool = False
+        self, points: Sequence[Point], spacing_m: float, open_cells: bool = False
     ) -> list[PlantingDecision]:
         accepted: list[PlantingDecision] = []
-        usable = self._field.is_open if along_line else self._field.is_eligible
+        usable = self._field.is_open if open_cells else self._field.is_eligible
         for point in points:
             if not usable(point) or not self.fits(point, spacing_m):
                 continue
             if any(point.distance(other.candidate.position) < spacing_m for other in accepted):
                 continue
             decision = self._trial(point)
-            if decision is not None:
+            if decision is not None and (not self._strict or decision.status == ACCEPTED):
                 accepted.append(decision)
         return accepted
 
@@ -177,6 +179,9 @@ class CompositionPlanner:
             HEDGE,
         )
         self._shrub_groups(layout, field, spacing_m, budget)
+        relaxed = field.relaxed_field()
+        layout.use(relaxed)
+        self._shrub_groups(layout, relaxed, spacing_m, budget)
         return layout.result()
 
     def _lines(
@@ -198,7 +203,7 @@ class CompositionPlanner:
             if remaining < min_size:
                 return
             window = best_window(field, run.points, remaining)
-            accepted = layout.attempt(window, min_spacing_m, along_line=True)
+            accepted = layout.attempt(window, min_spacing_m, open_cells=True)
             for segment in contiguous(accepted, step * GAP_TOLERANCE):
                 if len(segment) >= min_size and layout.count + len(segment) <= budget:
                     middle = segment[len(segment) // 2].candidate.position
@@ -223,8 +228,10 @@ class CompositionPlanner:
         rotations = self._settings.tree_group_rotations
         best: list[PlantingDecision] = []
         for step in range(rotations):
-            shape = group_shape(seed, size, spacing_m, 2 * pi * step / (rotations * size))
-            accepted = layout.attempt(shape, spacing_m)
+            shape = group_shape(
+                seed, size, spacing_m * LINE_SPACING_MARGIN, 2 * pi * step / (rotations * size)
+            )
+            accepted = layout.attempt(shape, spacing_m, open_cells=True)
             if len(accepted) > len(best):
                 best = accepted
             if len(best) == size:
@@ -260,7 +267,7 @@ class CompositionPlanner:
             for patch in self._shrub_patches(seed, spacing_m):
                 if len(patch) > budget - layout.count:
                     continue
-                accepted = layout.attempt(patch, spacing_m)
+                accepted = layout.attempt(patch, spacing_m, open_cells=True)
                 if len(accepted) >= ceil(len(patch) * settings.shrub_group_min_filled_share):
                     layout.commit(accepted, SHRUB_GROUP, spacing_m)
                     break
@@ -268,9 +275,9 @@ class CompositionPlanner:
     def _shrub_patches(self, seed: Point, spacing_m: float) -> Iterator[list[Point]]:
         settings = self._settings
         for rings in settings.shrub_group_rings:
-            yield hexagonal_patch(seed, rings, spacing_m)
+            yield hexagonal_patch(seed, rings, spacing_m * LINE_SPACING_MARGIN)
         for size in settings.shrub_group_small_sizes:
-            yield group_shape(seed, size, spacing_m, 0.0)
+            yield group_shape(seed, size, spacing_m * LINE_SPACING_MARGIN, 0.0)
 
 
 def ranked_runs(
