@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -182,3 +183,38 @@ def test_species_unsuitable_for_streets_is_skipped_near_carriageway(
         toolkit, registry, site, plant_catalog, [planned(toolkit, site, TREE, 0, 3.0)]
     ).assignments[0]
     assert assignment.species.key == "linden"
+
+
+def in_element(decision: PlantingDecision, element_id: str) -> PlantingDecision:
+    return replace(decision, candidate=replace(decision.candidate, element_id=element_id))
+
+
+def test_every_member_of_a_composition_element_gets_the_same_species(
+    toolkit: NormsToolkit, registry: InvasiveRegistry
+) -> None:
+    site = open_site(())
+    plant_catalog = catalog(
+        species("spiraea", "shrub", 1.2, 1.5, usage=100), species("hydrangea", "shrub", 1.5, 1.5, usage=50)
+    )
+    hedge = [in_element(planned(toolkit, site, SHRUB, x, 0.0), "hedge-1") for x in range(0, 30, 3)]
+    group = [in_element(planned(toolkit, site, SHRUB, x, 20.0), "group-1") for x in range(0, 30, 3)]
+    outcome = assign(toolkit, registry, site, plant_catalog, [*hedge, *group])
+    by_element: dict[str, set[str]] = {}
+    for item in outcome.assignments:
+        by_element.setdefault(item.decision.candidate.element_id, set()).add(item.species.key)
+    assert all(len(keys) == 1 for keys in by_element.values())
+    assert by_element["hedge-1"] != by_element["group-1"]
+
+
+def test_palette_limit_reuses_species_already_on_the_site(
+    toolkit: NormsToolkit, registry: InvasiveRegistry
+) -> None:
+    site = open_site(())
+    plant_catalog = catalog(
+        species("spiraea", "shrub", 1.2, 1.5, usage=100),
+        species("hydrangea", "shrub", 1.5, 1.5, usage=90),
+        species("cornus", "shrub", 1.5, 1.5, usage=80),
+    )
+    shrubs = [in_element(planned(toolkit, site, SHRUB, x, 0.0), f"group-{x}") for x in range(0, 60, 10)]
+    limited = assign(toolkit, registry, site, plant_catalog, shrubs, SpeciesSettings(shrub_palette_size=2))
+    assert len({item.species.key for item in limited.assignments}) == 2

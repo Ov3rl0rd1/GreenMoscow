@@ -185,6 +185,8 @@ public sealed class PagesTests
         Assert.Contains("пройдена", html);
         Assert.Contains("Независимая проверка", html);
         Assert.Contains("модель, обученная на проектных решениях датасета", html);
+        Assert.Contains("ряды — 4, группы деревьев — 7, живые изгороди — 3", html);
+        Assert.Contains("проезжая часть отделена посадками на 62 % фронта", html);
         Assert.Contains($"/jobs/{TestJobs.SucceededId}/artifacts/preview.png", html);
         Assert.DoesNotContain("http-equiv=\"refresh\"", html);
     }

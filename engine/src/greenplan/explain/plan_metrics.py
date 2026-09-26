@@ -6,8 +6,9 @@ from pathlib import Path
 
 import shapely
 
+from greenplan.domain.composition import ELEMENT_KINDS, HEDGE
 from greenplan.domain.norms import SHRUB, TREE
-from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
+from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE, SIDEWALK_EDGE
 from greenplan.domain.site import SiteModel
 from greenplan.explain.explanation_model import PlantExplanation
 from greenplan.explain.number_format import structure_value
@@ -18,6 +19,11 @@ TREE_TIER = "деревья"
 SHRUB_TIER = "кустарники"
 LAWN_TIER = "газон и почвопокровные"
 SQUARE_METRES_IN_HECTARE = 10000.0
+TREE_SHELTER_REACH_M = 10.0
+HEDGE_SHELTER_REACH_M = 3.0
+SHADE_MARGIN_M = 1.0
+SHRUB_COVER_RADIUS_M = 0.75
+EDGE_SITE_MARGIN_M = 10.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +35,10 @@ class PlanMetrics:
     crown_share_of_plantable: float
     street_front_covered_m: float
     listed_species_share: float
+    street_front_share: float | None = None
+    sidewalk_shade_share: float | None = None
+    open_lawn_share: float = 0.0
+    elements: tuple[tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,7 +129,77 @@ def plan_metrics(
             if with_species
             else 0.0
         ),
+        street_front_share=optional_value(street_front_share(site, plants)),
+        sidewalk_shade_share=optional_value(sidewalk_shade_share(site, plants)),
+        open_lawn_share=structure_value(open_lawn_share(site, plants)),
+        elements=element_counts(plants),
     )
+
+
+def optional_value(value: float | None) -> float | None:
+    return None if value is None else structure_value(value)
+
+
+def street_front_share(site: SiteModel, plants: Sequence[PlantExplanation]) -> float | None:
+    trees = [plant for plant in plants if plant.plant_type == TREE]
+    hedges = [plant for plant in plants if plant.element is not None and plant.element.kind == HEDGE]
+    shelter = shapely.union_all(
+        [
+            *(shapely.Point(plant.x, plant.y).buffer(TREE_SHELTER_REACH_M) for plant in trees),
+            *(shapely.Point(plant.x, plant.y).buffer(HEDGE_SHELTER_REACH_M) for plant in hedges),
+        ]
+    )
+    return covered_share(site_edges(site, CARRIAGEWAY_EDGE), shelter)
+
+
+def sidewalk_shade_share(site: SiteModel, plants: Sequence[PlantExplanation]) -> float | None:
+    crowns = shapely.union_all(
+        [
+            shapely.Point(plant.x, plant.y).buffer(plant.crown_diameter_m / 2 + SHADE_MARGIN_M)
+            for plant in plants
+            if plant.plant_type == TREE
+        ]
+    )
+    return covered_share(site_edges(site, SIDEWALK_EDGE), crowns)
+
+
+def open_lawn_share(site: SiteModel, plants: Sequence[PlantExplanation]) -> float:
+    lawn = site.plantable_surface
+    if lawn.area <= 0:
+        return 0.0
+    cover = shapely.union_all(
+        [
+            shapely.Point(plant.x, plant.y).buffer(
+                plant.crown_diameter_m / 2 if plant.plant_type == TREE else SHRUB_COVER_RADIUS_M
+            )
+            for plant in plants
+        ]
+    )
+    return max(0.0, 1.0 - lawn.intersection(cover).area / lawn.area)
+
+
+def site_edges(site: SiteModel, kind: str) -> list[shapely.Geometry]:
+    reach = site.boundary.buffer(EDGE_SITE_MARGIN_M)
+    clipped = [obstacle.geometry.intersection(reach) for obstacle in site.obstacles_of(kind)]
+    return [edge for edge in clipped if not edge.is_empty]
+
+
+def covered_share(edges: Sequence[shapely.Geometry], cover: shapely.Geometry) -> float | None:
+    total = sum(edge.length for edge in edges)
+    if total <= 0:
+        return None
+    if cover.is_empty:
+        return 0.0
+    return sum(edge.intersection(cover).length for edge in edges) / total
+
+
+def element_counts(plants: Sequence[PlantExplanation]) -> tuple[tuple[str, int], ...]:
+    kinds = Counter(
+        {
+            plant.element.element_id: plant.element.kind for plant in plants if plant.element is not None
+        }.values()
+    )
+    return tuple((kind, kinds[kind]) for kind in ELEMENT_KINDS if kinds[kind])
 
 
 def volume_statement(
@@ -128,9 +208,7 @@ def volume_statement(
     counts = Counter(
         (plant.species.name_ru, plant.plant_type) for plant in plants if plant.species is not None
     )
-    rows = tuple(
-        VolumeRow(name, plant_type, count) for (name, plant_type), count in counts.most_common()
-    )
+    rows = tuple(VolumeRow(name, plant_type, count) for (name, plant_type), count in counts.most_common())
     return VolumeStatement(
         plants=rows,
         trees=sum(1 for plant in plants if plant.plant_type == TREE),

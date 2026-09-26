@@ -61,6 +61,14 @@
         <table class="summary">
             <tbody>
                 <tr><th>Размещение</th><td>@GuidanceText.For(summary.Text("guidance"))</td></tr>
+                @if (summary.CompositionText() is { } composition)
+                {
+                    <tr><th>Композиция</th><td>@composition</td></tr>
+                }
+                @if (summary.BenefitText() is { } benefit)
+                {
+                    <tr><th>Польза</th><td>@benefit</td></tr>
+                }
                 <tr><th>Деревьев</th><td>@summary.Integer("trees")</td></tr>
                 <tr><th>Кустарников</th><td>@summary.Integer("shrubs")</td></tr>
                 <tr><th>Условно допустимых посадок</th><td>@summary.Integer("conditional")</td></tr>

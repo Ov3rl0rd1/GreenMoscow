@@ -5,6 +5,7 @@ from pathlib import Path
 
 from greenplan.domain.drawing import DrawingSet
 from greenplan.domain.site import SiteDiagnostics, SiteModel
+from greenplan.explain.plan_metrics import PlanMetrics
 from greenplan.explain.report_model import ReportSummary
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import current_timestamp
@@ -44,6 +45,7 @@ class PipelineResult:
     diagnostics: SiteDiagnostics
     memory_mb: dict[str, float] = field(default_factory=dict)
     peak_memory_mb: float = 0.0
+    metrics: PlanMetrics | None = None
 
 
 class PlanningPipeline:
@@ -118,6 +120,7 @@ class PlanningPipeline:
             site.diagnostics,
             timer.memory_mb,
             timer.peak_memory_mb,
+            report.metrics,
         )
 
 

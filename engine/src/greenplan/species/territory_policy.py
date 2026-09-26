@@ -93,9 +93,7 @@ class TerritoryPolicy:
     def note_reasons(self, assessment: TerritoryAssessment | None) -> list[SelectionReason]:
         if assessment is None or assessment.entry is None:
             return []
-        return [
-            self._note_reason(number) for number in assessment.entry.notes if number in EXPLAINED_NOTES
-        ]
+        return [self._note_reason(number) for number in assessment.entry.notes if number in EXPLAINED_NOTES]
 
     def _note_reason(self, number: int) -> SelectionReason:
         note = lowercased(self._official.note_ru(number))

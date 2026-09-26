@@ -55,7 +55,13 @@ class ReportBuilder:
     def build(
         self, title: str, site: SiteModel, plan: PlantingPlan, species: SpeciesOutcome
     ) -> PlantingReport:
-        plants = tuple(self._explanations.for_assignment(assignment) for assignment in species.assignments)
+        elements = {element.element_id: element for element in plan.elements}
+        plants = tuple(
+            self._explanations.for_assignment(
+                assignment, elements.get(assignment.decision.candidate.element_id)
+            )
+            for assignment in species.assignments
+        )
         rejected_decisions = (*plan.rejections, *species.rejections)
         rejections = tuple(self._explanations.for_decision(decision) for decision in rejected_decisions)
         terms = self._explanations.terms

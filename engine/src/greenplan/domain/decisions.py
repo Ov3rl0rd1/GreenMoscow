@@ -29,6 +29,7 @@ class PlantCandidate:
     crown_diameter_m: float
     species_key: str | None = None
     species_name_ru: str | None = None
+    element_id: str = ""
 
 
 @dataclass(frozen=True, slots=True)

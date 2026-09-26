@@ -25,6 +25,12 @@ class SpeciesSettings:
     additional_level_penalty: float = 1.0
     perspective_level_penalty: float = 2.0
     max_alternatives: int = 3
+    tree_palette_size: int = 6
+    shrub_palette_size: int = 6
+    palette_bonus: float = 100.0
 
     def grouping_distance_m(self, target: str) -> float:
         return self.tree_grouping_distance_m if target == TREE else self.shrub_grouping_distance_m
+
+    def palette_size(self, target: str) -> int:
+        return self.tree_palette_size if target == TREE else self.shrub_palette_size

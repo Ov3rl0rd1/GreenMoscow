@@ -11,6 +11,14 @@ from greenplan.explain.plan_metrics import CostEstimate, PlanMetrics, VolumeStat
 from greenplan.explain.report_model import AppliedNormRow, PlantingReport, ReportSummary
 from greenplan.placement.score_maps import MODEL_GUIDANCE
 
+ELEMENT_NAMES_RU = {
+    "row": "ряды",
+    "group": "группы деревьев",
+    "solitary": "солитёры",
+    "hedge": "живые изгороди",
+    "shrub_group": "куртины",
+}
+
 JSON_REPORT_NAME = "planting_report.json"
 CSV_REPORT_NAME = "planting_report.csv"
 MARKDOWN_REPORT_NAME = "planting_report.md"
@@ -177,6 +185,24 @@ def _metric_lines(metrics: PlanMetrics | None) -> list[str]:
         f"- Проекция крон: {format_number(metrics.crown_projection_m2)} м² ({crown} % газона)",
         f"- Фронт вдоль проезжей части под кронами: {format_number(metrics.street_front_covered_m)} м",
         f"- Доля пород из ассортимента ДПиООС: {listed} %",
+        "",
+        *_benefit_lines(metrics),
+    ]
+
+
+def share_text(share: float | None) -> str:
+    return "края на чертеже не распознаны" if share is None else f"{format_number(share * 100)} %"
+
+
+def _benefit_lines(metrics: PlanMetrics) -> list[str]:
+    elements = ", ".join(f"{ELEMENT_NAMES_RU.get(kind, kind)} — {count}" for kind, count in metrics.elements)
+    return [
+        "## Польза и композиция",
+        "",
+        f"- Фронт проезжей части, отделённый посадками: {share_text(metrics.street_front_share)}",
+        f"- Тротуары под кронами деревьев: {share_text(metrics.sidewalk_shade_share)}",
+        f"- Газон, оставленный открытым: {format_number(metrics.open_lawn_share * 100)} %",
+        f"- Элементы композиции: {elements if elements else 'не сформированы'}",
         "",
     ]
 

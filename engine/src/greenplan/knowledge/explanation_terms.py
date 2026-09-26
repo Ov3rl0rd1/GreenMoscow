@@ -20,6 +20,12 @@ class TargetTerms:
 
 
 @dataclass(frozen=True, slots=True)
+class ElementTerms:
+    name_ru: str
+    purpose_ru: str
+
+
+@dataclass(frozen=True, slots=True)
 class ReferencedText:
     text_ru: str
     source_refs: tuple[str, ...] = ()
@@ -64,6 +70,13 @@ class ExplanationTerms:
 
     def invasive(self, status: str) -> ReferencedText:
         return _referenced(self._section("invasive").get(status), status)
+
+    def element(self, kind: str) -> ElementTerms:
+        entry = (self._section("composition").get("elements") or {}).get(kind, {})
+        return ElementTerms(entry.get("name", kind), " ".join(str(entry.get("purpose", "")).split()))
+
+    def element_edge(self, edge_kind: str) -> str:
+        return (self._section("composition").get("edges") or {}).get(edge_kind, "")
 
     def _section(self, name: str) -> Mapping[str, Any]:
         return self._content.get(name) or {}

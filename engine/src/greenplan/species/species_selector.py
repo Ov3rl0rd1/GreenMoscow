@@ -108,6 +108,7 @@ class SpeciesSelector:
 
     def assign(self, decisions: Sequence[PlantingDecision]) -> SpeciesOutcome:
         memories: dict[str, _AssignmentMemory] = {}
+        element_species: dict[str, str] = {}
         usage = _SpeciesUsage()
         assignments: list[SpeciesAssignment] = []
         rejections: list[PlantingDecision] = []
@@ -116,10 +117,11 @@ class SpeciesSelector:
             memory = memories.setdefault(
                 target, _AssignmentMemory(self._settings.grouping_distance_m(target))
             )
-            assignment = self._assignment(decision, memory, usage)
+            assignment = self._assignment(decision, memory, usage, element_species)
             if assignment is None:
                 rejections.append(without_species(decision))
                 continue
+            element_species.setdefault(decision.candidate.element_id, assignment.species.key)
             memory.remember(decision.candidate.position, assignment.species.key)
             usage.record(target, assignment.species.key)
             assignments.append(assignment)
@@ -144,13 +146,17 @@ class SpeciesSelector:
         return policy.composition_reason() if policy is not None else None
 
     def _assignment(
-        self, decision: PlantingDecision, memory: _AssignmentMemory, usage: "_SpeciesUsage"
+        self,
+        decision: PlantingDecision,
+        memory: _AssignmentMemory,
+        usage: "_SpeciesUsage",
+        element_species: dict[str, str],
     ) -> SpeciesAssignment | None:
         position = decision.candidate.position
         target = decision.candidate.target
         context = self._detector.detect(position)
         ranked = self._diversified(self._suitability.ranked(target, context), target, usage)
-        ordered = neighbour_species_first(ranked, memory.species_near(position))
+        ordered = neighbour_species_first(ranked, preferred_species(decision, memory, element_species))
         outcomes: dict[str, str] = {}
         best: SpeciesAssignment | None = None
         for item in ordered:
@@ -184,9 +190,18 @@ class SpeciesSelector:
     def _diversified(
         self, ranked: Sequence[RankedSpecies], target: str, usage: "_SpeciesUsage"
     ) -> list[RankedSpecies]:
-        penalty = self._settings.diversity_penalty
+        settings = self._settings
+        used = usage.distinct(target)
+        bonus = settings.palette_bonus if len(used) >= settings.palette_size(target) else 0.0
         return sorted(
-            ranked, key=lambda item: -(item.score - penalty * usage.share(target, item.species.key))
+            ranked,
+            key=lambda item: (
+                -(
+                    item.score
+                    - settings.diversity_penalty * usage.share(target, item.species.key)
+                    + (bonus if item.species.key in used else 0.0)
+                )
+            ),
         )
 
 
@@ -217,6 +232,9 @@ class _SpeciesUsage:
     def share(self, target: str, species_key: str) -> float:
         total = self._totals[target]
         return self._counts[(target, species_key)] / total if total else 0.0
+
+    def distinct(self, target: str) -> set[str]:
+        return {species_key for used_target, species_key in self._counts if used_target == target}
 
 
 class SpeciesSelectorFactory:
@@ -270,6 +288,15 @@ class SpeciesSelectorFactory:
             self._settings,
             self._texts,
         )
+
+
+def preferred_species(
+    decision: PlantingDecision, memory: _AssignmentMemory, element_species: dict[str, str]
+) -> list[str]:
+    element_id = decision.candidate.element_id
+    if not element_id:
+        return memory.species_near(decision.candidate.position)
+    return [element_species[element_id]] if element_id in element_species else []
 
 
 def neighbour_species_first(

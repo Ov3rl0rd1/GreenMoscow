@@ -30,7 +30,7 @@ class ExplanationTextRenderer:
     def render(self, plant: PlantExplanation) -> str:
         ledger = CitationLedger()
         minimums = barrier_minimums(plant.clearances)
-        sentences = [self._headline(plant)]
+        sentences = [self._headline(plant), element_sentence(plant)]
         sentences.extend(self._violation_sentence(violation, ledger) for violation in plant.violations)
         sentences.extend(
             self._clearance_sentence(
@@ -98,9 +98,7 @@ class ExplanationTextRenderer:
             core = f"Точка в {obstacle.zone_ru}: {distance} при ширине зоны {required}{condition}{cite}."
         return core + self._crown_note(clearance, crown_diameter_m, ledger) + _radius_note(clearance)
 
-    def _crown_note(
-        self, clearance: ClearanceView, crown_diameter_m: float, ledger: CitationLedger
-    ) -> str:
+    def _crown_note(self, clearance: ClearanceView, crown_diameter_m: float, ledger: CitationLedger) -> str:
         if clearance.crown_increment_m <= 0:
             return ""
         return (
@@ -121,6 +119,19 @@ class ExplanationTextRenderer:
             f"{_capitalized(species.invasive_text_ru)}{ledger.cite(species.invasive_citations)}."
         )
         return sentences
+
+
+def element_sentence(plant: PlantExplanation) -> str:
+    element = plant.element
+    if element is None:
+        return ""
+    edge = f" {element.edge_ru}" if element.edge_ru else ""
+    shape = (
+        f"{element.size} шт., шаг {format_number(element.spacing_m)} м"
+        if element.size > 1
+        else "одиночная посадка"
+    )
+    return f"Элемент композиции: {element.name_ru}{edge} ({shape}) — {element.purpose_ru}."
 
 
 def is_barrier_rule(clearance: ClearanceView) -> bool:
@@ -160,9 +171,7 @@ def distance_phrase(actual_m: float) -> str:
 def _reduced_minimum_note(barrier_minimum_m: float | None) -> str:
     if barrier_minimum_m is None:
         return ""
-    return (
-        f" Даже с корнезащитой нельзя ближе {format_number(barrier_minimum_m)} м — это условие выполнено."
-    )
+    return f" Даже с корнезащитой нельзя ближе {format_number(barrier_minimum_m)} м — это условие выполнено."
 
 
 def _radius_note(clearance: ClearanceView) -> str:

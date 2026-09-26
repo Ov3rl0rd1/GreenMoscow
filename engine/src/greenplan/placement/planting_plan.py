@@ -9,10 +9,12 @@ from greenplan.constraints.clearance_meter import ClearanceMeter
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.requirement_resolver import RequirementResolver
 from greenplan.constraints.zone_builder import ZoneBuilder
+from greenplan.domain.composition import CompositionElement
 from greenplan.domain.decisions import PlantingDecision
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
+from greenplan.placement.composition_planner import CompositionPlanner
 from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.placement_settings import PlacementSettings
@@ -42,6 +44,7 @@ class PlantingPlan:
     guidance_source: str = RULES_GUIDANCE
     expected_trees: int | None = None
     expected_shrubs: int | None = None
+    elements: tuple[CompositionElement, ...] = ()
 
 
 class PlantingPlanComposer:
@@ -85,7 +88,13 @@ class PlantingPlanComposer:
         zone_builder = PlantingZoneBuilder(ZoneBuilder(resolver, meter), resolver, constraints)
         return cls(
             planner=PlantPlacementPlanner(
-                zone_builder, SiteRasterizer(placement.cell_size_m, placement.max_raster_cells), selector
+                zone_builder,
+                SiteRasterizer(placement.cell_size_m, placement.max_raster_cells),
+                selector,
+                CompositionPlanner(placement.composition),
+                placement.composition_edge_kinds,
+                placement.composition.edge_simplify_m,
+                placement.composition.edge_reach_m,
             ),
             limits_resolver=PlantingLimitsResolver(repository, placement),
             rejection_sampler=RejectionSampler(
@@ -121,6 +130,7 @@ class PlantingPlanComposer:
             guidance_source=trees.guidance_source,
             expected_trees=trees.expected_count,
             expected_shrubs=shrubs.expected_count,
+            elements=trees.elements + shrubs.elements,
         )
 
     def _tree_profile(self, limits: PlantingLimits) -> PlantingProfile:
@@ -134,6 +144,7 @@ class PlantingPlanComposer:
             score_map=self._tree_score_map,
             allow_conditional=settings.allow_conditional,
             planned_plant_clearance_m=0.0,
+            composed=settings.composition.enabled,
         )
 
     def _shrub_profile(self, limits: PlantingLimits) -> PlantingProfile:
@@ -147,6 +158,7 @@ class PlantingPlanComposer:
             score_map=self._shrub_score_map,
             allow_conditional=settings.allow_conditional,
             planned_plant_clearance_m=settings.min_shrub_distance_to_planned_tree_m,
+            composed=settings.composition.enabled,
         )
 
 

@@ -15,7 +15,7 @@ def admit_every_point(point: Point) -> bool:
     return True
 
 
-class _SpatialHash:
+class SpatialHash:
     def __init__(self, bucket_size_m: float) -> None:
         self._bucket_size_m = bucket_size_m
         self._buckets: dict[tuple[int, int], list[tuple[float, float]]] = defaultdict(list)
@@ -42,7 +42,7 @@ class _Selection:
         self._grid = grid
         self._min_spacing_m = min_spacing_m
         self._admit = admit
-        self._taken = _SpatialHash(min_spacing_m)
+        self._taken = SpatialHash(min_spacing_m)
         self.points: list[Point] = []
 
     def take(self, rows: np.ndarray, columns: np.ndarray, scores: np.ndarray, quota: int | None) -> int:

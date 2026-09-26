@@ -43,6 +43,20 @@ public static class StageNames
     public static int NumberOf(string stage) => Ordered.Select(item => item.Key).ToList().IndexOf(stage) + 1;
 }
 
+public static class ElementNames
+{
+    private static readonly IReadOnlyDictionary<string, string> Names = new Dictionary<string, string>
+    {
+        ["row"] = "ряды",
+        ["group"] = "группы деревьев",
+        ["solitary"] = "солитёры",
+        ["hedge"] = "живые изгороди",
+        ["shrub_group"] = "куртины кустарника",
+    };
+
+    public static string For(string kind) => Names.TryGetValue(kind, out var name) ? name : kind;
+}
+
 public static class GuidanceText
 {
     public static string For(string? guidance) => guidance switch
@@ -117,6 +131,41 @@ public sealed class JobSummaryView(IReadOnlyDictionary<string, JsonElement> summ
         summary.TryGetValue("warnings", out var value) && value.ValueKind == JsonValueKind.Array
             ? value.EnumerateArray().Select(item => item.GetString() ?? string.Empty).Where(text => text.Length > 0).ToList()
             : [];
+
+    public string? CompositionText()
+    {
+        if (!Benefits().TryGetProperty("elements", out var elements) || elements.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var parts = elements.EnumerateObject()
+            .Where(item => item.Value.ValueKind == JsonValueKind.Number)
+            .Select(item => $"{ElementNames.For(item.Name)} — {item.Value.GetInt32()}")
+            .ToList();
+        return parts.Count > 0 ? string.Join(", ", parts) : null;
+    }
+
+    public string? BenefitText()
+    {
+        var front = Percent("street_front_share");
+        var shade = Percent("sidewalk_shade_share");
+        var open = Percent("open_lawn_share");
+        if (front is null && shade is null && open is null)
+        {
+            return null;
+        }
+
+        return $"проезжая часть отделена посадками на {front ?? "—"} фронта; тротуары под кронами — {shade ?? "—"}; открытый газон — {open ?? "—"}";
+    }
+
+    private string? Percent(string key) =>
+        Benefits().TryGetProperty(key, out var value) && value.ValueKind == JsonValueKind.Number
+            ? $"{(value.GetDouble() * 100).ToString("0", CultureInfo.GetCultureInfo("ru-RU"))} %"
+            : null;
+
+    private JsonElement Benefits() =>
+        summary.TryGetValue("benefits", out var value) && value.ValueKind == JsonValueKind.Object ? value : default;
 
     public IReadOnlyList<StageTiming> Timings() =>
         summary.TryGetValue(TimingsKey, out var value) && value.ValueKind == JsonValueKind.Object

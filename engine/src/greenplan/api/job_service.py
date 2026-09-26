@@ -191,6 +191,21 @@ def relative_name(path: Path, directory: Path) -> str:
     return path.relative_to(directory.resolve()).as_posix()
 
 
+def benefit_summary(result: PipelineResult) -> dict[str, Any]:
+    metrics = result.metrics
+    if metrics is None:
+        return {}
+    return {
+        "street_front_share": metrics.street_front_share,
+        "sidewalk_shade_share": metrics.sidewalk_shade_share,
+        "open_lawn_share": metrics.open_lawn_share,
+        "crown_share_of_plantable": metrics.crown_share_of_plantable,
+        "species_count": metrics.species_count,
+        "max_species_share": metrics.max_species_share,
+        "elements": dict(metrics.elements),
+    }
+
+
 def job_summary(result: PipelineResult) -> dict[str, Any]:
     summary = result.report_summary
     return {
@@ -205,6 +220,7 @@ def job_summary(result: PipelineResult) -> dict[str, Any]:
         "guidance": summary.guidance_source,
         "expected_trees": summary.expected_trees,
         "expected_shrubs": summary.expected_shrubs,
+        "benefits": benefit_summary(result),
         "timings_s": result.timings_s,
         "peak_memory_mb": result.peak_memory_mb,
     }

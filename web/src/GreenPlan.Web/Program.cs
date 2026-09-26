@@ -13,7 +13,7 @@ var engineOptions = engineSection.Get<EngineOptions>() ?? new EngineOptions();
 builder.Services.Configure<EngineOptions>(engineSection);
 builder.Services.Configure<FormOptions>(options => options.MultipartBodyLengthLimit = engineOptions.MaxUploadBytes);
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = engineOptions.MaxUploadBytes);
-builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic));
+builder.Services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic, UnicodeRanges.GeneralPunctuation));
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpClient<IEngineClient, EngineClient>((services, client) =>

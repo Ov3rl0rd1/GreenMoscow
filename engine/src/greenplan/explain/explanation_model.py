@@ -78,6 +78,17 @@ class SpeciesView:
 
 
 @dataclass(frozen=True, slots=True)
+class ElementView:
+    element_id: str
+    kind: str
+    name_ru: str
+    size: int
+    spacing_m: float
+    edge_ru: str
+    purpose_ru: str
+
+
+@dataclass(frozen=True, slots=True)
 class PlantExplanation:
     plant_id: str
     status: str
@@ -91,6 +102,7 @@ class PlantExplanation:
     explanation_ru: str
     root_barriers: tuple[tuple[tuple[float, float], ...], ...] = ()
     root_barrier_length_m: float = 0.0
+    element: ElementView | None = None
 
     @property
     def primary_reason_code(self) -> str:

@@ -13,3 +13,4 @@ class PlantingProfile:
     score_map: ScoreMapProvider
     allow_conditional: bool
     planned_plant_clearance_m: float
+    composed: bool = False

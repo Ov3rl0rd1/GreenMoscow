@@ -67,6 +67,17 @@ def test_markdown_shows_metrics_volumes_and_cost(report: PlantingReport, tmp_pat
     assert "## Ведомость объёмов" in text
     assert "## Ориентировочная стоимость" in text
     assert "Значения индикативные" in text
+    assert "## Польза и композиция" in text
+    assert "Элементы композиции: ряды" in text
+
+
+def test_every_plant_explains_its_composition_element(report: PlantingReport) -> None:
+    assert all(plant.element is not None for plant in report.plants)
+    assert all("Элемент композиции:" in plant.explanation_ru for plant in report.plants)
+    metrics = report.metrics
+    assert metrics is not None
+    assert 0.0 < metrics.open_lawn_share < 1.0
+    assert metrics.street_front_share is not None and metrics.street_front_share > 0.0
 
 
 def test_summary_counts_match_explanations(report: PlantingReport) -> None:

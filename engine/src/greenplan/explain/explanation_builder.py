@@ -3,6 +3,7 @@ from pathlib import Path
 
 from greenplan.constraints.clearance_meter import ClearanceMeter
 from greenplan.constraints.root_barrier_planner import RootBarrier, RootBarrierPlanner, total_length_m
+from greenplan.domain.composition import HEDGE, ROW, CompositionElement
 from greenplan.domain.decisions import Clearance, PlantingDecision, SiteViolation
 from greenplan.domain.norms import ADVISORY, CONDITIONAL, CONDITIONAL_MEASURE, PROHIBITIVE
 from greenplan.explain.citation_policy import CitationPolicy
@@ -10,6 +11,7 @@ from greenplan.explain.explanation_model import (
     AlternativeView,
     ClearanceView,
     CompetingView,
+    ElementView,
     PlantExplanation,
     ReasonView,
     SpeciesView,
@@ -24,6 +26,9 @@ from greenplan.species.species_selector import SpeciesAssignment
 SEVERITY_ORDER = {PROHIBITIVE: 0, CONDITIONAL: 1, CONDITIONAL_MEASURE: 2, ADVISORY: 3}
 DEFAULT_MAX_SATISFIED_CLEARANCES = 3
 
+LAWN_EDGE = "lawn_edge"
+LINE_ELEMENT_KINDS = frozenset({ROW, HEDGE})
+
 
 def _worst_per_rule_and_obstacle_kind(clearances: list[Clearance]) -> list[Clearance]:
     worst: dict[tuple[str, str], Clearance] = {}
@@ -32,6 +37,10 @@ def _worst_per_rule_and_obstacle_kind(clearances: list[Clearance]) -> list[Clear
         if key not in worst or clearance.margin_m < worst[key].margin_m:
             worst[key] = clearance
     return list(worst.values())
+
+
+def line_edge_of(kind: str) -> str:
+    return LAWN_EDGE if kind in LINE_ELEMENT_KINDS else ""
 
 
 def barrier_planner_of(repository: NormsRepository) -> RootBarrierPlanner | None:
@@ -82,13 +91,20 @@ class ExplanationBuilder:
     def terms(self) -> ExplanationTerms:
         return self._terms
 
-    def for_assignment(self, assignment: SpeciesAssignment) -> PlantExplanation:
-        return self._explanation(assignment.decision, self._species_view(assignment))
+    def for_assignment(
+        self, assignment: SpeciesAssignment, element: CompositionElement | None = None
+    ) -> PlantExplanation:
+        return self._explanation(assignment.decision, self._species_view(assignment), element)
 
     def for_decision(self, decision: PlantingDecision) -> PlantExplanation:
         return self._explanation(decision, None)
 
-    def _explanation(self, decision: PlantingDecision, species: SpeciesView | None) -> PlantExplanation:
+    def _explanation(
+        self,
+        decision: PlantingDecision,
+        species: SpeciesView | None,
+        element: CompositionElement | None = None,
+    ) -> PlantExplanation:
         candidate = decision.candidate
         barriers = self._barrier_planner.barriers(decision) if self._barrier_planner else ()
         draft = PlantExplanation(
@@ -104,8 +120,23 @@ class ExplanationBuilder:
             explanation_ru="",
             root_barriers=tuple(barrier_coordinates(barrier) for barrier in barriers),
             root_barrier_length_m=structure_value(total_length_m(barriers)),
+            element=self._element_view(element),
         )
         return replace(draft, explanation_ru=self._renderer.render(draft))
+
+    def _element_view(self, element: CompositionElement | None) -> ElementView | None:
+        if element is None:
+            return None
+        terms = self._terms.element(element.kind)
+        return ElementView(
+            element_id=element.element_id,
+            kind=element.kind,
+            name_ru=terms.name_ru,
+            size=element.size,
+            spacing_m=structure_value(element.spacing_m),
+            edge_ru=self._terms.element_edge(element.edge_kind or line_edge_of(element.kind)),
+            purpose_ru=terms.purpose_ru,
+        )
 
     def _clearance_views(self, decision: PlantingDecision) -> tuple[ClearanceView, ...]:
         violated = sorted(
