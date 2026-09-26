@@ -127,6 +127,11 @@ public sealed class JobSummaryView(IReadOnlyDictionary<string, JsonElement> summ
             ? value.GetBoolean()
             : null;
 
+    public IReadOnlyList<string> Journal() =>
+        summary.TryGetValue("journal", out var value) && value.ValueKind == JsonValueKind.Array
+            ? value.EnumerateArray().Select(item => item.GetString() ?? string.Empty).Where(text => text.Length > 0).ToList()
+            : [];
+
     public IReadOnlyList<string> Warnings() =>
         summary.TryGetValue("warnings", out var value) && value.ValueKind == JsonValueKind.Array
             ? value.EnumerateArray().Select(item => item.GetString() ?? string.Empty).Where(text => text.Length > 0).ToList()

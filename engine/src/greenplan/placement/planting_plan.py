@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-from greenplan.constraints.candidate_evaluator import CandidateEvaluatorFactory
+from greenplan.constraints.candidate_evaluator import CandidateEvaluator, CandidateEvaluatorFactory
 from greenplan.constraints.clearance_meter import ClearanceMeter
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.requirement_resolver import RequirementResolver
@@ -15,10 +15,17 @@ from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.placement.composition_planner import CompositionPlanner
+from greenplan.placement.design_coordinator import (
+    CoordinationResult,
+    DesignCoordinator,
+    DesignResolution,
+    TargetContext,
+)
+from greenplan.placement.design_review import DesignReviewer, PlanSnapshot
 from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.placement_settings import PlacementSettings
-from greenplan.placement.plant_placement_planner import PlantPlacementPlanner
+from greenplan.placement.plant_placement_planner import PlacementOutcome, PlantPlacementPlanner
 from greenplan.placement.planting_limits import PlantingLimits, PlantingLimitsResolver, SpacingBounds
 from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
@@ -45,6 +52,7 @@ class PlantingPlan:
     expected_trees: int | None = None
     expected_shrubs: int | None = None
     elements: tuple[CompositionElement, ...] = ()
+    journal: tuple[DesignResolution, ...] = ()
 
 
 class PlantingPlanComposer:
@@ -58,6 +66,7 @@ class PlantingPlanComposer:
         tree_score_map: ScoreMapProvider,
         shrub_score_map: ScoreMapProvider,
         spacing: SpacingBounds | None = None,
+        coordinator: DesignCoordinator | None = None,
     ) -> None:
         self._planner = planner
         self._limits_resolver = limits_resolver
@@ -67,6 +76,7 @@ class PlantingPlanComposer:
         self._tree_score_map = tree_score_map
         self._shrub_score_map = shrub_score_map
         self._spacing = spacing
+        self._coordinator = coordinator
 
     @classmethod
     def from_knowledge(
@@ -95,6 +105,10 @@ class PlantingPlanComposer:
                 placement.composition_edge_kinds,
                 placement.composition.edge_simplify_m,
                 placement.composition.edge_reach_m,
+                placement.composition.reserve_share if placement.coordinator.enabled else 0.0,
+            ),
+            coordinator=DesignCoordinator(
+                DesignReviewer(placement.review), placement.composition, placement.coordinator
             ),
             limits_resolver=PlantingLimitsResolver(repository, placement),
             rejection_sampler=RejectionSampler(
@@ -117,11 +131,13 @@ class PlantingPlanComposer:
         tree_profile = self._tree_profile(limits)
         trees = self._planner.plan(site, tree_profile, evaluator, ())
         tree_positions = [decision.candidate.position for decision in trees.decisions]
-        shrubs = self._planner.plan(site, self._shrub_profile(limits), evaluator, tree_positions)
+        shrub_profile = self._shrub_profile(limits)
+        shrubs = self._planner.plan(site, shrub_profile, evaluator, tree_positions)
+        added = self._improve(site, evaluator, (tree_profile, trees), (shrub_profile, shrubs))
         rejections = self._rejection_sampler.sample(trees.raster, evaluator, tree_profile)
         return PlantingPlan(
-            trees=numbered(trees.decisions, TREE_IDENTIFIER_PREFIX),
-            shrubs=numbered(shrubs.decisions, SHRUB_IDENTIFIER_PREFIX),
+            trees=numbered((*trees.decisions, *added.trees), TREE_IDENTIFIER_PREFIX),
+            shrubs=numbered((*shrubs.decisions, *added.shrubs), SHRUB_IDENTIFIER_PREFIX),
             rejections=numbered(rejections, REJECTION_IDENTIFIER_PREFIX),
             limits=limits,
             tree_raster=trees.raster,
@@ -130,8 +146,37 @@ class PlantingPlanComposer:
             guidance_source=trees.guidance_source,
             expected_trees=trees.expected_count,
             expected_shrubs=shrubs.expected_count,
-            elements=trees.elements + shrubs.elements,
+            elements=(*trees.elements, *shrubs.elements, *added.elements),
+            journal=added.journal,
         )
+
+    def _improve(
+        self,
+        site: SiteModel,
+        evaluator: CandidateEvaluator,
+        tree: tuple[PlantingProfile, PlacementOutcome],
+        shrub: tuple[PlantingProfile, PlacementOutcome],
+    ) -> CoordinationResult:
+        tree_profile, trees = tree
+        shrub_profile, shrubs = shrub
+        coordinator = self._coordinator
+        if coordinator is None or not coordinator.enabled or trees.field is None or shrubs.field is None:
+            return CoordinationResult((), (), (), ())
+        snapshot = PlanSnapshot(trees.decisions, shrubs.decisions, (*trees.elements, *shrubs.elements))
+        return coordinator.improve(
+            site,
+            snapshot,
+            self._context(trees, evaluator, tree_profile),
+            self._context(shrubs, evaluator, shrub_profile),
+            self._settings.min_shrub_distance_to_planned_tree_m,
+        )
+
+    def _context(
+        self, outcome: PlacementOutcome, evaluator: CandidateEvaluator, profile: PlantingProfile
+    ) -> TargetContext:
+        remaining = (outcome.budget or 0) - len(outcome.decisions)
+        trial = self._planner.trial(evaluator, profile)
+        return TargetContext(outcome.field, trial, profile.spacing_m, max(0, remaining))
 
     def _tree_profile(self, limits: PlantingLimits) -> PlantingProfile:
         settings = self._settings

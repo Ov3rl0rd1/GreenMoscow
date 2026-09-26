@@ -54,6 +54,11 @@ class RunCommand:
         )
         parser.add_argument("--model", type=Path, help="ONNX-модель подсказок размещения посадок")
         parser.add_argument("--no-ml", action="store_true", help="игнорировать модель и считать по правилам")
+        parser.add_argument(
+            "--exceed-density",
+            action="store_true",
+            help="разрешить модели превышать рекомендательный норматив плотности ТСН 30-307",
+        )
         parser.set_defaults(command=self)
 
     def execute(self, arguments: argparse.Namespace) -> int:
@@ -135,6 +140,11 @@ class BatchCommand:
         parser.add_argument("--territory", help="категория территории для всех объектов")
         parser.add_argument("--model", type=Path, help="ONNX-модель подсказок")
         parser.add_argument("--no-ml", action="store_true", help="считать только по правилам")
+        parser.add_argument(
+            "--exceed-density",
+            action="store_true",
+            help="разрешить модели превышать рекомендательный норматив плотности ТСН 30-307",
+        )
         parser.add_argument("--config", type=Path, help="YAML с переопределением настроек")
         parser.add_argument("--knowledge", type=Path, help="каталог knowledge/")
         parser.add_argument("--cache", type=Path, help="кеш сконвертированных DXF")
@@ -219,7 +229,7 @@ def print_batch_outcome(item: BatchOutcome) -> None:
 
 
 def add_environment_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.set_defaults(model=None, no_ml=False, territory=None)
+    parser.set_defaults(model=None, no_ml=False, territory=None, exceed_density=False)
     parser.add_argument(
         "--input",
         required=True,
@@ -246,7 +256,10 @@ def select_inputs(arguments: argparse.Namespace) -> DrawingInputs:
 
 def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
     knowledge_root = locate_knowledge_root(arguments.knowledge)
-    config = with_territory(RunConfigLoader().load(arguments.config), arguments.territory)
+    config = with_density(
+        with_territory(RunConfigLoader().load(arguments.config), arguments.territory),
+        arguments.exceed_density,
+    )
     components = PipelineComponents.assemble(
         knowledge_root,
         config,
@@ -255,6 +268,12 @@ def build_pipeline(arguments: argparse.Namespace) -> PlanningPipeline:
         placement_guidance(arguments, knowledge_root),
     )
     return PlanningPipeline(components, config)
+
+
+def with_density(config: RunConfig, exceed: bool) -> RunConfig:
+    if not exceed:
+        return config
+    return replace(config, placement=replace(config.placement, respect_density_cap=False))
 
 
 def with_territory(config: RunConfig, category: str | None) -> RunConfig:

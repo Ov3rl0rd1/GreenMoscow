@@ -29,6 +29,15 @@ def linear_parts(geometry: BaseGeometry | None) -> list[LineString]:
     return []
 
 
+def outline_lines(geometry: BaseGeometry | None) -> list[LineString]:
+    rings = [
+        LineString(ring.coords)
+        for polygon in polygonal_parts(geometry)
+        for ring in (polygon.exterior, *polygon.interiors)
+    ]
+    return [*linear_parts(geometry), *rings]
+
+
 def polygon_from_closed_line(
     line: LineString, tolerance_m: float = RING_CLOSURE_TOLERANCE_M
 ) -> Polygon | None:

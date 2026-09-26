@@ -158,11 +158,18 @@ def _summary_lines(report: PlantingReport) -> list[str]:
         f"- Версия движка: {report.engine_version}",
         "",
         *_warning_lines(summary.warnings),
+        *_journal_lines(summary.journal),
         *_metric_lines(report.metrics),
         *_volume_lines(report.volumes),
         *_cost_lines(report.cost),
         *_excluded_lines(summary.excluded_species),
     ]
+
+
+def _journal_lines(journal: Sequence[str]) -> list[str]:
+    if not journal:
+        return []
+    return ["## Доработка плана агентами", "", *(f"- {_capital(text)}" for text in journal), ""]
 
 
 def _warning_lines(warnings: Sequence[str]) -> list[str]:

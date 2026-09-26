@@ -77,12 +77,23 @@ class ComposedPlanting:
     elements: tuple[CompositionElement, ...]
 
 
-class _Layout:
-    def __init__(self, field: CompositionField, trial: Trial, target: str, bucket_m: float) -> None:
+class PlantLayout:
+    def __init__(
+        self,
+        field: CompositionField,
+        trial: Trial,
+        target: str,
+        bucket_m: float,
+        id_prefix: str = "",
+        placed: Sequence[Point] = (),
+    ) -> None:
         self._field = field
         self._trial = trial
         self._target = target
+        self._id_prefix = id_prefix
         self._placed = SpatialHash(bucket_m)
+        for point in placed:
+            self._placed.add(point.x, point.y)
         self._strict = True
         self.decisions: list[PlantingDecision] = []
         self.elements: list[CompositionElement] = []
@@ -99,11 +110,17 @@ class _Layout:
         return not self._placed.has_point_closer_than(point.x, point.y, distance_m)
 
     def attempt(
-        self, points: Sequence[Point], spacing_m: float, open_cells: bool = False
+        self,
+        points: Sequence[Point],
+        spacing_m: float,
+        open_cells: bool = False,
+        within: Callable[[Point], bool] | None = None,
     ) -> list[PlantingDecision]:
         accepted: list[PlantingDecision] = []
         usable = self._field.is_open if open_cells else self._field.is_eligible
         for point in points:
+            if within is not None and not within(point):
+                continue
             if not usable(point) or not self.fits(point, spacing_m):
                 continue
             if any(point.distance(other.candidate.position) < spacing_m for other in accepted):
@@ -115,17 +132,17 @@ class _Layout:
 
     def commit(
         self, decisions: Sequence[PlantingDecision], kind: str, spacing_m: float, edge_kind: str = ""
-    ) -> None:
-        element_id = f"{self._target}-{kind}-{len(self.elements) + 1:03d}"
+    ) -> CompositionElement:
+        element_id = f"{self._target}-{kind}-{self._id_prefix}{len(self.elements) + 1:03d}"
         for decision in decisions:
             position = decision.candidate.position
             self._placed.add(position.x, position.y)
             self.decisions.append(
                 replace(decision, candidate=replace(decision.candidate, element_id=element_id))
             )
-        self.elements.append(
-            CompositionElement(element_id, kind, self._target, len(decisions), spacing_m, edge_kind)
-        )
+        element = CompositionElement(element_id, kind, self._target, len(decisions), spacing_m, edge_kind)
+        self.elements.append(element)
+        return element
 
     def result(self) -> ComposedPlanting:
         return ComposedPlanting(tuple(self.decisions), tuple(self.elements))
@@ -140,7 +157,7 @@ class CompositionPlanner:
     ) -> ComposedPlanting:
         settings = self._settings
         row_spacing = max(spacing_m, settings.tree_row_spacing_m)
-        layout = _Layout(
+        layout = PlantLayout(
             field, trial, target, max(settings.solitary_gap_m, settings.tree_group_gap_m, row_spacing)
         )
         self._lines(
@@ -167,7 +184,7 @@ class CompositionPlanner:
         self, field: CompositionField, trial: Trial, target: str, spacing_m: float, budget: int
     ) -> ComposedPlanting:
         settings = self._settings
-        layout = _Layout(field, trial, target, max(settings.shrub_group_gap_m, spacing_m))
+        layout = PlantLayout(field, trial, target, max(settings.shrub_group_gap_m, spacing_m))
         self._lines(
             layout,
             field,
@@ -186,7 +203,7 @@ class CompositionPlanner:
 
     def _lines(
         self,
-        layout: _Layout,
+        layout: PlantLayout,
         field: CompositionField,
         offsets_m: Sequence[float],
         line_spacing_m: float,
@@ -209,7 +226,9 @@ class CompositionPlanner:
                     middle = segment[len(segment) // 2].candidate.position
                     layout.commit(segment, kind, step, run.kind or field.edge_kind_at(middle))
 
-    def _tree_groups(self, layout: _Layout, field: CompositionField, spacing_m: float, budget: int) -> None:
+    def _tree_groups(
+        self, layout: PlantLayout, field: CompositionField, spacing_m: float, budget: int
+    ) -> None:
         settings = self._settings
         for seed in field.seeds(budget * settings.seed_pool_factor):
             if layout.count >= budget:
@@ -223,7 +242,7 @@ class CompositionPlanner:
                     break
 
     def _best_rotation(
-        self, layout: _Layout, seed: Point, size: int, spacing_m: float
+        self, layout: PlantLayout, seed: Point, size: int, spacing_m: float
     ) -> list[PlantingDecision]:
         rotations = self._settings.tree_group_rotations
         best: list[PlantingDecision] = []
@@ -240,7 +259,7 @@ class CompositionPlanner:
 
     def _solitaires(
         self,
-        layout: _Layout,
+        layout: PlantLayout,
         field: CompositionField,
         spacing_m: float,
         budget: int,
@@ -257,7 +276,9 @@ class CompositionPlanner:
             if accepted:
                 layout.commit(accepted, SOLITARY, spacing_m)
 
-    def _shrub_groups(self, layout: _Layout, field: CompositionField, spacing_m: float, budget: int) -> None:
+    def _shrub_groups(
+        self, layout: PlantLayout, field: CompositionField, spacing_m: float, budget: int
+    ) -> None:
         settings = self._settings
         for seed in field.seeds(budget * settings.seed_pool_factor):
             if layout.count >= budget:

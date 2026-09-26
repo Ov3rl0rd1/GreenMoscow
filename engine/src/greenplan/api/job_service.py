@@ -225,6 +225,7 @@ def job_summary(result: PipelineResult) -> dict[str, Any]:
         "expected_trees": summary.expected_trees,
         "expected_shrubs": summary.expected_shrubs,
         "benefits": benefit_summary(result),
+        "journal": list(summary.journal),
         "timings_s": result.timings_s,
         "peak_memory_mb": result.peak_memory_mb,
     }

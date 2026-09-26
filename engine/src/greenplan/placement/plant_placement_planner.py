@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
+from math import floor
 
 import numpy as np
 from shapely.geometry import Point
@@ -10,8 +11,13 @@ from greenplan.domain.composition import CompositionElement
 from greenplan.domain.decisions import ACCEPTED, CONDITIONALLY_ACCEPTED, PlantCandidate, PlantingDecision
 from greenplan.domain.norms import TREE
 from greenplan.domain.site import SiteModel
-from greenplan.geometry.shapes import linear_parts
-from greenplan.placement.composition_planner import ComposedPlanting, CompositionField, CompositionPlanner
+from greenplan.geometry.shapes import outline_lines
+from greenplan.placement.composition_planner import (
+    ComposedPlanting,
+    CompositionField,
+    CompositionPlanner,
+    Trial,
+)
 from greenplan.placement.composition_shapes import EdgeClassifier, lawn_edges
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.planting_profile import PlantingProfile
@@ -30,6 +36,8 @@ class PlacementOutcome:
     guidance_source: str = RULES_GUIDANCE
     expected_count: int | None = None
     elements: tuple[CompositionElement, ...] = ()
+    field: CompositionField | None = None
+    budget: int | None = None
 
 
 class PlannedPlantGuard:
@@ -82,6 +90,7 @@ class PlantPlacementPlanner:
         edge_kinds: Sequence[str] = (),
         edge_simplify_m: float = 0.5,
         edge_reach_m: float = 8.0,
+        reserve_share: float = 0.0,
     ) -> None:
         self._zone_builder = zone_builder
         self._rasterizer = rasterizer
@@ -90,6 +99,7 @@ class PlantPlacementPlanner:
         self._edge_kinds = tuple(edge_kinds)
         self._edge_simplify_m = edge_simplify_m
         self._edge_reach_m = edge_reach_m
+        self._reserve_share = reserve_share
 
     def plan(
         self,
@@ -117,20 +127,30 @@ class PlantPlacementPlanner:
                 self._edge_classifier(site).kind_near,
                 raster.allowed & ~raster.conditional,
             )
-            composed = self._compose(field, admission, profile, count)
-            decisions, elements = composed.decisions, composed.elements
-        else:
-            self._select(raster, guidance, eligible, profile, count, admission)
-            decisions, elements = tuple(admission.decisions), ()
+            composed = self._compose(field, admission, profile, floor(count * (1.0 - self._reserve_share)))
+            return PlacementOutcome(
+                composed.decisions,
+                raster,
+                guidance.score,
+                zones,
+                guidance.source,
+                guidance.expected_count,
+                composed.elements,
+                field,
+                count,
+            )
+        self._select(raster, guidance, eligible, profile, count, admission)
         return PlacementOutcome(
-            decisions,
+            tuple(admission.decisions),
             raster,
             guidance.score,
             zones,
             guidance.source,
             guidance.expected_count,
-            elements,
         )
+
+    def trial(self, evaluator: CandidateEvaluator, profile: PlantingProfile) -> Trial:
+        return _Admission(evaluator, profile, PlannedPlantGuard((), 0.0)).trial
 
     def _compose(
         self, field: CompositionField, admission: "_Admission", profile: PlantingProfile, count: int
@@ -157,7 +177,7 @@ class PlantPlacementPlanner:
 
     def _edge_classifier(self, site: SiteModel) -> EdgeClassifier:
         lines = {
-            kind: [line for obstacle in site.obstacles_of(kind) for line in linear_parts(obstacle.geometry)]
+            kind: [line for obstacle in site.obstacles_of(kind) for line in outline_lines(obstacle.geometry)]
             for kind in self._edge_kinds
         }
         return EdgeClassifier(lines, self._edge_reach_m)

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True, slots=True)
 class CompositionSettings:
     enabled: bool = True
+    reserve_share: float = 0.25
     tree_row_offsets_m: tuple[float, ...] = (1.5, 2.5, 3.5, 5.0)
     tree_row_spacing_m: float = 6.0
     tree_row_min_size: int = 3

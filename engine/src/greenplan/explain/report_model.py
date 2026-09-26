@@ -52,6 +52,7 @@ class ReportSummary:
     guidance_source: str = "rules"
     expected_trees: int | None = None
     expected_shrubs: int | None = None
+    journal: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

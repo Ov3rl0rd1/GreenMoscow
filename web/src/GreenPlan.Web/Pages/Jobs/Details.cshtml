@@ -84,6 +84,21 @@
             </tbody>
         </table>
 
+        @if (summary.Journal().Count > 0)
+        {
+            <h3>Доработка плана агентами</h3>
+            <p class="lead">Дизайнер ставит основу, аналитик улицы и критик композиции находят проблемы, координатор закрывает их посадками; каждое решение проверено нормами.</p>
+            <details class="journal">
+                <summary>Закрыто проблем: @summary.Journal().Count</summary>
+                <ul>
+                    @foreach (var item in summary.Journal())
+                    {
+                        <li>@item</li>
+                    }
+                </ul>
+            </details>
+        }
+
         @if (summary.Warnings().Count > 0)
         {
             <h3>На что обратить внимание</h3>

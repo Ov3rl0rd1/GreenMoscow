@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 
 from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE, SIDEWALK_EDGE
 from greenplan.placement.composition_settings import CompositionSettings
+from greenplan.placement.design_coordinator import CoordinatorSettings
+from greenplan.placement.design_review import ReviewSettings
 from greenplan.placement.score_maps import RuleScoreWeights
 
 
@@ -52,4 +54,6 @@ class PlacementSettings:
     max_rejections: int = 400
     rejection_seed: int = 0
     composition: CompositionSettings = field(default_factory=CompositionSettings)
+    coordinator: CoordinatorSettings = field(default_factory=CoordinatorSettings)
+    review: ReviewSettings = field(default_factory=ReviewSettings)
     composition_edge_kinds: tuple[str, ...] = (CARRIAGEWAY_EDGE, SIDEWALK_EDGE)

@@ -190,6 +190,10 @@ def _summary(
         guidance_source=plan.guidance_source,
         expected_trees=plan.expected_trees,
         expected_shrubs=plan.expected_shrubs,
+        journal=tuple(
+            terms.design_resolution(item.problem, item.measure, item.element_kind, item.planted)
+            for item in plan.journal
+        ),
     )
 
 

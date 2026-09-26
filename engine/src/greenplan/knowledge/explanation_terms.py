@@ -75,6 +75,16 @@ class ExplanationTerms:
         entry = (self._section("composition").get("elements") or {}).get(kind, {})
         return ElementTerms(entry.get("name", kind), " ".join(str(entry.get("purpose", "")).split()))
 
+    def design_agents_note(self) -> str:
+        return " ".join(str(self._section("design_agents").get("note", "")).split())
+
+    def design_resolution(self, problem: str, measure: float, element_kind: str, planted: int) -> str:
+        entry = (self._section("design_agents").get("problems") or {}).get(problem, {})
+        name = entry.get("name", problem)
+        unit = entry.get("unit", "")
+        element = self.element(element_kind).name_ru
+        return f"{name} ({format_measure(measure)} {unit}): {element} — {planted} шт."
+
     def density_exceeded(self, parts: dict[str, tuple[int, int]]) -> str:
         section = self._section("density")
         details = [
@@ -88,6 +98,10 @@ class ExplanationTerms:
 
     def _section(self, name: str) -> Mapping[str, Any]:
         return self._content.get(name) or {}
+
+
+def format_measure(value: float) -> str:
+    return f"{value:,.0f}".replace(",", " ")
 
 
 def _referenced(entry: Mapping[str, Any] | None, fallback: str) -> ReferencedText:
