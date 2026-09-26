@@ -14,7 +14,9 @@ from greenplan_ml.plan_similarity import (
     matched_pairs,
     median_spacing,
     planned_positions,
+    row_share,
     similarity_markdown,
+    without_duplicates,
 )
 
 REFERENCE = np.array([[0.0, 0.0], [10.0, 0.0], [20.0, 0.0]])
@@ -62,3 +64,15 @@ def test_markdown_lists_every_run() -> None:
     text = similarity_markdown([row, replace(row, source="rules")])
     assert "| kharkovskaya | model | tree |" in text
     assert "| kharkovskaya | rules | tree |" in text
+
+
+def test_row_share_separates_rows_from_scattered_points() -> None:
+    row = np.array([[x, 0.0] for x in np.arange(0.0, 60.0, 6.0)])
+    scattered = np.array([[0.0, 0.0], [9.0, 7.0], [2.0, 15.0], [20.0, 3.0], [15.0, 20.0]])
+    assert row_share(row, 12.0, -0.94) >= 0.8
+    assert row_share(scattered, 12.0, -0.94) == 0.0
+
+
+def test_duplicate_blocks_collapse_into_one_planting() -> None:
+    doubled = np.array([[0.0, 0.0], [0.1, 0.0], [10.0, 0.0]])
+    assert len(without_duplicates(doubled, 0.6)) == 2

@@ -23,6 +23,9 @@ TARGETS = (TREE, SHRUB)
 class SimilaritySettings:
     tolerances_m: tuple[float, ...] = (3.0, 5.0)
     tree_group_link_m: float = 8.0
+    row_reach_m: float = 12.0
+    row_cosine: float = -0.94
+    duplicate_tolerance_m: float = 0.6
     shrub_group_link_m: float = 1.6
 
     def link_for(self, target: str) -> float:
@@ -43,6 +46,8 @@ class SimilarityMetrics:
     planned_spacing_m: float
     reference_grouped_share: float
     planned_grouped_share: float
+    reference_row_share: float = 0.0
+    planned_row_share: float = 0.0
 
 
 def planned_positions(report_path: Path, target: str) -> np.ndarray:
@@ -113,6 +118,34 @@ def median_spacing(points: np.ndarray) -> float:
     return round(float(np.median(distances[:, 1])), 2)
 
 
+def row_share(points: np.ndarray, reach_m: float, cosine: float) -> float:
+    if len(points) < 3:
+        return 0.0
+    index = cKDTree(points)
+    in_row = 0
+    for position, point in enumerate(points):
+        neighbours = [other for other in index.query_ball_point(point, reach_m) if other != position]
+        vectors = points[neighbours] - point
+        lengths = np.linalg.norm(vectors, axis=1)
+        directions = vectors[lengths > 0] / lengths[lengths > 0][:, None]
+        in_row += bool(len(directions) >= 2 and ((directions @ directions.T) < cosine).any())
+    return round(in_row / len(points), 3)
+
+
+def without_duplicates(points: np.ndarray, tolerance_m: float) -> np.ndarray:
+    if len(points) < 2:
+        return points
+    index = cKDTree(points)
+    taken = np.zeros(len(points), dtype=bool)
+    keep = []
+    for position in range(len(points)):
+        if taken[position]:
+            continue
+        taken[index.query_ball_point(points[position], tolerance_m)] = True
+        keep.append(position)
+    return points[keep]
+
+
 def grouped_share(points: np.ndarray, link_m: float) -> float:
     if len(points) < 3:
         return 0.0
@@ -123,6 +156,11 @@ def grouped_share(points: np.ndarray, link_m: float) -> float:
 class PlanSimilarity:
     def __init__(self, settings: SimilaritySettings | None = None) -> None:
         self._settings = settings or SimilaritySettings()
+
+    def _row_share(self, points: np.ndarray) -> float:
+        settings = self._settings
+        unique = without_duplicates(points, settings.duplicate_tolerance_m)
+        return row_share(unique, settings.row_reach_m, settings.row_cosine)
 
     def compare(self, stored: StoredObject, source: str, report_path: Path) -> list[SimilarityMetrics]:
         return [self._target_metrics(stored, source, report_path, target) for target in TARGETS]
@@ -151,6 +189,8 @@ class PlanSimilarity:
             planned_spacing_m=median_spacing(planned),
             reference_grouped_share=grouped_share(reference, link),
             planned_grouped_share=grouped_share(planned, link),
+            reference_row_share=self._row_share(reference),
+            planned_row_share=self._row_share(planned),
         )
 
 
@@ -185,15 +225,17 @@ def similarity_markdown(metrics: Sequence[SimilarityMetrics]) -> str:
         "",
         "| объект | прогон | цель | эталон | план | доля | "
         + " | ".join(f"F1 {tolerance} м" for tolerance in tolerances)
-        + " | расхождение, м | шаг эталона, м | шаг плана, м | в группах: эталон | в группах: план |",
-        "|---|---|---|---|---|---|" + "---|" * len(tolerances) + "---|---|---|---|---|",
+        + " | расхождение, м | шаг эталона, м | шаг плана, м | в группах: эталон | в группах: план"
+        + " | в рядах: эталон | в рядах: план |",
+        "|---|---|---|---|---|---|" + "---|" * len(tolerances) + "---|---|---|---|---|---|---|",
     ]
     rows = [
         f"| {item.object_id} | {item.source} | {item.target} | {item.reference} | {item.planned} | "
         f"{item.count_ratio:.2f} | "
         + " | ".join(f"{item.f1_by_tolerance[tolerance]:.3f}" for tolerance in tolerances)
         + f" | {item.chamfer_m:.1f} | {item.reference_spacing_m:.1f} | {item.planned_spacing_m:.1f} | "
-        f"{item.reference_grouped_share:.2f} | {item.planned_grouped_share:.2f} |"
+        f"{item.reference_grouped_share:.2f} | {item.planned_grouped_share:.2f} | "
+        f"{item.reference_row_share:.2f} | {item.planned_row_share:.2f} |"
         for item in metrics
     ]
     return "\n".join(header + rows) + "\n"
