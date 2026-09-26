@@ -77,6 +77,14 @@ def test_rules_only_guidance_is_kept_with_the_job(client: TestClient, drawing_by
     assert job["guidance"] == "rules"
     assert job["status"] == SUCCEEDED, job["error"]
     assert job["summary"]["guidance"] == "rules"
+    assert job["exceed_density"] is False
+
+
+def test_density_excess_choice_is_kept_with_the_job(client: TestClient, drawing_bytes: bytes) -> None:
+    created = submit(client, {"drawing": ("street.dxf", drawing_bytes)}, {"exceed_density": "true"})
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["exceed_density"] is True
+    assert job["status"] == SUCCEEDED, job["error"]
 
 
 def test_territory_categories_are_listed(client: TestClient) -> None:

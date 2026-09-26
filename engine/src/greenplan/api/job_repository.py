@@ -28,6 +28,7 @@ class JobRecord:
     overlay_files: list[str] = field(default_factory=list)
     territory: str = ""
     guidance: str = ""
+    exceed_density: bool = False
     stage: str = ""
     started_at: str = ""
     finished_at: str = ""

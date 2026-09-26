@@ -47,6 +47,17 @@
         @if (Model.ModelAvailable)
         {
             <label class="checkbox"><input asp-for="Form.UseModel" /> @Html.DisplayNameFor(model => model.Form.UseModel)</label>
+            <div class="option-with-help">
+                <label class="checkbox"><input asp-for="Form.ExceedDensity" /> @Html.DisplayNameFor(model => model.Form.ExceedDensity)</label>
+                <details class="help">
+                    <summary title="Что это даёт и чем грозит">?</summary>
+                    <div class="help-text">
+                        <p>Норматив плотности ТСН 30-307 (табл. В.1) рекомендательный: на 1 км улицы 150–180 деревьев и 600–720 кустарников. Проектировщики в решениях датасета часто сажают кустарник куртинами гуще норматива — на Харьковской улице около 8 тыс. кустов при нормативе 529.</p>
+                        <p><strong>Что даст:</strong> количество посадок задаёт модель по проектной практике, куртины и живые изгороди получаются крупнее и ближе к проектным решениям; норматив только сообщается в отчёте.</p>
+                        <p><strong>Последствия:</strong> план превышает рекомендательный норматив — превышение придётся обосновать при согласовании; растут стоимость посадки и ухода; обязательные нормы (отступы от сетей, зданий, охранные требования) проверяются как обычно и не нарушаются.</p>
+                    </div>
+                </details>
+            </div>
         }
         else
         {

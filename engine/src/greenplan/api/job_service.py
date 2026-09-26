@@ -62,6 +62,7 @@ class JobService:
         config_text: str | None,
         territory: str | None = None,
         guidance: str | None = None,
+        exceed_density: bool = False,
     ) -> JobRecord:
         if guidance and guidance not in GUIDANCE_CHOICES:
             raise InvalidUploadError(f"unknown guidance '{guidance}': expected model or rules")
@@ -88,6 +89,7 @@ class JobService:
             main_file=relative_name(stored.main, input_directory),
             territory=territory or "",
             guidance=guidance or MODEL_GUIDANCE_CHOICE,
+            exceed_density=exceed_density,
             overlay_files=[relative_name(path, input_directory) for path in stored.overlays],
         )
         self._repository.save(record)
@@ -163,6 +165,8 @@ class JobService:
         config = self._config_loader.load(config_path if config_path.is_file() else None)
         if record.territory:
             config = replace(config, territory=TerritorySettings(record.territory))
+        if record.exceed_density:
+            config = replace(config, placement=replace(config.placement, respect_density_cap=False))
         input_directory = directory / INPUT_DIRECTORY
         request = PipelineRequest(
             input_path=input_directory / record.main_file,

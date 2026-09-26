@@ -12,6 +12,7 @@ from greenplan_ml.cli.commands import (
     Command,
     EvaluateCommand,
     ExportCommand,
+    FiguresCommand,
     SimilarityCommand,
     TrainCommand,
 )
@@ -39,6 +40,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         EvaluateCommand(),
         AuditReferenceCommand(),
         SimilarityCommand(),
+        FiguresCommand(),
     )
     arguments = build_parser(commands).parse_args(argv)
     try:

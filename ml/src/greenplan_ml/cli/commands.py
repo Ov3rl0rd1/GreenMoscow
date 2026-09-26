@@ -10,6 +10,7 @@ from greenplan.pipeline.environment import locate_dwg2dxf, locate_knowledge_root
 from greenplan.placement.placement_settings import PlacementSettings
 from greenplan.placement.score_maps import RuleScoreMap
 from greenplan_ml.calibration import CalibrationSettings, ModelCalibrator
+from greenplan_ml.comparison_figure import ComparisonFigure, comparison_panels, figure_path
 from greenplan_ml.dataset_builder import DatasetBuilder
 from greenplan_ml.evaluation import EvaluationSettings, ModelEvaluator
 from greenplan_ml.inference import OnnxHeatmapModel
@@ -280,6 +281,32 @@ class SimilarityCommand:
                 f"{f1}, расхождение {item.chamfer_m:.1f} м"
             )
         print(f"Отчёт: {json_path}, {markdown_path}")
+        return EXIT_OK
+
+
+class FiguresCommand:
+    name = "figures"
+
+    def register(self, subparsers: argparse._SubParsersAction) -> None:
+        parser = subparsers.add_parser(self.name, help="нарисовать эталон рядом с планами движка")
+        parser.add_argument("--dataset", required=True, type=Path, help="каталог собранных примеров")
+        parser.add_argument("--runs", required=True, nargs="+", help="подпись=каталог прогона")
+        parser.add_argument("--output", required=True, type=Path, help="куда сложить картинки")
+        parser.add_argument("--objects", nargs="*", help="id объектов, по умолчанию все")
+        parser.set_defaults(command=self)
+
+    def execute(self, arguments: argparse.Namespace) -> int:
+        objects = stored_objects(arguments.dataset, arguments.objects)
+        if not objects:
+            print("нет собранных примеров")
+            return EXIT_ERROR
+        runs = [named_run(item) for item in arguments.runs]
+        figure = ComparisonFigure()
+        for stored in objects:
+            path = figure.render(
+                stored, comparison_panels(stored, runs), figure_path(arguments.output, stored.meta.object_id)
+            )
+            print(path)
         return EXIT_OK
 
 

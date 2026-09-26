@@ -105,7 +105,7 @@ class PlantPlacementPlanner:
             evaluator, profile, PlannedPlantGuard(planned_positions, profile.planned_plant_clearance_m)
         )
         eligible = eligible_cells(raster, guidance, profile.allow_conditional)
-        count = guided_count(profile.max_count, guidance.expected_count)
+        count = guided_count(profile.max_count, guidance.expected_count, profile.respects_density_cap)
         if self._composer is not None and profile.composed and count is not None:
             field = CompositionField(
                 raster.grid,
@@ -168,9 +168,9 @@ def eligible_cells(raster: SiteRaster, guidance: PlacementGuidance, allow_condit
     return eligible if guidance.candidates is None else eligible & guidance.candidates
 
 
-def guided_count(normative_max: int | None, expected: int | None) -> int | None:
+def guided_count(normative_max: int | None, expected: int | None, respect_cap: bool = True) -> int | None:
     if expected is None:
         return normative_max
-    if normative_max is None:
+    if normative_max is None or not respect_cap:
         return expected
     return min(normative_max, expected)

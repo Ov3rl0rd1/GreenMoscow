@@ -11,6 +11,7 @@ from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
 from greenplan.placement.composition_planner import CompositionField, CompositionPlanner, contiguous
 from greenplan.placement.composition_settings import CompositionSettings
 from greenplan.placement.composition_shapes import EdgeLine, evenly_spaced, group_shape, hexagonal_patch
+from greenplan.placement.plant_placement_planner import guided_count
 from greenplan.placement.raster import RasterGrid
 
 CELL = 0.5
@@ -108,3 +109,10 @@ def test_shrubs_become_hedges_along_the_edge_and_compact_groups() -> None:
 def test_segments_split_where_the_row_is_interrupted() -> None:
     decisions = [accept_all(TREE)(Point(x, 0.0)) for x in (0.0, 6.0, 12.0, 30.0, 36.0)]
     assert [len(segment) for segment in contiguous(decisions, 9.0)] == [3, 2]
+
+
+def test_density_cap_limits_the_model_unless_the_user_allows_exceeding_it() -> None:
+    assert guided_count(529, 2766) == 529
+    assert guided_count(529, 2766, respect_cap=False) == 2766
+    assert guided_count(529, None, respect_cap=False) == 529
+    assert guided_count(None, 40) == 40

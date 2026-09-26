@@ -145,6 +145,7 @@ class PlantingPlanComposer:
             allow_conditional=settings.allow_conditional,
             planned_plant_clearance_m=0.0,
             composed=settings.composition.enabled,
+            respects_density_cap=settings.respect_density_cap,
         )
 
     def _shrub_profile(self, limits: PlantingLimits) -> PlantingProfile:
@@ -159,6 +160,7 @@ class PlantingPlanComposer:
             allow_conditional=settings.allow_conditional,
             planned_plant_clearance_m=settings.min_shrub_distance_to_planned_tree_m,
             composed=settings.composition.enabled,
+            respects_density_cap=settings.respect_density_cap,
         )
 
 

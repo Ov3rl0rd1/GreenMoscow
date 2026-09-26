@@ -109,6 +109,11 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
             content.Add(new StringContent(submission.Guidance), "guidance");
         }
 
+        if (submission.ExceedDensity)
+        {
+            content.Add(new StringContent("true"), "exceed_density");
+        }
+
         if (!string.IsNullOrWhiteSpace(submission.MainFile))
         {
             content.Add(new StringContent(submission.MainFile), "main_file");

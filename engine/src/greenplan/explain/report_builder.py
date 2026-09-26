@@ -143,6 +143,17 @@ def _reason_description(code: str, rejections: Sequence[PlantExplanation], terms
     return terms.site_violation(code).text_ru
 
 
+def density_warnings(
+    plan: PlantingPlan, plants: Sequence[PlantExplanation], terms: ExplanationTerms
+) -> tuple[str, ...]:
+    counts = {
+        "trees": (sum(1 for plant in plants if plant.plant_type == TREE), plan.limits.max_trees),
+        "shrubs": (sum(1 for plant in plants if plant.plant_type == SHRUB), plan.limits.max_shrubs),
+    }
+    exceeded = {target: pair for target, pair in counts.items() if pair[0] > pair[1]}
+    return (terms.density_exceeded(exceeded),) if exceeded else ()
+
+
 def _summary(
     site: SiteModel,
     plan: PlantingPlan,
@@ -170,7 +181,10 @@ def _summary(
         annotated_network_share=structure_value(diagnostics.annotated_network_share),
         unresolved_references=diagnostics.unresolved_references,
         root_barrier_length_m=structure_value(sum(plant.root_barrier_length_m for plant in plants)),
-        warnings=tuple(terms.site_warning(code) for code in diagnostics.warnings),
+        warnings=(
+            *density_warnings(plan, plants, terms),
+            *(terms.site_warning(code) for code in diagnostics.warnings),
+        ),
         territory_ru=species.territory_note.reason_ru if species.territory_note else "",
         excluded_species=tuple(f"{item.name_ru} — {item.reason_ru}" for item in species.excluded),
         guidance_source=plan.guidance_source,

@@ -82,6 +82,39 @@ public sealed class PagesTests
     }
 
     [Fact]
+    public async Task DensityExcessIsOfferedWithAnExplanationAndSentWhenChosen()
+    {
+        using var factory = new GreenPlanWebFactory();
+        factory.Engine.Health = new("ok", "0.1.0", true, ModelAvailable: true);
+        using var client = factory.CreateNonRedirectingClient();
+
+        var page = await client.GetStringAsync("/");
+        var token = await AntiforgeryTokenAsync(client);
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        content.Add(new StringContent("true", Encoding.UTF8), "Form.ExceedDensity");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Contains("Разрешить превышать рекомендательный норматив плотности", page);
+        Assert.Contains("Последствия:", page);
+        Assert.True(factory.Engine.LastSubmission?.ExceedDensity);
+    }
+
+    [Fact]
+    public async Task DensityExcessIsNotSentWithoutTheModel()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        content.Add(new StringContent("false", Encoding.UTF8), "Form.UseModel");
+        content.Add(new StringContent("true", Encoding.UTF8), "Form.ExceedDensity");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.False(factory.Engine.LastSubmission?.ExceedDensity);
+    }
+
+    [Fact]
     public async Task UploadAsksForTheModelByDefault()
     {
         using var factory = new GreenPlanWebFactory();

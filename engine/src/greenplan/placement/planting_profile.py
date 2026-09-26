@@ -14,3 +14,4 @@ class PlantingProfile:
     allow_conditional: bool
     planned_plant_clearance_m: float
     composed: bool = False
+    respects_density_cap: bool = True

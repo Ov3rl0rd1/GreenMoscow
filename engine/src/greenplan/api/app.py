@@ -84,11 +84,17 @@ def create_app(
             str | None,
             Form(description="model — места и количество по модели (по умолчанию), rules — по правилам"),
         ] = None,
+        exceed_density: Annotated[
+            bool,
+            Form(description="разрешить модели превышать рекомендательный норматив плотности ТСН 30-307"),
+        ] = False,
     ) -> JobResponse:
         uploads = [UploadedFile(upload_file_name(item.filename or ""), await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
-            record = service.create(uploads, title, main_file, config_text, territory, guidance)
+            record = service.create(
+                uploads, title, main_file, config_text, territory, guidance, exceed_density
+            )
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
         background_tasks.add_task(runner.run, record.job_id)

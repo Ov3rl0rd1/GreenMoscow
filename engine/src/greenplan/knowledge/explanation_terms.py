@@ -75,6 +75,14 @@ class ExplanationTerms:
         entry = (self._section("composition").get("elements") or {}).get(kind, {})
         return ElementTerms(entry.get("name", kind), " ".join(str(entry.get("purpose", "")).split()))
 
+    def density_exceeded(self, parts: dict[str, tuple[int, int]]) -> str:
+        section = self._section("density")
+        details = [
+            str(section.get(target, "{count} / {limit}")).format(count=count, limit=limit)
+            for target, (count, limit) in parts.items()
+        ]
+        return " ".join(str(section.get("exceeded", "{detail}")).split()).format(detail="; ".join(details))
+
     def element_edge(self, edge_kind: str) -> str:
         return (self._section("composition").get("edges") or {}).get(edge_kind, "")
 

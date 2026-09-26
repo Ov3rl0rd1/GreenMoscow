@@ -54,7 +54,8 @@ public sealed class IndexModel(IEngineClient engine) : PageModel
         {
             var configYaml = await ReadTextAsync(Form.Config, cancellationToken);
             var guidance = Form.UseModel ? GuidanceChoices.Model : GuidanceChoices.Rules;
-            var submission = new JobSubmission(uploads, Form.Title, Form.MainFile, configYaml, Form.Territory, guidance);
+            var submission = new JobSubmission(
+                uploads, Form.Title, Form.MainFile, configYaml, Form.Territory, guidance, Form.UseModel && Form.ExceedDensity);
             return await engine.CreateJobAsync(submission, cancellationToken);
         }
         finally

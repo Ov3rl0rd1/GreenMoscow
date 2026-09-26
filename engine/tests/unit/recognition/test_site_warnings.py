@@ -51,3 +51,10 @@ def test_every_warning_has_a_russian_text(knowledge_root: Path) -> None:
         text = terms.site_warning(code)
         assert text != code
         assert any("а" <= letter <= "я" for letter in text.lower())
+
+
+def test_density_excess_is_reported_with_counts(knowledge_root: Path) -> None:
+    terms = ExplanationTerms.from_file(knowledge_root / "rules" / "explanation_terms.yaml")
+    text = terms.density_exceeded({"shrubs": (2766, 529)})
+    assert "кустарников 2766 при нормативе 529" in text
+    assert "рекомендательный норматив плотности" in text

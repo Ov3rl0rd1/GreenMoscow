@@ -11,7 +11,8 @@ public sealed record SubmittedJob(
     string? MainFile,
     string? ConfigYaml,
     IReadOnlyList<string> Contents,
-    string? Guidance = null)
+    string? Guidance = null,
+    bool ExceedDensity = false)
 {
     public string FileName => FileNames[0];
 
@@ -40,7 +41,8 @@ public sealed class FakeEngineClient : IEngineClient
             submission.MainFile,
             submission.ConfigYaml,
             submission.Drawings.Select(drawing => ReadAll(drawing.Content)).ToList(),
-            submission.Guidance);
+            submission.Guidance,
+            submission.ExceedDensity);
         if (CreateFailure is not null)
         {
             return Task.FromException<JobDto>(CreateFailure);

@@ -18,6 +18,7 @@ class JobResponse(BaseModel):
     overlay_files: list[str] = []
     territory: str = ""
     guidance: str = ""
+    exceed_density: bool = False
     stage: str = ""
     started_at: str = ""
     finished_at: str = ""
