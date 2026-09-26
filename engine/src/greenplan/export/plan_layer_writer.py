@@ -147,6 +147,8 @@ class PlanLayerWriter:
         )
         tags: list[tuple[int, str | float]] = [(XDATA_STRING_CODE, self._fitted(text)) for text in strings]
         tags.append((XDATA_REAL_CODE, explanation.crown_diameter_m))
+        element_id = explanation.element.element_id if explanation.element else ""
+        tags.append((XDATA_STRING_CODE, self._fitted(element_id)))
         return tags
 
     def _fitted(self, text: str) -> str:
