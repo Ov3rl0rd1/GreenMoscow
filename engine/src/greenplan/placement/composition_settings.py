@@ -18,7 +18,7 @@ class CompositionSettings:
     hedge_offsets_m: tuple[float, ...] = (0.8, 1.2)
     hedge_min_size: int = 6
     hedge_budget_share: float = 0.5
-    shrub_group_rings: tuple[int, ...] = (2, 1)
+    shrub_group_rings: tuple[int, ...] = (3, 2, 1)
     shrub_group_small_sizes: tuple[int, ...] = (5, 3)
     shrub_group_gap_m: float = 3.0
     shrub_group_min_filled_share: float = 0.6
