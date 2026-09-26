@@ -8,6 +8,7 @@ from greenplan.domain.decisions import NO_SUITABLE_SPECIES, REJECTED, PlantCandi
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
 from greenplan.domain.site import Obstacle, SiteModel
+from greenplan.knowledge.composition_roles import CompositionRoles, SpeciesRole
 from greenplan.knowledge.invasive_registry import CONDITIONAL, InvasiveRegistry
 from greenplan.knowledge.plant_catalog import NOT_STREET_SUITABLE, PlantCatalog, SelectionRule
 from greenplan.species.site_context import (
@@ -218,3 +219,24 @@ def test_palette_limit_reuses_species_already_on_the_site(
     shrubs = [in_element(planned(toolkit, site, SHRUB, x, 0.0), f"group-{x}") for x in range(0, 60, 10)]
     limited = assign(toolkit, registry, site, plant_catalog, shrubs, SpeciesSettings(shrub_palette_size=2))
     assert len({item.species.key for item in limited.assignments}) == 2
+
+
+def test_hedge_element_prefers_a_species_suited_for_hedges(
+    toolkit: NormsToolkit, registry: InvasiveRegistry
+) -> None:
+    site = open_site(())
+    plant_catalog = catalog(
+        species("spiraea", "shrub", 1.2, 1.5, usage=100), species("cotoneaster", "shrub", 1.2, 1.5, usage=10)
+    )
+    roles = CompositionRoles({"hedge": SpeciesRole(frozenset({"cotoneaster"}), "хорошо формуется")})
+    selector = SpeciesSelector(
+        SpeciesSuitability(plant_catalog, registry, DEFAULT_SETTINGS),
+        toolkit.evaluator(site),
+        SiteContextDetector(site, DEFAULT_SETTINGS),
+        DEFAULT_SETTINGS,
+        roles=roles,
+    )
+    hedge = [in_element(planned(toolkit, site, SHRUB, x, 0.0), "hedge-1") for x in range(0, 12, 2)]
+    outcome = selector.assign(hedge, {"hedge-1": "hedge"})
+    assert {item.species.key for item in outcome.assignments} == {"cotoneaster"}
+    assert any(reason.reason_ru == "хорошо формуется" for reason in outcome.assignments[0].reasons)

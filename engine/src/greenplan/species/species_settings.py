@@ -28,6 +28,7 @@ class SpeciesSettings:
     tree_palette_size: int = 6
     shrub_palette_size: int = 6
     palette_bonus: float = 100.0
+    role_bonus: float = 6.0
 
     def grouping_distance_m(self, target: str) -> float:
         return self.tree_grouping_distance_m if target == TREE else self.shrub_grouping_distance_m

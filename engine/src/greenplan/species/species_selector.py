@@ -1,5 +1,5 @@
 from collections import Counter, defaultdict
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from math import floor
 from pathlib import Path
@@ -21,6 +21,7 @@ from greenplan.domain.decisions import (
 )
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
+from greenplan.knowledge.composition_roles import CompositionRoles
 from greenplan.knowledge.invasive_registry import InvasiveRegistry, InvasiveVerdict
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.knowledge.official_assortment import OfficialAssortment
@@ -38,6 +39,7 @@ LOWER_RANK = "lower_rank"
 REJECTED_OUTCOME = "rejected"
 CONDITIONAL_OUTCOME = "conditional"
 ADVISORY_OUTCOME = "advisory"
+ROLE_REASON_CODE = "composition_role"
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,14 +101,19 @@ class SpeciesSelector:
         detector: SiteContextDetector,
         settings: SpeciesSettings,
         texts: SelectionTexts | None = None,
+        roles: CompositionRoles | None = None,
     ) -> None:
         self._suitability = suitability
         self._evaluator = evaluator
         self._detector = detector
         self._settings = settings
         self._texts = texts
+        self._roles = roles or CompositionRoles({})
 
-    def assign(self, decisions: Sequence[PlantingDecision]) -> SpeciesOutcome:
+    def assign(
+        self, decisions: Sequence[PlantingDecision], element_kinds: Mapping[str, str] | None = None
+    ) -> SpeciesOutcome:
+        kinds = element_kinds or {}
         memories: dict[str, _AssignmentMemory] = {}
         element_species: dict[str, str] = {}
         usage = _SpeciesUsage()
@@ -117,7 +124,8 @@ class SpeciesSelector:
             memory = memories.setdefault(
                 target, _AssignmentMemory(self._settings.grouping_distance_m(target))
             )
-            assignment = self._assignment(decision, memory, usage, element_species)
+            role = kinds.get(decision.candidate.element_id, "")
+            assignment = self._assignment(decision, memory, usage, element_species, role)
             if assignment is None:
                 rejections.append(without_species(decision))
                 continue
@@ -151,11 +159,12 @@ class SpeciesSelector:
         memory: _AssignmentMemory,
         usage: "_SpeciesUsage",
         element_species: dict[str, str],
+        role: str = "",
     ) -> SpeciesAssignment | None:
         position = decision.candidate.position
         target = decision.candidate.target
         context = self._detector.detect(position)
-        ranked = self._diversified(self._suitability.ranked(target, context), target, usage)
+        ranked = self._diversified(self._suitability.ranked(target, context), target, usage, role)
         ordered = neighbour_species_first(ranked, preferred_species(decision, memory, element_species))
         outcomes: dict[str, str] = {}
         best: SpeciesAssignment | None = None
@@ -164,7 +173,8 @@ class SpeciesSelector:
             if evaluated.status == REJECTED:
                 outcomes[item.species.key] = REJECTED_OUTCOME
                 continue
-            assignment = SpeciesAssignment(evaluated, item.species, context, item.invasive, item.reasons)
+            reasons = (*item.reasons, *self._role_reasons(role, item.species.key))
+            assignment = SpeciesAssignment(evaluated, item.species, context, item.invasive, reasons)
             outcomes[item.species.key] = outcome_of(assignment)
             if best is None or assignment_rank(assignment) < assignment_rank(best):
                 best = assignment
@@ -188,7 +198,7 @@ class SpeciesSelector:
         )
 
     def _diversified(
-        self, ranked: Sequence[RankedSpecies], target: str, usage: "_SpeciesUsage"
+        self, ranked: Sequence[RankedSpecies], target: str, usage: "_SpeciesUsage", role: str = ""
     ) -> list[RankedSpecies]:
         settings = self._settings
         used = usage.distinct(target)
@@ -200,9 +210,16 @@ class SpeciesSelector:
                     item.score
                     - settings.diversity_penalty * usage.share(target, item.species.key)
                     + (bonus if item.species.key in used else 0.0)
+                    + (settings.role_bonus if self._roles.suits(role, item.species.key) else 0.0)
                 )
             ),
         )
+
+    def _role_reasons(self, role: str, species_key: str) -> tuple[SelectionReason, ...]:
+        found = self._roles.role(role)
+        if found is None or species_key not in found.species_keys:
+            return ()
+        return (SelectionReason(ROLE_REASON_CODE, found.reason_ru),)
 
 
 def outcome_of(assignment: SpeciesAssignment) -> str:
@@ -244,11 +261,13 @@ class SpeciesSelectorFactory:
         evaluator_factory: CandidateEvaluatorFactory,
         settings: SpeciesSettings,
         texts: SelectionTexts | None = None,
+        roles: CompositionRoles | None = None,
     ) -> None:
         self._suitability = suitability
         self._evaluator_factory = evaluator_factory
         self._settings = settings
         self._texts = texts
+        self._roles = roles
 
     @classmethod
     def from_knowledge(
@@ -278,7 +297,9 @@ class SpeciesSelectorFactory:
             OfficialAssortment.from_knowledge(knowledge_root),
         )
         suitability = SpeciesSuitability(catalog, registry, effective, policy, texts)
-        return cls(suitability, evaluator_factory, effective, texts)
+        return cls(
+            suitability, evaluator_factory, effective, texts, CompositionRoles.from_knowledge(knowledge_root)
+        )
 
     def for_site(self, site: SiteModel) -> SpeciesSelector:
         return SpeciesSelector(
@@ -287,6 +308,7 @@ class SpeciesSelectorFactory:
             SiteContextDetector(site, self._settings),
             self._settings,
             self._texts,
+            self._roles,
         )
 
 

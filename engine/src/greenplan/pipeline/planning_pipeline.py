@@ -83,7 +83,10 @@ class PlanningPipeline:
         with timer.stage(PLACE_STAGE):
             plan = components.composer.compose(site)
         with timer.stage(SPECIES_STAGE):
-            species = components.species_factory.for_site(site).assign(plan.trees + plan.shrubs)
+            element_kinds = {element.element_id: element.kind for element in plan.elements}
+            species = components.species_factory.for_site(site).assign(
+                plan.trees + plan.shrubs, element_kinds
+            )
         with timer.stage(EXPLAIN_STAGE):
             report = components.report_builder.build(request.title, site, plan, species)
             artifacts = dict(components.report_writers.write_all(report, directory))

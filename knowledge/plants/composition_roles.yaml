@@ -1,0 +1,63 @@
+# Роли пород в элементах композиции — проектное допущение, а не норма.
+# Опирается на породы, которые проектировщики датасета ставят в ряды, группы, изгороди и
+# куртины, и на общеупотребительные приёмы ландшафтного проектирования. Используется только
+# как предпочтение при подборе: нормы и ассортимент ДПиООС проверяются как обычно.
+
+meta:
+  status: assumption
+  updated: "2026-09-26"
+
+roles:
+  row:
+    reason: "порода подходит для рядовой посадки вдоль улицы: плотная крона, устойчивость к городской среде"
+    species:
+      - tilia_cordata
+      - tilia_europaea_pallida
+      - acer_platanoides
+      - ulmus_parvifolia
+      - aesculus_hippocastanum
+      - crataegus_pauls_scarlet
+      - sorbus_aucuparia
+  group:
+    reason: "порода хорошо смотрится в группе на газоне"
+    species:
+      - betula_pendula
+      - sorbus_aucuparia
+      - prunus_maackii
+      - malus_decorative
+      - pinus_sylvestris
+      - picea_abies
+      - larix_decidua
+      - acer_ginnala
+  solitary:
+    reason: "порода подходит для солитёра: выразительная крона или цветение"
+    species:
+      - quercus_robur
+      - aesculus_hippocastanum
+      - acer_rubrum
+      - malus_decorative
+      - larix_decidua
+      - picea_abies
+  hedge:
+    reason: "порода хорошо формуется в живую изгородь"
+    species:
+      - cotoneaster_lucidus
+      - spiraea
+      - berberis
+      - physocarpus_opulifolius
+      - symphoricarpos
+      - thuja_occidentalis
+      - cornus_alba
+  shrub_group:
+    reason: "декоративная порода для куртины: цветение или окраска листвы"
+    species:
+      - hydrangea_paniculata
+      - hydrangea_arborescens
+      - spiraea
+      - philadelphus
+      - syringa
+      - rosa_rugosa
+      - dasiphora_fruticosa
+      - viburnum_opulus_roseum
+      - physocarpus_opulifolius
+      - cornus_alba
