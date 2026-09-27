@@ -161,7 +161,12 @@ class PlantLayout:
         return accepted
 
     def commit(
-        self, decisions: Sequence[PlantingDecision], kind: str, spacing_m: float, edge_kind: str = ""
+        self,
+        decisions: Sequence[PlantingDecision],
+        kind: str,
+        spacing_m: float,
+        edge_kind: str = "",
+        rows: int = 1,
     ) -> CompositionElement:
         element_id = f"{self._target}-{kind}-{self._id_prefix}{len(self.elements) + 1:03d}"
         for decision in decisions:
@@ -170,7 +175,9 @@ class PlantLayout:
             self.decisions.append(
                 replace(decision, candidate=replace(decision.candidate, element_id=element_id))
             )
-        element = CompositionElement(element_id, kind, self._target, len(decisions), spacing_m, edge_kind)
+        element = CompositionElement(
+            element_id, kind, self._target, len(decisions), spacing_m, edge_kind, rows
+        )
         self.elements.append(element)
         return element
 
@@ -284,7 +291,7 @@ class CompositionPlanner:
             accepted = layout.attempt(points, min_spacing_m, open_cells=True)
             if len(accepted) >= needed and len(accepted) <= remaining:
                 middle = window[len(window) // 2]
-                layout.commit(accepted, kind, step, run.kind or field.edge_kind_at(middle))
+                layout.commit(accepted, kind, step, run.kind or field.edge_kind_at(middle), rows)
                 return True
         return False
 

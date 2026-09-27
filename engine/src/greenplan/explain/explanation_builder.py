@@ -136,6 +136,7 @@ class ExplanationBuilder:
             spacing_m=structure_value(element.spacing_m),
             edge_ru=self._terms.element_edge(element.edge_kind or line_edge_of(element.kind)),
             purpose_ru=terms.purpose_ru,
+            rows=element.rows,
         )
 
     def _clearance_views(self, decision: PlantingDecision) -> tuple[ClearanceView, ...]:

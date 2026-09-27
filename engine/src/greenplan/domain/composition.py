@@ -16,3 +16,4 @@ class CompositionElement:
     size: int
     spacing_m: float
     edge_kind: str = ""
+    rows: int = 1

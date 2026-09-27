@@ -86,6 +86,7 @@ class ElementView:
     spacing_m: float
     edge_ru: str
     purpose_ru: str
+    rows: int = 1
 
 
 @dataclass(frozen=True, slots=True)

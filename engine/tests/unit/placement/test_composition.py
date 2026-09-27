@@ -137,6 +137,7 @@ def test_shrubs_near_a_wide_edge_form_a_band_and_large_masses() -> None:
     hedges = [element for element in composed.elements if element.kind == HEDGE]
     clumps = [element for element in composed.elements if element.kind == SHRUB_GROUP]
     assert hedges and max(element.size for element in hedges) >= 2 * CompositionSettings().hedge_min_size
+    assert max(element.rows for element in hedges) > 1
     assert clumps and max(element.size for element in clumps) >= 40
 
 

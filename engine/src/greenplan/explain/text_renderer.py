@@ -126,12 +126,17 @@ def element_sentence(plant: PlantExplanation) -> str:
     if element is None:
         return ""
     edge = f" {element.edge_ru}" if element.edge_ru else ""
+    rows = f" в {element.rows} {rows_word(element.rows)}" if element.rows > 1 else ""
     shape = (
-        f"{element.size} шт., шаг {format_number(element.spacing_m)} м"
+        f"{element.size} шт.{rows}, шаг {format_number(element.spacing_m)} м"
         if element.size > 1
         else "одиночная посадка"
     )
     return f"Элемент композиции: {element.name_ru}{edge} ({shape}) — {element.purpose_ru}."
+
+
+def rows_word(count: int) -> str:
+    return "ряда" if 2 <= count % 10 <= 4 and not 12 <= count % 100 <= 14 else "рядов"
 
 
 def is_barrier_rule(clearance: ClearanceView) -> bool:
