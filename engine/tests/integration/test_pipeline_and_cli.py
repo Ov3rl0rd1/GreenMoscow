@@ -75,3 +75,18 @@ def test_domain_errors_become_exit_code_one(tmp_path: Path, capsys: pytest.Captu
     code = main(["inspect", "--input", str(tmp_path / "missing.dxf"), "--knowledge", str(tmp_path)])
     assert code == EXIT_ERROR
     assert "Ошибка" in capsys.readouterr().err
+
+
+def test_second_run_takes_the_recognised_site_from_the_cache(knowledge_root: Path, tmp_path: Path) -> None:
+    source = source_drawing(tmp_path / "street.dxf")
+    cache = tmp_path / "cache"
+    arguments = ["run", "--input", str(source), "--knowledge", str(knowledge_root), "--cache", str(cache)]
+    assert main([*arguments, "--output", str(tmp_path / "first")]) == EXIT_OK
+    stored = list((cache / "sites").glob("*.site.pkl"))
+    assert len(stored) == 1
+    assert main([*arguments, "--output", str(tmp_path / "second")]) == EXIT_OK
+    first = json.loads((tmp_path / "first" / RUN_SUMMARY_NAME).read_text(encoding="utf-8"))
+    second = json.loads((tmp_path / "second" / RUN_SUMMARY_NAME).read_text(encoding="utf-8"))
+    assert second["plants"] == first["plants"]
+    assert second["verification"] == first["verification"]
+    assert list((cache / "sites").glob("*.site.pkl")) == stored

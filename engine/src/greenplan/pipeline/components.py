@@ -12,11 +12,14 @@ from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.xref_reference_reader import XrefReferenceReader
 from greenplan.knowledge.territory_catalog import TerritoryCatalog
 from greenplan.pipeline.run_config import RunConfig
+from greenplan.pipeline.site_cache import SiteCache
 from greenplan.placement.guidance import GuidanceFactory, rule_guidance
 from greenplan.placement.planting_plan import PlantingPlanComposer
 from greenplan.recognition.site_model_builder import SiteModelBuilder
 from greenplan.species.species_selector import SpeciesSelectorFactory
 from greenplan.verify.plan_verifier import PlanVerifier
+
+SITE_CACHE_FOLDER = "sites"
 
 
 @dataclass(frozen=True)
@@ -32,6 +35,7 @@ class PipelineComponents:
     exporter: PlanExporter
     preview_renderer: PreviewRenderer
     verifier: PlanVerifier
+    site_cache: SiteCache | None = None
 
     @classmethod
     def assemble(
@@ -64,5 +68,8 @@ class PipelineComponents:
             preview_renderer=PreviewRenderer(config.preview),
             verifier=PlanVerifier.from_knowledge(
                 knowledge_root, config.export, config.design, placement, config.verification
+            ),
+            site_cache=SiteCache.for_recognition(
+                cache_directory / SITE_CACHE_FOLDER, knowledge_root, config.recognition
             ),
         )

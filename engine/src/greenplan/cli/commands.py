@@ -1,6 +1,7 @@
 import argparse
 import json
 from dataclasses import asdict, replace
+from functools import partial
 from pathlib import Path
 from typing import Protocol
 
@@ -11,7 +12,7 @@ from greenplan.ingest.dwg_converter import LibreDwgConverter
 from greenplan.ingest.folder_converter import FolderConverter
 from greenplan.ingest.input_selection import DrawingInputs, DrawingInputSelector
 from greenplan.knowledge.pilot_objects import PilotCatalog
-from greenplan.pipeline.batch_runner import BatchOutcome, BatchRunner
+from greenplan.pipeline.batch_runner import BatchOutcome, BatchRunner, ParallelBatchRunner
 from greenplan.pipeline.components import PipelineComponents
 from greenplan.pipeline.environment import (
     locate_dwg2dxf,
@@ -149,6 +150,12 @@ class BatchCommand:
         parser.add_argument("--knowledge", type=Path, help="каталог knowledge/")
         parser.add_argument("--cache", type=Path, help="кеш сконвертированных DXF")
         parser.add_argument("--dwg2dxf", type=Path, help="путь к dwg2dxf")
+        parser.add_argument(
+            "--workers",
+            type=int,
+            default=1,
+            help="сколько объектов считать одновременно; каждому нужно до 3 ГБ памяти",
+        )
         parser.set_defaults(command=self)
 
     def execute(self, arguments: argparse.Namespace) -> int:
@@ -158,7 +165,11 @@ class BatchCommand:
             if arguments.objects is not None
             else PilotCatalog.from_knowledge(knowledge_root)
         )
-        runner = BatchRunner(build_pipeline(arguments))
+        runner = (
+            ParallelBatchRunner(partial(build_pipeline, arguments), arguments.workers)
+            if arguments.workers > 1
+            else BatchRunner(build_pipeline(arguments))
+        )
         outcomes = runner.run(
             catalog,
             arguments.dataset_root,

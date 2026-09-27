@@ -1,5 +1,7 @@
 import json
+import multiprocessing
 from collections.abc import Callable, Sequence
+from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -11,6 +13,8 @@ BATCH_JSON_NAME = "batch_report.json"
 BATCH_MARKDOWN_NAME = "batch_report.md"
 TIMING_DECIMALS = 3
 ProgressReport = Callable[["BatchOutcome"], None]
+PipelineFactory = Callable[[], PlanningPipeline]
+SPAWN_CONTEXT = "spawn"
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +66,61 @@ class BatchRunner:
             return _succeeded(item, self._pipeline.run(request))
         except Exception as error:
             return BatchOutcome(item.object_id, item.level, False, f"{type(error).__name__}: {error}")
+
+
+class ParallelBatchRunner:
+    def __init__(self, factory: PipelineFactory, workers: int) -> None:
+        self._factory = factory
+        self._workers = workers
+
+    def run(
+        self,
+        catalog: PilotCatalog,
+        dataset_root: Path,
+        output_root: Path,
+        levels: Sequence[str] | None = None,
+        object_ids: Sequence[str] | None = None,
+        on_result: ProgressReport | None = None,
+    ) -> list[BatchOutcome]:
+        items = catalog.selected(levels, object_ids)
+        finished: dict[str, BatchOutcome] = {}
+        with ProcessPoolExecutor(
+            max_workers=self._workers,
+            mp_context=multiprocessing.get_context(SPAWN_CONTEXT),
+            initializer=_start_worker,
+            initargs=(self._factory,),
+        ) as pool:
+            futures = {pool.submit(_run_in_worker, item, dataset_root, output_root): item for item in items}
+            for future in as_completed(futures):
+                outcome = _collected(futures[future], future)
+                finished[outcome.object_id] = outcome
+                if on_result is not None:
+                    on_result(outcome)
+        outcomes = [finished[item.object_id] for item in items]
+        write_batch_report(output_root, outcomes)
+        return outcomes
+
+
+class _WorkerState:
+    runner: BatchRunner | None = None
+
+
+def _start_worker(factory: PipelineFactory) -> None:
+    _WorkerState.runner = BatchRunner(factory())
+
+
+def _run_in_worker(item: PilotObject, dataset_root: Path, output_root: Path) -> BatchOutcome:
+    runner = _WorkerState.runner
+    if runner is None:
+        raise RuntimeError("рабочий процесс пакетного прогона не инициализирован")
+    return runner.run_object(item, dataset_root, output_root)
+
+
+def _collected(item: PilotObject, future: Future[BatchOutcome]) -> BatchOutcome:
+    try:
+        return future.result()
+    except Exception as error:
+        return BatchOutcome(item.object_id, item.level, False, f"{type(error).__name__}: {error}")
 
 
 def _succeeded(item: PilotObject, result: PipelineResult) -> BatchOutcome:

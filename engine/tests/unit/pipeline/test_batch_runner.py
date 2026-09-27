@@ -3,12 +3,15 @@ from pathlib import Path
 
 import pytest
 
-from greenplan.domain.errors import DrawingLoadError
-from greenplan.explain.report_model import ReportSummary
 from greenplan.knowledge.pilot_objects import PilotCatalog
-from greenplan.pipeline.batch_runner import BATCH_JSON_NAME, BATCH_MARKDOWN_NAME, BatchRunner
-from greenplan.pipeline.planning_pipeline import PipelineResult
-from greenplan.verify.verification_model import IntegrityReport, VerificationReport
+from greenplan.pipeline.batch_runner import (
+    BATCH_JSON_NAME,
+    BATCH_MARKDOWN_NAME,
+    BatchRunner,
+    ParallelBatchRunner,
+)
+
+from fixtures.batch_workers import FakePipeline, crashing_pipeline, fake_pipeline
 
 CATALOG_YAML = """
 meta: {dataset_root: "data/pilot"}
@@ -18,56 +21,6 @@ objects:
   - {id: second, name: "Вторая улица", level: B, layer_scheme: null,
      input: "2. Вторая/Исходные/main.dwg", reference: "2. Вторая/Проект/plan.dwg"}
 """
-
-
-def summary() -> ReportSummary:
-    return ReportSummary(
-        trees=12,
-        shrubs=30,
-        conditional=2,
-        rejected=5,
-        species=(),
-        plantable_area_m2=1000.0,
-        tree_allowed_area_m2=500.0,
-        max_trees=20,
-        max_shrubs=60,
-        tree_spacing_m=6.0,
-        shrub_spacing_m=1.0,
-        boundary_source="граница работ",
-        lawn_source="газоны",
-        annotated_network_share=0.5,
-        unresolved_references=(),
-    )
-
-
-def verification() -> VerificationReport:
-    return VerificationReport(
-        output_path="out.dxf",
-        plants_checked=42,
-        violations=(),
-        integrity=IntegrityReport((), (), (), ()),
-    )
-
-
-class FakePipeline:
-    def __init__(self, failing: set[str]) -> None:
-        self._failing = failing
-        self.requests = []
-
-    def run(self, request):
-        self.requests.append(request)
-        if request.title in self._failing:
-            raise DrawingLoadError(f"не открывается {request.input_path.name}")
-        return PipelineResult(
-            output_dxf=request.output_directory / "result.dxf",
-            artifacts={},
-            report_summary=summary(),
-            verification=verification(),
-            timings_s={"read_drawings": 10.0, "place_plants": 5.0},
-            diagnostics=None,
-            memory_mb={"read_drawings": 900.0},
-            peak_memory_mb=1200.0,
-        )
 
 
 @pytest.fixture
@@ -131,12 +84,8 @@ class BrokenPipeline(FakePipeline):
         return super().run(request)
 
 
-def test_unexpected_error_is_recorded_and_the_batch_continues(
-    catalog: PilotCatalog, tmp_path: Path
-) -> None:
-    outcomes = BatchRunner(BrokenPipeline(failing=set())).run(
-        catalog, tmp_path / "data", tmp_path / "out"
-    )
+def test_unexpected_error_is_recorded_and_the_batch_continues(catalog: PilotCatalog, tmp_path: Path) -> None:
+    outcomes = BatchRunner(BrokenPipeline(failing=set())).run(catalog, tmp_path / "data", tmp_path / "out")
     assert not outcomes[0].succeeded
     assert "UnicodeEncodeError" in outcomes[0].reason
     assert outcomes[1].succeeded
@@ -148,3 +97,28 @@ def test_batch_markdown_shows_source_integrity(catalog: PilotCatalog, tmp_path: 
     text = (output / BATCH_MARKDOWN_NAME).read_text(encoding="utf-8")
     assert "Исходник цел" in text
     assert "| да |" in text
+
+
+def test_parallel_batch_keeps_catalog_order_and_reports_every_object(
+    catalog: PilotCatalog, tmp_path: Path
+) -> None:
+    seen = []
+    output = tmp_path / "out"
+    outcomes = ParallelBatchRunner(fake_pipeline, 2).run(
+        catalog, tmp_path / "data", output, on_result=seen.append
+    )
+    assert [item.object_id for item in outcomes] == ["first", "second"]
+    assert outcomes[0].succeeded and outcomes[0].trees == 12
+    assert not outcomes[1].succeeded and "не открывается" in outcomes[1].reason
+    assert sorted(item.object_id for item in seen) == ["first", "second"]
+    payload = json.loads((output / BATCH_JSON_NAME).read_text(encoding="utf-8"))
+    assert [item["object_id"] for item in payload] == ["first", "second"]
+
+
+def test_crashed_worker_is_recorded_as_a_failed_object(catalog: PilotCatalog, tmp_path: Path) -> None:
+    outcomes = ParallelBatchRunner(crashing_pipeline, 2).run(
+        catalog, tmp_path / "data", tmp_path / "out", object_ids=["first"]
+    )
+    assert [item.object_id for item in outcomes] == ["first"]
+    assert not outcomes[0].succeeded
+    assert "BrokenProcessPool" in outcomes[0].reason

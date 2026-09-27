@@ -12,11 +12,11 @@ from greenplan.pipeline.environment import current_timestamp
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.run_config import RunConfig
 from greenplan.pipeline.run_summary import RunSummary
+from greenplan.pipeline.site_cache import OUTPUT_DXF_SUFFIX
 from greenplan.pipeline.stage_timer import StageListener, StageTimer, ignore_stage
 from greenplan.verify.verification_model import VerificationReport
 from greenplan.verify.verification_writers import write_verification_json, write_verification_markdown
 
-OUTPUT_DXF_SUFFIX = "_greenplan.dxf"
 PREVIEW_NAME = "preview.png"
 UNSAFE_NAME_CHARACTERS = re.compile(r"[^\w\-.]+")
 READ_STAGE = "read_drawings"
@@ -69,8 +69,32 @@ class PlanningPipeline:
             site = components.site_builder.build(content, drawing_set.unresolved_references)
         return RecognizedSite(drawing_set, site, components.opener.resolve_dxf_path(input_path))
 
+    def recognize_cached(self, request: PipelineRequest, timer: StageTimer) -> tuple[SiteModel, Path]:
+        components = self._components
+        cache = components.site_cache
+        if cache is None:
+            recognized = self.recognize(request.input_path, request.search_root, timer, request.overlay_paths)
+            return recognized.site, recognized.source_dxf
+        with timer.stage(READ_STAGE):
+            key = cache.key(request.input_path, request.search_root, request.overlay_paths)
+            site = cache.load(key)
+            if site is None:
+                drawing_set = components.drawing_set_builder.build(
+                    request.input_path, request.search_root, request.overlay_paths
+                )
+                content = components.content_reader.read(drawing_set)
+        with timer.stage(RECOGNIZE_STAGE):
+            if site is None:
+                site = components.site_builder.build(content, drawing_set.unresolved_references)
+                cache.store(key, site)
+            source_dxf = components.opener.resolve_dxf_path(request.input_path)
+        return site, source_dxf
+
     def verify_output(self, recognized: RecognizedSite, output_dxf: Path) -> VerificationReport:
-        return self._components.verifier.verify(recognized.source_dxf, output_dxf, recognized.site)
+        return self.verify_source(recognized.source_dxf, output_dxf, recognized.site)
+
+    def verify_source(self, source_dxf: Path, output_dxf: Path, site: SiteModel) -> VerificationReport:
+        return self._components.verifier.verify(source_dxf, output_dxf, site)
 
     def run(self, request: PipelineRequest, on_stage: StageListener = ignore_stage) -> PipelineResult:
         components = self._components
@@ -78,8 +102,7 @@ class PlanningPipeline:
         generated_at = request.generated_at or current_timestamp()
         directory = request.output_directory
         directory.mkdir(parents=True, exist_ok=True)
-        recognized = self.recognize(request.input_path, request.search_root, timer, request.overlay_paths)
-        site = recognized.site
+        site, source_dxf = self.recognize_cached(request, timer)
         with timer.stage(PLACE_STAGE):
             plan = components.composer.compose(site)
         with timer.stage(SPECIES_STAGE):
@@ -92,12 +115,12 @@ class PlanningPipeline:
             artifacts = dict(components.report_writers.write_all(report, directory))
         output_dxf = directory / output_dxf_name(request.input_path)
         with timer.stage(EXPORT_STAGE):
-            components.exporter.export(recognized.source_dxf, output_dxf, site, plan, report, generated_at)
+            components.exporter.export(source_dxf, output_dxf, site, plan, report, generated_at)
             preview = components.preview_renderer.render(
                 site, plan.tree_zones, report, directory / PREVIEW_NAME
             )
         with timer.stage(VERIFY_STAGE):
-            verification = self.verify_output(recognized, output_dxf)
+            verification = self.verify_source(source_dxf, output_dxf, site)
         for path in (output_dxf, preview, *verification_artifacts(verification, directory)):
             artifacts[path.name] = path
         summary = RunSummary(
