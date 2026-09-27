@@ -23,6 +23,8 @@ class CompositionSettings:
     shrub_mass_radii_m: tuple[float, ...] = (5.0, 3.5, 2.5)
     shrub_mass_rotations: int = 3
     shrub_mass_min_filled_share: float = 0.5
+    shrub_mass_score_quantile: float = 0.6
+    shrub_mass_confident_share: float = 0.6
     shrub_group_rings: tuple[int, ...] = (1,)
     shrub_group_small_sizes: tuple[int, ...] = (5, 3)
     shrub_group_gap_m: float = 3.0

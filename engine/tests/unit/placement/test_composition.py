@@ -1,3 +1,4 @@
+from dataclasses import replace
 from itertools import combinations
 
 import numpy as np
@@ -170,3 +171,20 @@ def test_candidates_grow_by_score_when_they_cannot_hold_the_count() -> None:
     assert grown.sum() == 4 and grown[0, 0] and not grown[3, 3]
     assert grown[3, 2] and grown[3, 1] and grown[3, 0]
     assert widened(eligible, pool, score, 1) is eligible
+
+
+def test_shrub_masses_stay_where_the_model_is_confident() -> None:
+    field = lawn_field()
+    xs, _ys = field.grid.cell_centers()
+    confident = field.eligible & (xs < 60.0)
+    uncertain = replace(field, eligible=confident, open_cells=field.eligible)
+    composed = CompositionPlanner(CompositionSettings(hedge_budget_share=0.0)).compose_shrubs(
+        uncertain, accept_all(SHRUB), SHRUB, 1.0, 600
+    )
+    masses = {element.element_id for element in composed.elements if element.size >= 30}
+    assert masses
+    centers = {}
+    for decision in composed.decisions:
+        if decision.candidate.element_id in masses:
+            centers.setdefault(decision.candidate.element_id, []).append(decision.candidate.position.x)
+    assert all(sum(values) / len(values) < 60.0 for values in centers.values())

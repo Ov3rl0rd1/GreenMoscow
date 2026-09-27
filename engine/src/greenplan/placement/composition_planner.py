@@ -67,14 +67,23 @@ class CompositionField:
             return float(self.lawn_clearance_m[row, column])
         return 0.0
 
+    def score_quantile(self, quantile: float) -> float:
+        scores = self.score[self.eligible]
+        return float(np.quantile(scores, quantile)) if scores.size else -np.inf
+
+    def confident_share(self, points: Sequence[Point]) -> float:
+        return sum(1 for point in points if self.is_eligible(point)) / len(points) if points else 0.0
+
     def score_at(self, point: Point) -> float:
         row, column = self.grid.cell_of(point.x, point.y)
         if 0 <= row < self.grid.rows and 0 <= column < self.grid.columns:
             return float(self.score[row, column])
         return 0.0
 
-    def seeds(self, limit: int, minimum_clearance_m: float = 0.0) -> Iterator[Point]:
-        mask = self.eligible & (self.lawn_clearance_m >= minimum_clearance_m)
+    def seeds(
+        self, limit: int, minimum_clearance_m: float = 0.0, minimum_score: float = -np.inf
+    ) -> Iterator[Point]:
+        mask = self.eligible & (self.lawn_clearance_m >= minimum_clearance_m) & (self.score >= minimum_score)
         rows, columns = np.nonzero(mask)
         if rows.size == 0:
             return
@@ -351,13 +360,18 @@ class CompositionPlanner:
         settings = self._settings
         step = spacing_m * LINE_SPACING_MARGIN
         pool = budget * settings.seed_pool_factor
+        floor_score = field.score_quantile(settings.shrub_mass_score_quantile)
         for radius in sorted(settings.shrub_mass_radii_m, reverse=True):
             self._clumps(
                 layout,
-                field.seeds(pool, radius * MASS_CLEARANCE_SHARE),
+                field.seeds(pool, radius * MASS_CLEARANCE_SHARE, floor_score),
                 budget,
                 spacing_m,
-                lambda seed, room, radius=radius: mass_shapes(seed, step, settings, room, (radius,)),
+                lambda seed, room, radius=radius: confident(
+                    field,
+                    mass_shapes(seed, step, settings, room, (radius,)),
+                    settings.shrub_mass_confident_share,
+                ),
                 settings.shrub_mass_min_filled_share,
             )
         self._clumps(
@@ -410,6 +424,15 @@ def mass_shapes(
     for radius in radii:
         if len(mass_offsets(radius, spacing_m, turns[0])) <= room:
             yield [organic_mass(seed, radius, spacing_m, turn) for turn in turns]
+
+
+def confident(
+    field: CompositionField, shapes: Iterator[list[list[Point]]], share: float
+) -> Iterator[list[list[Point]]]:
+    for variants in shapes:
+        kept = [variant for variant in variants if field.confident_share(variant) >= share]
+        if kept:
+            yield kept
 
 
 def clump_shapes(
