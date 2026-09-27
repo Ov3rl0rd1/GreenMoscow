@@ -148,6 +148,11 @@ public sealed class JobSummaryView(IReadOnlyDictionary<string, JsonElement> summ
             .Where(item => item.Value.ValueKind == JsonValueKind.Number)
             .Select(item => $"{ElementNames.For(item.Name)} — {item.Value.GetInt32()}")
             .ToList();
+        if (Benefits().TryGetProperty("rows_with_hedge", out var hedged) && hedged.ValueKind == JsonValueKind.Number && hedged.GetInt32() > 0)
+        {
+            parts.Add($"аллеи с живой изгородью — {hedged.GetInt32()}");
+        }
+
         return parts.Count > 0 ? string.Join(", ", parts) : null;
     }
 

@@ -20,6 +20,8 @@ class CompositionSettings:
     hedge_budget_share: float = 0.5
     hedge_band_rows: tuple[int, ...] = (3, 2, 1)
     hedge_band_min_filled_share: float = 0.7
+    hedge_companion_weight: float = 2.0
+    hedge_companion_reach_m: float = 5.5
     shrub_mass_radii_m: tuple[float, ...] = (5.0, 3.5, 2.5)
     shrub_mass_rotations: int = 3
     shrub_mass_min_filled_share: float = 0.5

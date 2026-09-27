@@ -128,6 +128,7 @@ class ExplanationBuilder:
         if element is None:
             return None
         terms = self._terms.element(element.kind)
+        companion = self._terms.element_companion() if element.companion_id else None
         return ElementView(
             element_id=element.element_id,
             kind=element.kind,
@@ -135,8 +136,10 @@ class ExplanationBuilder:
             size=element.size,
             spacing_m=structure_value(element.spacing_m),
             edge_ru=self._terms.element_edge(element.edge_kind or line_edge_of(element.kind)),
-            purpose_ru=terms.purpose_ru,
+            purpose_ru=f"{terms.purpose_ru}; {companion.purpose_ru}" if companion else terms.purpose_ru,
             rows=element.rows,
+            companion_id=element.companion_id,
+            companion_ru=companion.name_ru if companion else "",
         )
 
     def _clearance_views(self, decision: PlantingDecision) -> tuple[ClearanceView, ...]:

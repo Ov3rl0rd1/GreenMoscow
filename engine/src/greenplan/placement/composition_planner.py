@@ -9,6 +9,7 @@ from greenplan.domain.composition import GROUP, HEDGE, ROW, SHRUB_GROUP, SOLITAR
 from greenplan.domain.decisions import ACCEPTED, PlantingDecision
 from greenplan.placement.composition_settings import CompositionSettings
 from greenplan.placement.composition_shapes import (
+    Companions,
     EdgeLine,
     LinePoints,
     band_points,
@@ -176,6 +177,7 @@ class PlantLayout:
         spacing_m: float,
         edge_kind: str = "",
         rows: int = 1,
+        companion_id: str = "",
     ) -> CompositionElement:
         element_id = f"{self._target}-{kind}-{self._id_prefix}{len(self.elements) + 1:03d}"
         for decision in decisions:
@@ -185,7 +187,7 @@ class PlantLayout:
                 replace(decision, candidate=replace(decision.candidate, element_id=element_id))
             )
         element = CompositionElement(
-            element_id, kind, self._target, len(decisions), spacing_m, edge_kind, rows
+            element_id, kind, self._target, len(decisions), spacing_m, edge_kind, rows, companion_id
         )
         self.elements.append(element)
         return element
@@ -227,7 +229,13 @@ class CompositionPlanner:
         return layout.result()
 
     def compose_shrubs(
-        self, field: CompositionField, trial: Trial, target: str, spacing_m: float, budget: int
+        self,
+        field: CompositionField,
+        trial: Trial,
+        target: str,
+        spacing_m: float,
+        budget: int,
+        companions: Companions | None = None,
     ) -> ComposedPlanting:
         settings = self._settings
         layout = PlantLayout(field, trial, target, max(settings.shrub_group_gap_m, spacing_m))
@@ -241,6 +249,7 @@ class CompositionPlanner:
             floor(budget * settings.hedge_budget_share),
             HEDGE,
             settings.hedge_band_rows,
+            companions,
         )
         self._shrub_groups(layout, field, spacing_m, budget)
         relaxed = field.relaxed_field()
@@ -259,22 +268,29 @@ class CompositionPlanner:
         budget: int,
         kind: str,
         band_rows: Sequence[int] = (1,),
+        companions: Companions | None = None,
     ) -> None:
+        settings = self._settings
         step = max(line_spacing_m, min_spacing_m * LINE_SPACING_MARGIN)
         lines = offset_lines(field.edges, offsets_m, step)
-        weights = dict(self._settings.line_edge_weights)
-        for run in ranked_runs(field, lines, min_size, self._settings.line_confident_share, weights):
+        weights = dict(settings.line_edge_weights)
+        boost = companion_boost(companions, settings.hedge_companion_weight)
+        for run in ranked_runs(field, lines, min_size, settings.line_confident_share, weights, boost):
             remaining = budget - layout.count
             if remaining < min_size:
                 return
-            if self._band(layout, field, run, step, min_spacing_m, min_size, remaining, kind, band_rows):
+            companion = companions.near(run.points[len(run.points) // 2]) if companions else ""
+            if self._band(
+                layout, field, run, step, min_spacing_m, min_size, remaining, kind, band_rows, companion
+            ):
                 continue
             window = best_window(field, run.points, remaining)
             accepted = layout.attempt(window, min_spacing_m, open_cells=True)
             for segment in contiguous(accepted, step * GAP_TOLERANCE):
                 if len(segment) >= min_size and layout.count + len(segment) <= budget:
                     middle = segment[len(segment) // 2].candidate.position
-                    layout.commit(segment, kind, step, run.kind or field.edge_kind_at(middle))
+                    edge = run.kind or field.edge_kind_at(middle)
+                    layout.commit(segment, kind, step, edge, companion_id=companion)
 
     def _band(
         self,
@@ -287,6 +303,7 @@ class CompositionPlanner:
         remaining: int,
         kind: str,
         band_rows: Sequence[int],
+        companion: str = "",
     ) -> bool:
         for rows in (rows for rows in band_rows if rows > 1):
             window = best_window(field, run.points, remaining // rows)
@@ -300,7 +317,8 @@ class CompositionPlanner:
             accepted = layout.attempt(points, min_spacing_m, open_cells=True)
             if len(accepted) >= needed and len(accepted) <= remaining:
                 middle = window[len(window) // 2]
-                layout.commit(accepted, kind, step, run.kind or field.edge_kind_at(middle), rows)
+                edge = run.kind or field.edge_kind_at(middle)
+                layout.commit(accepted, kind, step, edge, rows, companion)
                 return True
         return False
 
@@ -490,6 +508,7 @@ def ranked_runs(
     min_size: int,
     confident_share: float,
     edge_weights: dict[str, float] | None = None,
+    run_weight: Callable[[Sequence[Point]], float] | None = None,
 ) -> list[LinePoints]:
     weights = edge_weights or {}
     runs: list[tuple[float, LinePoints]] = []
@@ -504,10 +523,18 @@ def ranked_runs(
                 quality = sum(
                     field.score_at(item) * weights.get(line.kind or field.edge_kind_at(item), 1.0)
                     for item in current
-                )
+                ) * (run_weight(current) if run_weight is not None else 1.0)
                 runs.append((quality, LinePoints(tuple(current), line.kind)))
             current = [point] if point is not None and field.is_open(point) else []
     return [run for _quality, run in sorted(runs, key=lambda item: -item[0])]
+
+
+def companion_boost(
+    companions: Companions | None, weight: float
+) -> Callable[[Sequence[Point]], float] | None:
+    if companions is None:
+        return None
+    return lambda points: weight if companions.near(points[len(points) // 2]) else 1.0
 
 
 def turns_sharply(current: Sequence[Point], point: Point) -> bool:

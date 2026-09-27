@@ -207,6 +207,7 @@ def benefit_summary(result: PipelineResult) -> dict[str, Any]:
         "species_count": metrics.species_count,
         "max_species_share": metrics.max_species_share,
         "elements": dict(metrics.elements),
+        "rows_with_hedge": metrics.rows_with_hedge,
     }
 
 

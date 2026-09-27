@@ -210,6 +210,8 @@ def _benefit_lines(metrics: PlanMetrics) -> list[str]:
         f"- Тротуары под кронами деревьев: {share_text(metrics.sidewalk_shade_share)}",
         f"- Газон, оставленный открытым: {format_number(metrics.open_lawn_share * 100)} %",
         f"- Элементы композиции: {elements if elements else 'не сформированы'}",
+        f"- Аллеи с живой изгородью: {metrics.rows_with_hedge} из {dict(metrics.elements).get('row', 0)} "
+        "рядов деревьев",
         "",
     ]
 

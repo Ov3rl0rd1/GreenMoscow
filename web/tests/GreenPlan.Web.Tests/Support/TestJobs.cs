@@ -30,7 +30,7 @@ public static class TestJobs
             "warnings": ["подземные коммуникации во входных чертежах не найдены"],
             "guidance": "model",
             "journal": ["пустой участок газона (420 м²): группа деревьев — 5 шт."],
-            "benefits": {"street_front_share": 0.62, "sidewalk_shade_share": 0.35, "open_lawn_share": 0.71, "elements": {"row": 4, "group": 7, "hedge": 3}},
+            "benefits": {"street_front_share": 0.62, "sidewalk_shade_share": 0.35, "open_lawn_share": 0.71, "elements": {"row": 4, "group": 7, "hedge": 3}, "rows_with_hedge": 2},
             "timings_s": {"read_drawings": 88.4, "verify": 27.2}
           }
         }

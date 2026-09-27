@@ -17,3 +17,4 @@ class CompositionElement:
     spacing_m: float
     edge_kind: str = ""
     rows: int = 1
+    companion_id: str = ""

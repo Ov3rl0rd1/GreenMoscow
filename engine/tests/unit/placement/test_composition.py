@@ -12,6 +12,8 @@ from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
 from greenplan.placement.composition_planner import CompositionField, CompositionPlanner, contiguous
 from greenplan.placement.composition_settings import CompositionSettings
 from greenplan.placement.composition_shapes import (
+    CompanionLine,
+    Companions,
     EdgeLine,
     band_points,
     evenly_spaced,
@@ -188,3 +190,18 @@ def test_shrub_masses_stay_where_the_model_is_confident() -> None:
         if decision.candidate.element_id in masses:
             centers.setdefault(decision.candidate.element_id, []).append(decision.candidate.position.x)
     assert all(sum(values) / len(values) < 60.0 for values in centers.values())
+
+
+def test_hedge_prefers_the_edge_along_a_tree_row_and_remembers_it() -> None:
+    top = EdgeLine(LineString([(0.0, 40.0), (120.0, 40.0)]), "")
+    row = CompanionLine("tree-row-001", LineString([(10.0, 37.0), (110.0, 37.0)]))
+    settings = CompositionSettings(hedge_band_rows=(1,))
+    field = lawn_field(edges=(EDGE, top))
+    flat = replace(field, score=np.where(field.eligible, 1.0, 0.0).astype(np.float32))
+    composed = CompositionPlanner(settings).compose_shrubs(
+        flat, accept_all(SHRUB), SHRUB, 1.0, 120, Companions([row], 5.5)
+    )
+    hedges = [element for element in composed.elements if element.kind == HEDGE]
+    assert hedges[0].companion_id == "tree-row-001"
+    alone = CompositionPlanner(settings).compose_shrubs(flat, accept_all(SHRUB), SHRUB, 1.0, 120)
+    assert all(element.companion_id == "" for element in alone.elements)

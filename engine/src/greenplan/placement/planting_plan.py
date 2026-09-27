@@ -3,18 +3,20 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
+from shapely.geometry import LineString
 
 from greenplan.constraints.candidate_evaluator import CandidateEvaluator, CandidateEvaluatorFactory
 from greenplan.constraints.clearance_meter import ClearanceMeter
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.constraints.requirement_resolver import RequirementResolver
 from greenplan.constraints.zone_builder import ZoneBuilder
-from greenplan.domain.composition import CompositionElement
+from greenplan.domain.composition import ROW, CompositionElement
 from greenplan.domain.decisions import PlantingDecision
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.site import SiteModel
 from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.placement.composition_planner import CompositionPlanner
+from greenplan.placement.composition_shapes import CompanionLine
 from greenplan.placement.design_coordinator import (
     CoordinationResult,
     DesignCoordinator,
@@ -108,6 +110,7 @@ class PlantingPlanComposer:
                 placement.composition.edge_reach_m,
                 placement.composition.reserve_share if placement.coordinator.enabled else 0.0,
                 placement.candidate_area_factor,
+                placement.composition.hedge_companion_reach_m,
             ),
             coordinator=DesignCoordinator(
                 DesignReviewer(placement.review), placement.composition, placement.coordinator
@@ -134,7 +137,7 @@ class PlantingPlanComposer:
         trees = self._planner.plan(site, tree_profile, evaluator, ())
         tree_positions = [decision.candidate.position for decision in trees.decisions]
         shrub_profile = self._shrub_profile(limits)
-        shrubs = self._planner.plan(site, shrub_profile, evaluator, tree_positions)
+        shrubs = self._planner.plan(site, shrub_profile, evaluator, tree_positions, tree_rows(trees))
         added = self._improve(site, evaluator, (tree_profile, trees), (shrub_profile, shrubs))
         rejections = self._rejection_sampler.sample(trees.raster, evaluator, tree_profile)
         return PlantingPlan(
@@ -211,6 +214,15 @@ class PlantingPlanComposer:
             composed=settings.composition.enabled,
             respects_density_cap=settings.respect_density_cap,
         )
+
+
+def tree_rows(outcome: PlacementOutcome) -> tuple[CompanionLine, ...]:
+    rows = [element.element_id for element in outcome.elements if element.kind == ROW]
+    points = {
+        row: [d.candidate.position for d in outcome.decisions if d.candidate.element_id == row]
+        for row in rows
+    }
+    return tuple(CompanionLine(row, LineString(points[row])) for row in rows if len(points[row]) >= 2)
 
 
 def numbered(decisions: Sequence[PlantingDecision], prefix: str) -> tuple[PlantingDecision, ...]:

@@ -39,6 +39,7 @@ class PlanMetrics:
     sidewalk_shade_share: float | None = None
     open_lawn_share: float = 0.0
     elements: tuple[tuple[str, int], ...] = ()
+    rows_with_hedge: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +134,7 @@ def plan_metrics(
         sidewalk_shade_share=optional_value(sidewalk_shade_share(site, plants)),
         open_lawn_share=structure_value(open_lawn_share(site, plants)),
         elements=element_counts(plants),
+        rows_with_hedge=rows_with_hedge(plants),
     )
 
 
@@ -200,6 +202,11 @@ def element_counts(plants: Sequence[PlantExplanation]) -> tuple[tuple[str, int],
         }.values()
     )
     return tuple((kind, kinds[kind]) for kind in ELEMENT_KINDS if kinds[kind])
+
+
+def rows_with_hedge(plants: Sequence[PlantExplanation]) -> int:
+    elements = [plant.element for plant in plants if plant.element is not None]
+    return len({element.companion_id for element in elements if element.companion_id})
 
 
 def volume_statement(

@@ -18,7 +18,7 @@ from greenplan.placement.composition_planner import (
     CompositionPlanner,
     Trial,
 )
-from greenplan.placement.composition_shapes import EdgeClassifier, lawn_edges
+from greenplan.placement.composition_shapes import CompanionLine, Companions, EdgeClassifier, lawn_edges
 from greenplan.placement.peak_selector import PeakSelector
 from greenplan.placement.planting_profile import PlantingProfile
 from greenplan.placement.planting_zones import PlantingZoneBuilder, PlantingZones
@@ -92,6 +92,7 @@ class PlantPlacementPlanner:
         edge_reach_m: float = 8.0,
         reserve_share: float = 0.0,
         candidate_area_factor: float = 1.0,
+        companion_reach_m: float = 5.5,
     ) -> None:
         self._zone_builder = zone_builder
         self._rasterizer = rasterizer
@@ -102,6 +103,7 @@ class PlantPlacementPlanner:
         self._edge_reach_m = edge_reach_m
         self._reserve_share = reserve_share
         self._candidate_area_factor = candidate_area_factor
+        self._companion_reach_m = companion_reach_m
 
     def plan(
         self,
@@ -109,6 +111,7 @@ class PlantPlacementPlanner:
         profile: PlantingProfile,
         evaluator: CandidateEvaluator,
         planned_positions: Sequence[Point],
+        companions: Sequence[CompanionLine] = (),
     ) -> PlacementOutcome:
         zones = self._zone_builder.build(site, profile, planned_positions)
         raster = self._rasterizer.rasterize(site, zones, profile.reference_edge_kind)
@@ -135,7 +138,8 @@ class PlantPlacementPlanner:
                 self._edge_classifier(site).kind_near,
                 raster.allowed & ~raster.conditional,
             )
-            composed = self._compose(field, admission, profile, floor(count * (1.0 - self._reserve_share)))
+            budget = floor(count * (1.0 - self._reserve_share))
+            composed = self._compose(field, admission, profile, budget, companions)
             return PlacementOutcome(
                 composed.decisions,
                 raster,
@@ -162,11 +166,24 @@ class PlantPlacementPlanner:
         return _Admission(evaluator, profile, PlannedPlantGuard((), 0.0)).trial
 
     def _compose(
-        self, field: CompositionField, admission: "_Admission", profile: PlantingProfile, count: int
+        self,
+        field: CompositionField,
+        admission: "_Admission",
+        profile: PlantingProfile,
+        count: int,
+        companions: Sequence[CompanionLine] = (),
     ) -> ComposedPlanting:
         composer = self._composer
-        compose = composer.compose_trees if profile.target == TREE else composer.compose_shrubs
-        return compose(field, admission.trial, profile.target, profile.spacing_m, count)
+        if profile.target == TREE:
+            return composer.compose_trees(field, admission.trial, profile.target, profile.spacing_m, count)
+        return composer.compose_shrubs(
+            field,
+            admission.trial,
+            profile.target,
+            profile.spacing_m,
+            count,
+            Companions(companions, self._companion_reach_m),
+        )
 
     def _select(
         self,

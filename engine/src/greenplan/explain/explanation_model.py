@@ -87,6 +87,8 @@ class ElementView:
     edge_ru: str
     purpose_ru: str
     rows: int = 1
+    companion_id: str = ""
+    companion_ru: str = ""
 
 
 @dataclass(frozen=True, slots=True)

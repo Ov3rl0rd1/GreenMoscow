@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -6,8 +7,8 @@ from shapely.geometry import LineString, box
 from greenplan.domain.norms import SHRUB, TREE
 from greenplan.domain.obstacle_kinds import CARRIAGEWAY_EDGE
 from greenplan.domain.site import Obstacle, SiteDiagnostics, SiteModel
-from greenplan.explain.explanation_model import PlantExplanation, SpeciesView
-from greenplan.explain.plan_metrics import CostCatalog, plan_metrics, volume_statement
+from greenplan.explain.explanation_model import ElementView, PlantExplanation, SpeciesView
+from greenplan.explain.plan_metrics import CostCatalog, plan_metrics, rows_with_hedge, volume_statement
 
 
 def species_view(key: str, name_ru: str) -> SpeciesView:
@@ -102,3 +103,17 @@ def test_cost_without_a_known_category_has_no_reference(knowledge_root: Path) ->
     estimate = catalog.estimate(volumes, plantable_area_m2=1000.0, category_id="park")
     assert estimate.reference_range_rub is None
     assert estimate.within_reference_range is None
+
+
+def test_rows_with_hedge_count_distinct_tree_rows() -> None:
+    def in_element(item: PlantExplanation, element_id: str, kind: str, companion: str) -> PlantExplanation:
+        view = ElementView(element_id, kind, "", 3, 1.0, "", "", 1, companion, "")
+        return replace(item, element=view)
+
+    planted = [
+        in_element(plants()[0], "tree-row-001", "row", ""),
+        in_element(plants()[3], "shrub-hedge-001", "hedge", "tree-row-001"),
+        in_element(plants()[3], "shrub-hedge-002", "hedge", "tree-row-001"),
+        in_element(plants()[3], "shrub-hedge-003", "hedge", ""),
+    ]
+    assert rows_with_hedge(planted) == 1

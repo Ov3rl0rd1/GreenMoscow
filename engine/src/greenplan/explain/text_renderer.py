@@ -126,6 +126,7 @@ def element_sentence(plant: PlantExplanation) -> str:
     if element is None:
         return ""
     edge = f" {element.edge_ru}" if element.edge_ru else ""
+    edge += f" {element.companion_ru}" if element.companion_ru else ""
     rows = f" в {element.rows} {rows_word(element.rows)}" if element.rows > 1 else ""
     shape = (
         f"{element.size} шт.{rows}, шаг {format_number(element.spacing_m)} м"

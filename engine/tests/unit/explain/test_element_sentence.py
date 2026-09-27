@@ -31,3 +31,21 @@ def test_band_sentence_names_its_rows() -> None:
 
 def test_rows_word_agrees_with_the_number() -> None:
     assert [rows_word(count) for count in (2, 3, 5, 12, 22)] == ["ряда", "ряда", "рядов", "рядов", "ряда"]
+
+
+def test_hedge_along_a_tree_row_names_the_alley() -> None:
+    hedge = ElementView(
+        "shrub-hedge-002",
+        "hedge",
+        "живая изгородь",
+        40,
+        1.02,
+        "вдоль проезжей части",
+        "отделяет газон; вместе с рядом деревьев образует аллею с живой изгородью",
+        1,
+        "tree-row-001",
+        "при рядовой посадке деревьев",
+    )
+    sentence = element_sentence(shrub_in(hedge))
+    assert "живая изгородь вдоль проезжей части при рядовой посадке деревьев (40 шт." in sentence
+    assert "аллею с живой изгородью" in sentence

@@ -145,3 +145,22 @@ def tangent_at(points: Sequence[Point], index: int) -> tuple[float, float]:
     dx, dy = after.x - before.x, after.y - before.y
     length = hypot(dx, dy) or 1.0
     return dx / length, dy / length
+
+
+@dataclass(frozen=True, slots=True)
+class CompanionLine:
+    element_id: str
+    line: LineString
+
+
+class Companions:
+    def __init__(self, lines: Sequence[CompanionLine], reach_m: float) -> None:
+        self._lines = list(lines)
+        self._reach_m = reach_m
+        self._index = STRtree([item.line for item in self._lines]) if self._lines else None
+
+    def near(self, point: Point) -> str:
+        if self._index is None:
+            return ""
+        found = self._index.query_nearest(point, max_distance=self._reach_m)
+        return self._lines[int(found[0])].element_id if len(found) else ""

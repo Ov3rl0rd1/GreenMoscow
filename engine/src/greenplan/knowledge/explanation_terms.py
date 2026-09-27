@@ -75,6 +75,10 @@ class ExplanationTerms:
         entry = (self._section("composition").get("elements") or {}).get(kind, {})
         return ElementTerms(entry.get("name", kind), " ".join(str(entry.get("purpose", "")).split()))
 
+    def element_companion(self) -> ElementTerms:
+        entry = self._section("composition").get("companion") or {}
+        return ElementTerms(entry.get("name", ""), " ".join(str(entry.get("purpose", "")).split()))
+
     def design_agents_note(self) -> str:
         return " ".join(str(self._section("design_agents").get("note", "")).split())
 
