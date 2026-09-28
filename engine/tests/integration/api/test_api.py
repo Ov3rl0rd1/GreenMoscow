@@ -205,10 +205,33 @@ def test_separate_general_plan_and_base_drawing_run_as_one_site(
         ({"drawing": ("evil.zip", zipped({"../escape.dxf": b"0"}))}, {}),
         ({"drawing": ("street.dxf", b"0"), "config": ("config.yaml", b"placement:\n  unknown: 1\n")}, {}),
         ({"drawing": ("street.dxf", b"0")}, {"guidance": "magic"}),
+        ({"drawing": ("street.dxf", b"0")}, {"settings": "{not json"}),
+        ({"drawing": ("street.dxf", b"0")}, {"settings": "[1, 2]"}),
+        ({"drawing": ("street.dxf", b"0")}, {"settings": json.dumps({"placement": {"unknown": 1}})}),
+        (
+            {"drawing": ("street.dxf", b"0")},
+            {"settings": json.dumps({"placement": {"min_tree_count_share": "a"}})},
+        ),
     ],
 )
 def test_invalid_uploads_are_rejected(client: TestClient, files: dict, data: dict) -> None:
     assert submit(client, files, data).status_code == 400
+
+
+def test_settings_from_the_form_override_the_yaml_file(client: TestClient, drawing_bytes: bytes) -> None:
+    config = b"placement:\n  composition:\n    enabled: true\n"
+    settings = {"placement": {"composition": {"enabled": False}, "coordinator": {"enabled": False}}}
+    created = submit(
+        client,
+        {"drawing": ("street.dxf", drawing_bytes), "config": ("config.yaml", config)},
+        {"settings": json.dumps(settings)},
+    )
+    assert created.status_code == 202
+    job = client.get(f"{JOBS}/{created.json()['job_id']}").json()
+    assert job["status"] == SUCCEEDED, job["error"]
+    assert job["summary"]["trees"] > 0
+    assert job["summary"]["benefits"]["elements"] == {}
+    assert job["summary"]["journal"] == []
 
 
 def test_broken_drawing_makes_job_fail_with_message(client: TestClient) -> None:

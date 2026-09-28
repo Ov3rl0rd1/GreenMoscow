@@ -12,7 +12,7 @@ from greenplan.domain.errors import GreenPlanError, InvalidUploadError, JobNotFo
 from greenplan.ingest.input_selection import prefer_dxf, unique_paths
 from greenplan.pipeline.pipeline_request import PipelineRequest
 from greenplan.pipeline.planning_pipeline import PipelineResult, PlanningPipeline
-from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritorySettings
+from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, TerritorySettings, merged_config_text
 
 INPUT_DIRECTORY = "input"
 OUTPUT_DIRECTORY = "output"
@@ -63,6 +63,7 @@ class JobService:
         territory: str | None = None,
         guidance: str | None = None,
         exceed_density: bool = False,
+        settings: Mapping[str, Any] | None = None,
     ) -> JobRecord:
         if guidance and guidance not in GUIDANCE_CHOICES:
             raise InvalidUploadError(f"unknown guidance '{guidance}': expected model or rules")
@@ -74,7 +75,9 @@ class JobService:
         input_directory.mkdir(parents=True)
         try:
             stored = self._stored_inputs(input_directory, uploads, main_file)
-            self._store_config(directory, config_text)
+            self._store_config(
+                directory, merged_config_text(config_text, settings) if settings else config_text
+            )
         except GreenPlanError:
             shutil.rmtree(directory, ignore_errors=True)
             raise

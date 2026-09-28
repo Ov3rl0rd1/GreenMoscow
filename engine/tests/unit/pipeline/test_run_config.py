@@ -4,7 +4,7 @@ import pytest
 
 from greenplan.domain.errors import ConfigurationError
 from greenplan.pipeline.environment import KNOWLEDGE_ROOT_VARIABLE, locate_knowledge_root
-from greenplan.pipeline.run_config import RunConfig, RunConfigLoader
+from greenplan.pipeline.run_config import RunConfig, RunConfigLoader, merged_config_text
 
 LOADER = RunConfigLoader()
 
@@ -63,3 +63,23 @@ def test_environment_variable_overrides_knowledge_root(knowledge_root: Path, mon
 def test_explicit_knowledge_root_without_norms_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ConfigurationError):
         locate_knowledge_root(tmp_path)
+
+
+def test_form_settings_are_merged_over_the_yaml_file(tmp_path: Path) -> None:
+    text = merged_config_text(
+        "placement:\n  cell_size_m: 1.0\n  composition:\n    reserve_share: 0.1\n",
+        {"placement": {"composition": {"enabled": False, "shrub_mass_radii_m": [4, 3]}}},
+    )
+    path = tmp_path / "config.yaml"
+    path.write_text(text, encoding="utf-8")
+    config = RunConfigLoader().load(path)
+    assert config.placement.cell_size_m == 1.0
+    assert config.placement.composition.reserve_share == 0.1
+    assert config.placement.composition.enabled is False
+    assert config.placement.composition.shrub_mass_radii_m == (4.0, 3.0)
+
+
+def test_form_settings_work_without_a_yaml_file(tmp_path: Path) -> None:
+    path = tmp_path / "config.yaml"
+    path.write_text(merged_config_text(None, {"species": {"tree_palette_size": 4}}), encoding="utf-8")
+    assert RunConfigLoader().load(path).species.tree_palette_size == 4

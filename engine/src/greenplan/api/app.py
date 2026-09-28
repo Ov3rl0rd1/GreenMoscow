@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Annotated, Any
 
@@ -88,12 +89,23 @@ def create_app(
             bool,
             Form(description="разрешить модели превышать рекомендательный норматив плотности ТСН 30-307"),
         ] = False,
+        settings: Annotated[
+            str | None,
+            Form(description="JSON с настройками прогона поверх YAML: те же разделы, что в YAML-файле"),
+        ] = None,
     ) -> JobResponse:
         uploads = [UploadedFile(upload_file_name(item.filename or ""), await item.read()) for item in drawing]
         config_text = (await config.read()).decode("utf-8") if config is not None else None
         try:
             record = service.create(
-                uploads, title, main_file, config_text, territory, guidance, exceed_density
+                uploads,
+                title,
+                main_file,
+                config_text,
+                territory,
+                guidance,
+                exceed_density,
+                settings_mapping(settings),
             )
         except REQUEST_ERRORS as error:
             raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(error)) from error
@@ -140,3 +152,15 @@ def create_app_from_environment(
         location.converter is not None,
         location.model is not None,
     )
+
+
+def settings_mapping(raw: str | None) -> dict[str, Any] | None:
+    if not raw:
+        return None
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as error:
+        raise InvalidUploadError(f"настройки не читаются как JSON: {error.msg}") from error
+    if not isinstance(value, dict):
+        raise InvalidUploadError("настройки должны быть объектом JSON с разделами прогона")
+    return value

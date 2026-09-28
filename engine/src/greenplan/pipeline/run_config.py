@@ -3,6 +3,8 @@ from dataclasses import dataclass, field, fields, is_dataclass, replace
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from greenplan.constraints.design_constraints import DesignConstraints
 from greenplan.domain.errors import ConfigurationError
 from greenplan.explain.explanation_builder import DEFAULT_MAX_SATISFIED_CLEARANCES
@@ -75,4 +77,28 @@ def coerced(current: Any, value: Any, path: str) -> Any:
             return value
     elif isinstance(current, str) and isinstance(value, str):
         return value
+    elif isinstance(current, tuple) and isinstance(value, list | tuple):
+        sample = current[0] if current else None
+        return tuple(value if sample is None else coerced(sample, item, path) for item in value)
     raise ConfigurationError(f"invalid value for '{path}': {value!r}")
+
+
+def merged_config_text(config_text: str | None, overrides: Mapping[str, Any]) -> str:
+    base = yaml.safe_load(config_text) if config_text else {}
+    if base is None:
+        base = {}
+    if not isinstance(base, Mapping):
+        raise ConfigurationError("run settings must be a mapping")
+    return yaml.safe_dump(deep_merged(base, overrides), allow_unicode=True, sort_keys=False)
+
+
+def deep_merged(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> dict[str, Any]:
+    merged = dict(base)
+    for key, value in overrides.items():
+        current = merged.get(key)
+        merged[key] = (
+            deep_merged(current, value)
+            if isinstance(current, Mapping) and isinstance(value, Mapping)
+            else value
+        )
+    return merged
