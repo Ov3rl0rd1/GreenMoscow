@@ -15,6 +15,8 @@ from greenplan_ml.reference_extractor import ReferencePlanting, ReferencePlantin
 from greenplan_ml.site_loader import SiteLoader
 from greenplan_ml.targets import SpeciesCrownLookup
 
+NO_REFERENCE_REASON = "проектного решения в DWG нет"
+
 AUDIT_JSON_NAME = "reference_audit.json"
 AUDIT_MARKDOWN_NAME = "reference_audit.md"
 ACCEPTED_STATUS = "accepted"
@@ -91,6 +93,8 @@ class ReferenceAuditor:
         )
 
     def audit(self, item: PilotObject, dataset_root: Path) -> ObjectAudit:
+        if item.reference_path is None:
+            return ObjectAudit(item.object_id, item.level, False, NO_REFERENCE_REASON)
         try:
             loaded = self._loader.load(dataset_root / item.input_path, dataset_root / item.object_folder)
             content = self._loader.read(dataset_root / item.reference_path)

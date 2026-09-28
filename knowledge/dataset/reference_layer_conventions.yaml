@@ -80,6 +80,14 @@ schemes:
       - {pattern: '_Ном\._пера__\d+$', replace: ''}
     rules:
       - {regex: '^Новый_РЧ ОЗ', type: mixed, status: proposed, note: "породы не в слоях; блоки дерево, дерево_2..5"}
+      - {regex: '^Растения.*[Зз]а\s?гр', type: tree, status: outside, note: "за границей благоустройства"}
+      - {regex: '^Растения\b', type: tree, status: proposed, note: "Куликовская, Понтрягина: блоки дерево, дерево_2..7 по участкам"}
+
+  - id: gp_posadochny
+    seen_in: ["17. Грузинская М ул (разбивочно_посадочный чертеж..dwg)"]
+    rules:
+      - {regex: '^ГП_посадочный$', type: tree, status: proposed, note: "блоки Дерево_Л_Пр / Дерево_Х_Пр — лиственные и хвойные проектируемые"}
+      - {regex: '^СП_дендроплан$', type: tree, status: existing, note: "блоки *_С — существующие"}
 
 # Слои дендроизысканий (существующие деревья) — общие для большинства объектов
 dendro_survey_layers:

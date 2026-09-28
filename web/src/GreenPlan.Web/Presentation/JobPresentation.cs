@@ -4,6 +4,14 @@ using GreenPlan.Web.Models;
 
 namespace GreenPlan.Web.Presentation;
 
+public static class MomentText
+{
+    public static string For(string? moment) =>
+        DateTimeOffset.TryParse(moment, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
+            ? parsed.ToUniversalTime().ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture) + " UTC"
+            : moment ?? string.Empty;
+}
+
 public static class JobStatusText
 {
     private static readonly IReadOnlyDictionary<string, string> Texts = new Dictionary<string, string>

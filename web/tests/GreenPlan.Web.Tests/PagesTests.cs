@@ -62,8 +62,9 @@ public sealed class PagesTests
         var offered = await withModel.CreateClient().GetStringAsync("/");
         var hidden = await withoutModel.CreateClient().GetStringAsync("/");
 
-        Assert.Contains("type=\"checkbox\"", offered);
-        Assert.DoesNotContain("type=\"checkbox\"", hidden);
+        Assert.Contains("id=\"Form_UseModel\"", offered);
+        Assert.DoesNotContain("id=\"Form_UseModel\"", hidden);
+        Assert.Contains("name=\"Form.UseModel\" value=\"false\"", hidden);
     }
 
     [Fact]
@@ -331,6 +332,73 @@ public sealed class PagesTests
         using var response = await client.GetAsync("/healthz");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SettingsPanelOffersEveryGroupOfParameters()
+    {
+        using var factory = new GreenPlanWebFactory();
+
+        var page = await factory.CreateClient().GetStringAsync("/");
+
+        Assert.Contains("Параметры расчёта", page);
+        Assert.Contains("по умолчанию", page);
+        foreach (var name in new[] { "Form.Settings.MinTreeSharePercent", "Form.Settings.Composition", "Form.Settings.Agents", "Form.Settings.RootBarriers", "Form.Settings.TreePalette", "Form.Config" })
+        {
+            Assert.Contains($"name=\"{name}\"", page);
+        }
+    }
+
+    [Fact]
+    public async Task ChangedSettingsAreSentToTheEngine()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        content.Add(new StringContent("false", Encoding.UTF8), "Form.Settings.Agents");
+        content.Add(new StringContent("40", Encoding.UTF8), "Form.Settings.MinTreeSharePercent");
+        content.Add(new StringContent("lower", Encoding.UTF8), "Form.Settings.RangeBound");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        using var settings = JsonDocument.Parse(factory.Engine.LastSubmission?.SettingsJson ?? "{}");
+        var placement = settings.RootElement.GetProperty("placement");
+        Assert.False(placement.GetProperty("coordinator").GetProperty("enabled").GetBoolean());
+        Assert.Equal(0.4, placement.GetProperty("min_tree_count_share").GetDouble(), 6);
+        Assert.Equal("lower", placement.GetProperty("range_bound").GetString());
+        Assert.False(settings.RootElement.TryGetProperty("species", out _));
+    }
+
+    [Fact]
+    public async Task DefaultSettingsLeaveTheYamlFileAlone()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Null(factory.Engine.LastSubmission?.SettingsJson);
+    }
+
+    [Fact]
+    public async Task SettingOutOfRangeIsExplainedAndNothingIsSent()
+    {
+        using var factory = new GreenPlanWebFactory();
+        using var client = factory.CreateNonRedirectingClient();
+        var token = await AntiforgeryTokenAsync(client);
+
+        using var content = UploadContent(token, "Улица", drawing: DrawingBytes);
+        content.Add(new StringContent("150", Encoding.UTF8), "Form.Settings.MinTreeSharePercent");
+        using var response = await client.PostAsync("/", content);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Минимум деревьев — от 0 до 100 % норматива.", await response.Content.ReadAsStringAsync());
+        Assert.Null(factory.Engine.LastSubmission);
     }
 
     private static async Task<string> AntiforgeryTokenAsync(HttpClient client)

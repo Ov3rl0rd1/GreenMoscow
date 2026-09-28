@@ -34,7 +34,8 @@ public sealed record JobSubmission(
     string? ConfigYaml,
     string? Territory = null,
     string? Guidance = null,
-    bool ExceedDensity = false);
+    bool ExceedDensity = false,
+    string? SettingsJson = null);
 
 public sealed record EngineArtifact(byte[] Content, string ContentType);
 

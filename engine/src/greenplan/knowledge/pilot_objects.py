@@ -15,7 +15,7 @@ class PilotObject:
     level: str
     layer_scheme: str | None
     input_path: str
-    reference_path: str
+    reference_path: str | None
 
     @property
     def object_folder(self) -> str:
@@ -64,5 +64,5 @@ def _object_from(entry: dict[str, Any]) -> PilotObject:
         level=entry.get("level", ""),
         layer_scheme=entry.get("layer_scheme"),
         input_path=entry["input"],
-        reference_path=entry["reference"],
+        reference_path=entry.get("reference"),
     )

@@ -1,0 +1,138 @@
+placement:
+  cell_size_m: 0.5
+  max_raster_cells: 24000000
+  tree_crown_diameter_m: 5.0
+  shrub_crown_diameter_m: 1.5
+  allow_conditional: true
+  min_shrub_distance_to_planned_tree_m: 1.5
+  tree_reference_edge_kind: carriageway_edge
+  shrub_reference_edge_kind: sidewalk_edge
+  tree_score:
+    clearance_weight: 1.0
+    clearance_saturation_m: 3.0
+    edge_weight: 1.0
+    preferred_edge_distance_m: 3.0
+    edge_tolerance_m: 1.5
+    conditional_penalty: 0.5
+  shrub_score:
+    clearance_weight: 0.5
+    clearance_saturation_m: 1.0
+    edge_weight: 1.0
+    preferred_edge_distance_m: 1.0
+    edge_tolerance_m: 0.75
+    conditional_penalty: 0.5
+  spacing_rule_id: ppm743_spacing_street
+  tree_spacing_key: tree_single_row
+  shrub_spacing_key: shrub_single_row_tall_gt_1_8m
+  density_rule_id: tsn_max_density
+  density_context: streets_embankments
+  range_bound: upper
+  respect_density_cap: true
+  min_tree_count_share: 0.3
+  candidate_area_factor: 1.0
+  street_piece_gap_m: 100.0
+  rejection_spacing_m: 3.0
+  max_rejections_per_reason: 25
+  max_rejections: 400
+  rejection_seed: 0
+  composition:
+    enabled: true
+    reserve_share: 0.25
+    tree_row_offsets_m:
+    - 1.5
+    - 2.5
+    - 3.5
+    - 5.0
+    tree_row_spacing_m: 6.0
+    tree_row_min_size: 3
+    tree_row_budget_share: 0.6
+    tree_group_sizes:
+    - 5
+    - 4
+    - 3
+    tree_group_rotations: 6
+    tree_group_gap_m: 9.0
+    tree_group_min_filled_share: 0.75
+    solitary_lawn_clearance_m: 5.0
+    solitary_gap_m: 12.0
+    hedge_offsets_m:
+    - 0.8
+    - 1.2
+    hedge_min_size: 6
+    hedge_budget_share: 0.5
+    hedge_band_rows:
+    - 3
+    - 2
+    - 1
+    hedge_band_min_filled_share: 0.7
+    hedge_companion_weight: 2.0
+    hedge_companion_reach_m: 5.5
+    shrub_mass_radii_m:
+    - 5.0
+    - 3.5
+    - 2.5
+    shrub_mass_rotations: 3
+    shrub_mass_min_filled_share: 0.5
+    shrub_mass_score_quantile: 0.6
+    shrub_mass_confident_share: 0.6
+    shrub_group_rings:
+    - 1
+    shrub_group_small_sizes:
+    - 5
+    - 3
+    shrub_group_gap_m: 3.0
+    shrub_group_min_filled_share: 0.6
+    seed_pool_factor: 40
+    edge_simplify_m: 0.5
+    edge_reach_m: 8.0
+    line_confident_share: 0.5
+    line_edge_weights:
+    - - carriageway_edge
+      - 1.5
+  coordinator:
+    enabled: true
+    max_rounds: 3
+    seeds_per_problem: 120
+    front_line_reach_m: 9.0
+    front_hedge_min_size: 4
+    group_min_filled_share: 0.67
+    clump_min_filled_share: 0.6
+  review:
+    edge_piece_m: 25.0
+    min_edge_piece_m: 12.0
+    edge_site_margin_m: 10.0
+    front_tree_reach_m: 10.0
+    front_shrub_reach_m: 3.0
+    front_band_m: 8.0
+    front_priority: 3.0
+    sidewalk_shade_margin_m: 1.0
+    sidewalk_shaded_share: 0.3
+    sidewalk_band_m: 6.0
+    sidewalk_priority: 2.0
+    tile_m: 30.0
+    empty_tile_min_m2: 250.0
+    empty_plant_reach_m: 3.0
+    empty_priority: 1.5
+    underplanting_reach_m: 5.0
+    underplanting_priority: 1.8
+    min_band_lawn_m2: 15.0
+  composition_edge_kinds:
+  - carriageway_edge
+  - sidewalk_edge
+design:
+  require_plantable_surface: true
+  min_tree_distance_to_existing_tree_m: 4.0
+  min_shrub_distance_to_existing_tree_m: 1.0
+  unknown_overhead_voltage_kv: 10.0
+  clearance_tolerance_m: 1.0e-06
+  obstacle_search_margin_m: 2.0
+  apply_protection_zones: false
+  allow_root_barriers: true
+species:
+  tree_palette_size: 6
+  shrub_palette_size: 6
+  allow_conditional_species: false
+  carriageway_context_distance_m: 6.0
+  heating_context_distance_m: 4.0
+territory:
+  category: ''

@@ -119,6 +119,11 @@ public sealed class EngineClient(HttpClient http) : IEngineClient
             content.Add(new StringContent(submission.MainFile), "main_file");
         }
 
+        if (!string.IsNullOrWhiteSpace(submission.SettingsJson))
+        {
+            content.Add(new StringContent(submission.SettingsJson), "settings");
+        }
+
         if (!string.IsNullOrWhiteSpace(submission.ConfigYaml))
         {
             content.Add(new StringContent(submission.ConfigYaml), "config", "config.yaml");

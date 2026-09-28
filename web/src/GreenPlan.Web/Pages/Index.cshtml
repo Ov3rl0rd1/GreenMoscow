@@ -2,103 +2,205 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Новый расчёт";
+    var settings = Model.Form.Settings;
+    var changed = settings.ChangedCount;
 }
 
-<section class="card">
-    <h1>Новый расчёт</h1>
-    <p class="lead">
-        Загрузите главный чертёж объекта или архив его папки вместе с внешними ссылками.
-        Результат — DXF с посадками на отдельных слоях, отчёты с объяснениями и независимая проверка.
-    </p>
+<div class="workspace">
+    <section class="panel">
+        <header class="panel-head">
+            <h1>Новый расчёт</h1>
+            <p class="lead">
+                Загрузите генплан объекта и подоснову с сетями — отдельными файлами или архивом папки.
+                На выходе DXF с посадками на отдельных слоях, отчёты с объяснениями и независимая проверка.
+            </p>
+        </header>
 
-    @if (!Model.EngineAvailable)
-    {
-        <p class="alert">Сервис расчёта сейчас недоступен. Проверьте, что запущен контейнер engine.</p>
-    }
-
-    @if (Model.ErrorMessage is not null)
-    {
-        <p class="alert">@Model.ErrorMessage</p>
-    }
-
-    <form method="post" enctype="multipart/form-data" class="upload">
-        <div asp-validation-summary="ModelOnly" class="alert-list"></div>
-
-        <label asp-for="Form.Drawing"></label>
-        <input asp-for="Form.Drawing" type="file" accept=".dxf,.dwg,.zip" multiple />
-        <span asp-validation-for="Form.Drawing" class="field-error"></span>
-
-        <label asp-for="Form.Title"></label>
-        <input asp-for="Form.Title" />
-        <span asp-validation-for="Form.Title" class="field-error"></span>
-
-        <label asp-for="Form.Territory"></label>
-        <select asp-for="Form.Territory">
-            <option value="">по умолчанию — улица районного значения</option>
-            @foreach (var territory in Model.Territories)
-            {
-                <option value="@territory.Id">@territory.NameRu — @territory.CompositionRu</option>
-            }
-        </select>
-
-        <label asp-for="Form.MainFile"></label>
-        <input asp-for="Form.MainFile" placeholder="Генплан.dxf" />
-
-        @if (Model.ModelAvailable)
+        @if (!Model.EngineAvailable)
         {
-            <label class="checkbox"><input asp-for="Form.UseModel" /> @Html.DisplayNameFor(model => model.Form.UseModel)</label>
-            <div class="option-with-help">
-                <label class="checkbox"><input asp-for="Form.ExceedDensity" /> @Html.DisplayNameFor(model => model.Form.ExceedDensity)</label>
-                <details class="help">
-                    <summary title="Что это даёт и чем грозит">?</summary>
-                    <div class="help-text">
-                        <p>Норматив плотности ТСН 30-307 (табл. В.1) рекомендательный: на 1 км улицы 150–180 деревьев и 600–720 кустарников. Проектировщики в решениях датасета часто сажают кустарник куртинами гуще норматива — на Харьковской улице около 8 тыс. кустов при нормативе 529.</p>
-                        <p><strong>Что даст:</strong> количество посадок задаёт модель по проектной практике, куртины и живые изгороди получаются крупнее и ближе к проектным решениям; норматив только сообщается в отчёте.</p>
-                        <p><strong>Последствия:</strong> план превышает рекомендательный норматив — превышение придётся обосновать при согласовании; растут стоимость посадки и ухода; обязательные нормы (отступы от сетей, зданий, охранные требования) проверяются как обычно и не нарушаются.</p>
-                    </div>
-                </details>
+            <p class="alert">Сервис расчёта сейчас недоступен. Проверьте, что запущен контейнер engine.</p>
+        }
+
+        @if (Model.ErrorMessage is not null)
+        {
+            <p class="alert">@Model.ErrorMessage</p>
+        }
+
+        <form method="post" enctype="multipart/form-data" class="upload">
+            <div asp-validation-summary="All" class="alert-list"></div>
+
+            <label class="dropzone" for="Form_Drawing" data-dropzone>
+                <input asp-for="Form.Drawing" type="file" accept=".dxf,.dwg,.zip" multiple class="dropzone-input" />
+                <span class="dropzone-title">Перетащите чертежи сюда или выберите файлы</span>
+                <span class="dropzone-hint">.dxf и .dwg — генплан, подоснова, сети; .zip — папка объекта с внешними ссылками</span>
+                <span class="dropzone-files" data-file-list></span>
+            </label>
+
+            <div class="field-row">
+                <div class="field">
+                    <label asp-for="Form.Title"></label>
+                    <input asp-for="Form.Title" />
+                </div>
+                <div class="field">
+                    <label asp-for="Form.Territory"></label>
+                    <select asp-for="Form.Territory">
+                        <option value="">улица районного значения</option>
+                        @foreach (var territory in Model.Territories)
+                        {
+                            <option value="@territory.Id">@territory.NameRu — @territory.CompositionRu</option>
+                        }
+                    </select>
+                </div>
             </div>
+
+            <div class="field">
+                <label asp-for="Form.MainFile"></label>
+                <input asp-for="Form.MainFile" placeholder="например, Генплан.dwg" />
+                <p class="hint">Нужен, только если в архиве несколько генпланов. Без него главный чертёж выбирается по имени и размеру.</p>
+            </div>
+
+            @if (Model.ModelAvailable)
+            {
+                <div class="switches">
+                    <label class="switch"><input asp-for="Form.UseModel" /> <span>@Html.DisplayNameFor(model => model.Form.UseModel)</span></label>
+                    <div class="switch-with-help">
+                        <label class="switch"><input asp-for="Form.ExceedDensity" /> <span>@Html.DisplayNameFor(model => model.Form.ExceedDensity)</span></label>
+                        <details class="help">
+                            <summary aria-label="Что это даёт и чем грозит" title="Что это даёт и чем грозит">?</summary>
+                            <div class="help-text">
+                                <p>Норматив плотности ТСН 30-307 (табл. В.1) рекомендательный: на 1 км улицы 150–180 деревьев и 600–720 кустарников. Проектировщики в решениях датасета часто сажают кустарник куртинами гуще норматива — на Харьковской улице около 8 тыс. кустов при нормативе 529.</p>
+                                <p><strong>Что даст:</strong> количество посадок задаёт модель по проектной практике, куртины и живые изгороди получаются крупнее и ближе к проектным решениям; норматив только сообщается в отчёте.</p>
+                                <p><strong>Последствия:</strong> план превышает рекомендательный норматив — превышение придётся обосновать при согласовании; растут стоимость посадки и ухода; обязательные нормы (отступы от сетей, зданий, охранные требования) проверяются как обычно и не нарушаются.</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" name="Form.UseModel" value="false" />
+            }
+
+            <details class="settings" open="@(changed > 0 || !ViewData.ModelState.IsValid ? "open" : null)">
+                <summary>
+                    <span>Параметры расчёта</span>
+                    <span class="settings-state">@(changed > 0 ? $"изменено: {changed}" : "по умолчанию")</span>
+                </summary>
+                <div class="settings-grid">
+                    <fieldset>
+                        <legend>Количество</legend>
+                        <div class="field">
+                            <label asp-for="Form.Settings.MinTreeSharePercent"></label>
+                            <input asp-for="Form.Settings.MinTreeSharePercent" type="number" min="0" max="100" step="5" />
+                            <p class="hint">Если модель предлагает меньше, число деревьев поднимается до этой доли от норматива ТСН.</p>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Композиция</legend>
+                        <label class="switch"><input asp-for="Form.Settings.Composition" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.Composition)</span></label>
+                        <p class="hint">Ряды вдоль краёв газона, группы, солитёры, изгороди и куртины вместо отдельных точек.</p>
+                        <div class="field-row">
+                            <div class="field">
+                                <label asp-for="Form.Settings.TreeRowSharePercent"></label>
+                                <input asp-for="Form.Settings.TreeRowSharePercent" type="number" min="0" max="100" step="5" />
+                            </div>
+                            <div class="field">
+                                <label asp-for="Form.Settings.HedgeSharePercent"></label>
+                                <input asp-for="Form.Settings.HedgeSharePercent" type="number" min="0" max="100" step="5" />
+                            </div>
+                        </div>
+                        <label class="switch"><input asp-for="Form.Settings.ShrubMasses" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.ShrubMasses)</span></label>
+                        <label class="switch"><input asp-for="Form.Settings.HedgesAlongRows" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.HedgesAlongRows)</span></label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Агенты</legend>
+                        <label class="switch"><input asp-for="Form.Settings.Agents" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.Agents)</span></label>
+                        <p class="hint">Аналитик улицы ищет незащищённый фронт, тротуары без тени и пустые газоны, координатор закрывает их посадками из резерва.</p>
+                        <div class="field">
+                            <label asp-for="Form.Settings.AgentReservePercent"></label>
+                            <input asp-for="Form.Settings.AgentReservePercent" type="number" min="0" max="60" step="5" />
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Нормы</legend>
+                        <label class="switch"><input asp-for="Form.Settings.RootBarriers" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.RootBarriers)</span></label>
+                        <p class="hint">Разрешает условно допустимые посадки ближе к сетям с корнезащитой; длина экранов попадает в ведомость.</p>
+                        <label class="switch"><input asp-for="Form.Settings.ProtectionZones" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.ProtectionZones)</span></label>
+                        <p class="hint">Требования охранных зон пока не сверены экспертом — отчёт приводит их без номера пункта.</p>
+                        <div class="field-row">
+                            <div class="field">
+                                <label asp-for="Form.Settings.OverheadVoltageKv"></label>
+                                <input asp-for="Form.Settings.OverheadVoltageKv" type="number" min="0.4" max="750" step="0.1" />
+                            </div>
+                            <div class="field">
+                                <label asp-for="Form.Settings.RangeBound"></label>
+                                <select asp-for="Form.Settings.RangeBound">
+                                    <option value="upper">верхняя граница</option>
+                                    <option value="lower">нижняя граница</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Породы</legend>
+                        <div class="field-row">
+                            <div class="field">
+                                <label asp-for="Form.Settings.TreePalette"></label>
+                                <input asp-for="Form.Settings.TreePalette" type="number" min="1" max="12" />
+                            </div>
+                            <div class="field">
+                                <label asp-for="Form.Settings.ShrubPalette"></label>
+                                <input asp-for="Form.Settings.ShrubPalette" type="number" min="1" max="12" />
+                            </div>
+                        </div>
+                        <label class="switch"><input asp-for="Form.Settings.ConditionalSpecies" /> <span>@Html.DisplayNameFor(model => model.Form.Settings.ConditionalSpecies)</span></label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Файл настроек</legend>
+                        <div class="field">
+                            <label asp-for="Form.Config"></label>
+                            <input asp-for="Form.Config" type="file" accept=".yaml,.yml" />
+                            <p class="hint">Разделы и имена — как в <code>config/run-config.example.yaml</code>. Значения, изменённые в форме, применяются поверх файла.</p>
+                        </div>
+                    </fieldset>
+                </div>
+            </details>
+
+            <div class="actions">
+                <button type="submit" class="button-primary">Рассчитать</button>
+                <span class="hint">Большой объект считается 2–10 минут, страница расчёта обновляется сама.</span>
+            </div>
+        </form>
+    </section>
+
+    <aside class="panel panel-jobs">
+        <h2>Последние расчёты</h2>
+        @if (Model.Jobs.Count == 0)
+        {
+            <p class="lead">Расчётов пока нет.</p>
         }
         else
         {
-            <input type="hidden" name="Form.UseModel" value="false" />
-        }
-
-        <label asp-for="Form.Config"></label>
-        <input asp-for="Form.Config" type="file" accept=".yaml,.yml" />
-
-        <button type="submit">Рассчитать</button>
-    </form>
-</section>
-
-<section class="card">
-    <h2>Последние расчёты</h2>
-    @if (Model.Jobs.Count == 0)
-    {
-        <p>Расчётов пока нет.</p>
-    }
-    else
-    {
-        <table class="jobs">
-            <thead>
-                <tr>
-                    <th>Участок</th>
-                    <th>Файл</th>
-                    <th>Статус</th>
-                    <th>Создан</th>
-                </tr>
-            </thead>
-            <tbody>
+            <ul class="job-list">
                 @foreach (var job in Model.Jobs)
                 {
-                    <tr>
-                        <td><a asp-page="/Jobs/Details" asp-route-id="@job.JobId">@job.Title</a></td>
-                        <td>@job.UploadName</td>
-                        <td><span class="status status-@job.Status">@JobStatusText.For(job.Status)</span></td>
-                        <td>@job.CreatedAt</td>
-                    </tr>
+                    <li class="job-item">
+                        <a class="job-title" asp-page="/Jobs/Details" asp-route-id="@job.JobId">@job.Title</a>
+                        <span class="status status-@job.Status">@JobStatusText.For(job.Status)</span>
+                        <span class="job-file">@job.UploadName</span>
+                        <time class="job-time" datetime="@job.CreatedAt" data-local-time>@MomentText.For(job.CreatedAt)</time>
+                    </li>
                 }
-            </tbody>
-        </table>
-    }
-</section>
+            </ul>
+        }
+    </aside>
+</div>
+
+@section Scripts {
+    <script src="~/js/upload.js" asp-append-version="true"></script>
+}

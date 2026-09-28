@@ -83,3 +83,10 @@ def test_form_settings_work_without_a_yaml_file(tmp_path: Path) -> None:
     path = tmp_path / "config.yaml"
     path.write_text(merged_config_text(None, {"species": {"tree_palette_size": 4}}), encoding="utf-8")
     assert RunConfigLoader().load(path).species.tree_palette_size == 4
+
+
+def test_example_config_in_the_repository_matches_the_defaults(knowledge_root: Path) -> None:
+    config = LOADER.load(knowledge_root.parent / "config" / "run-config.example.yaml")
+    assert config.placement == RunConfig().placement
+    assert config.design == RunConfig().design
+    assert config.species == RunConfig().species

@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, fields, is_dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -78,9 +78,16 @@ def coerced(current: Any, value: Any, path: str) -> Any:
     elif isinstance(current, str) and isinstance(value, str):
         return value
     elif isinstance(current, tuple) and isinstance(value, list | tuple):
-        sample = current[0] if current else None
-        return tuple(value if sample is None else coerced(sample, item, path) for item in value)
+        return coerced_sequence(current, value, path)
     raise ConfigurationError(f"invalid value for '{path}': {value!r}")
+
+
+def coerced_sequence(current: tuple[Any, ...], value: Sequence[Any], path: str) -> tuple[Any, ...]:
+    if not current:
+        return tuple(value)
+    if len({type(item) for item in current}) > 1 and len(value) == len(current):
+        return tuple(coerced(sample, item, path) for sample, item in zip(current, value, strict=True))
+    return tuple(coerced(current[0], item, path) for item in value)
 
 
 def merged_config_text(config_text: str | None, overrides: Mapping[str, Any]) -> str:

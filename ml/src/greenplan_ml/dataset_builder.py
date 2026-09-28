@@ -33,6 +33,7 @@ MANIFEST_FILE = "dataset.json"
 NO_PLANTINGS_REASON = "no_reference_plantings"
 MISALIGNED_REASON = "reference_outside_site_boundary"
 EMPTY_SITE_REASON = "empty_plantable_surface"
+NO_REFERENCE_REASON = "no_reference_drawing"
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,6 +111,8 @@ class DatasetBuilder:
         )
 
     def build_object(self, item: PilotObject, dataset_root: Path, output_root: Path) -> ObjectReport:
+        if item.reference_path is None:
+            return ObjectReport(item.object_id, item.level, False, NO_REFERENCE_REASON)
         input_path = dataset_root / item.input_path
         loaded = self._loader.load(input_path, dataset_root / item.input_path.split("/")[0])
         if loaded.site.plantable_surface.is_empty:

@@ -6,41 +6,52 @@
     ViewData["Title"] = job.Title;
     var finished = JobStatusText.IsFinished(job.Status);
     var timeline = Model.Timeline!;
+    var drawings = job.Artifacts.Where(name => name.EndsWith(".dxf", StringComparison.OrdinalIgnoreCase)).ToList();
+    var reports = job.Artifacts.Where(name => !drawings.Contains(name) && name != "preview.png").ToList();
+    var verified = summary.Flag("verification_valid") == true;
 }
 
-<section class="card">
-    <p><a asp-page="/Index">← Новый расчёт</a></p>
-    <h1>@job.Title</h1>
-    <div data-status-url="@JobStatusEndpoints.UrlFor(job.JobId)">
-        <p>Статус: <span class="status status-@job.Status" data-status-text>@JobStatusText.For(job.Status)</span></p>
-        @if (!finished)
-        {
-            <p class="lead"><span data-progress-text>@JobProgressText.For(job)</span> Страница покажет итог сама, как только расчёт завершится.</p>
-            <p class="lead" data-connection-text hidden>Нет связи с сервисом расчёта, повторим попытку чуть позже.</p>
-        }
-        <h2>Ход расчёта</h2>
-        <table class="summary stages">
-            <tbody>
-                @foreach (var stage in timeline.Stages)
+<a class="back" asp-page="/Index">← Все расчёты</a>
+
+<section class="panel job-live" data-status-url="@JobStatusEndpoints.UrlFor(job.JobId)">
+    <header class="job-head">
+        <div class="job-head-text">
+            <h1>@job.Title</h1>
+            <p class="job-meta">
+                <span class="mono">@job.UploadName</span>
+                <span>главный чертёж <code>@job.MainFile</code></span>
+                @if (job.OverlayFiles is { Count: > 0 })
                 {
-                    <tr class="stage stage-@stage.State" data-stage="@stage.Key" data-state="@stage.State" data-seconds="@stage.Seconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                        <th>@stage.Title</th>
-                        <td data-stage-time>@stage.TimeText</td>
-                    </tr>
+                    <span>наложены в тех же координатах: @string.Join(", ", job.OverlayFiles)</span>
                 }
-                <tr class="stage-total" data-seconds="@timeline.ElapsedSeconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                    <th>Всего</th>
-                    <td data-elapsed>@timeline.ElapsedText</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <p>Загружено: @job.UploadName; главный чертёж: <code>@job.MainFile</code></p>
-    @if (job.OverlayFiles is { Count: > 0 })
+            </p>
+        </div>
+        <span class="status status-@job.Status" data-status-text>@JobStatusText.For(job.Status)</span>
+    </header>
+
+    @if (!finished)
     {
-        <p>Наложены в тех же координатах: @string.Join(", ", job.OverlayFiles)</p>
+        <p class="progress"><span data-progress-text>@JobProgressText.For(job)</span> Страница покажет итог сама, как только расчёт завершится.</p>
+        <p class="lead" data-connection-text hidden>Нет связи с сервисом расчёта, повторим попытку чуть позже.</p>
     }
-    <p>Создан: @job.CreatedAt; обновлён: @job.UpdatedAt</p>
+
+    <details class="stages-box" open="@(finished ? null : "open")">
+        <summary>Ход расчёта <span class="mono stages-total">@timeline.ElapsedText</span></summary>
+        <ol class="stages">
+            @foreach (var stage in timeline.Stages)
+            {
+                <li class="stage stage-@stage.State" data-stage="@stage.Key" data-state="@stage.State" data-seconds="@stage.Seconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                    <span class="stage-title">@stage.Title</span>
+                    <span class="stage-time mono" data-stage-time>@stage.TimeText</span>
+                </li>
+            }
+            <li class="stage-total" data-seconds="@timeline.ElapsedSeconds?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                <span class="stage-title">Всего</span>
+                <span class="stage-time mono" data-elapsed>@timeline.ElapsedText</span>
+            </li>
+        </ol>
+    </details>
+
     @if (job.Error is not null)
     {
         <pre class="alert">@job.Error</pre>
@@ -56,37 +67,73 @@
 
 @if (job.Status == JobStatuses.Succeeded)
 {
-    <section class="card">
-        <h2>Итог</h2>
-        <table class="summary">
-            <tbody>
-                <tr><th>Размещение</th><td>@GuidanceText.For(summary.Text("guidance"))</td></tr>
+    <section class="stats" aria-label="Итог расчёта">
+        <div class="stat">
+            <span class="stat-value">@summary.Integer("trees")</span>
+            <span class="stat-label">Деревьев</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value">@summary.Integer("shrubs")</span>
+            <span class="stat-label">Кустарников</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value">@summary.Integer("rejected")</span>
+            <span class="stat-label">Отказов с объяснением</span>
+        </div>
+        <div class="stat @(verified ? "stat-good" : "stat-bad")">
+            <span class="stat-value">@summary.Integer("violations")</span>
+            <span class="stat-label">Независимая проверка: @(verified ? "пройдена" : "не пройдена"), нарушений</span>
+        </div>
+    </section>
+
+    <div class="result">
+        @if (job.Artifacts.Contains("preview.png"))
+        {
+            <figure class="panel preview-panel">
+                <a href="@ArtifactEndpoints.UrlFor(job.JobId, "preview.png")" target="_blank" rel="noopener">
+                    <img class="preview" src="@ArtifactEndpoints.UrlFor(job.JobId, "preview.png")" alt="Превью плана посадок" />
+                </a>
+                <figcaption>Превью плана: посадки на подоснове, зоны запрета и отказы. Нажмите, чтобы открыть крупно.</figcaption>
+            </figure>
+        }
+
+        <section class="panel">
+            <h2>Итог</h2>
+            <dl class="facts">
+                <dt>Размещение</dt>
+                <dd>@GuidanceText.For(summary.Text("guidance"))</dd>
                 @if (summary.CompositionText() is { } composition)
                 {
-                    <tr><th>Композиция</th><td>@composition</td></tr>
+                    <dt>Композиция</dt>
+                    <dd>@composition</dd>
                 }
                 @if (summary.BenefitText() is { } benefit)
                 {
-                    <tr><th>Польза</th><td>@benefit</td></tr>
+                    <dt>Польза</dt>
+                    <dd>@benefit</dd>
                 }
-                <tr><th>Деревьев</th><td>@summary.Integer("trees")</td></tr>
-                <tr><th>Кустарников</th><td>@summary.Integer("shrubs")</td></tr>
-                <tr><th>Условно допустимых посадок</th><td>@summary.Integer("conditional")</td></tr>
-                <tr><th>Отказов с объяснением</th><td>@summary.Integer("rejected")</td></tr>
-                <tr>
-                    <th>Независимая проверка</th>
-                    <td>@(summary.Flag("verification_valid") == true ? "пройдена" : "не пройдена"), нарушений: @summary.Integer("violations")</td>
-                </tr>
-                <tr>
-                    <th>Исходный чертёж</th>
-                    <td>@(summary.Flag("integrity_is_intact") == true ? "не изменён" : "изменён")</td>
-                </tr>
-            </tbody>
-        </table>
+                <dt>Условно допустимых посадок</dt>
+                <dd>@summary.Integer("conditional")</dd>
+                <dt>Исходный чертёж</dt>
+                <dd>@(summary.Flag("integrity_is_intact") == true ? "не изменён" : "изменён")</dd>
+            </dl>
 
-        @if (summary.Journal().Count > 0)
-        {
-            <h3>Доработка плана агентами</h3>
+            @if (drawings.Count > 0)
+            {
+                <div class="downloads">
+                    @foreach (var name in drawings)
+                    {
+                        <a class="button-primary" href="@ArtifactEndpoints.UrlFor(job.JobId, name)">Скачать DXF</a>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+
+    @if (summary.Journal().Count > 0)
+    {
+        <section class="panel">
+            <h2>Доработка плана агентами</h2>
             <p class="lead">Дизайнер ставит основу, аналитик улицы и критик композиции находят проблемы, координатор закрывает их посадками; каждое решение проверено нормами.</p>
             <details class="journal">
                 <summary>Закрыто проблем: @summary.Journal().Count</summary>
@@ -97,34 +144,28 @@
                     }
                 </ul>
             </details>
-        }
+        </section>
+    }
 
-        @if (summary.Warnings().Count > 0)
-        {
-            <h3>На что обратить внимание</h3>
+    @if (summary.Warnings().Count > 0)
+    {
+        <section class="panel panel-warning">
+            <h2>На что обратить внимание</h2>
             <ul class="warnings">
                 @foreach (var warning in summary.Warnings())
                 {
                     <li>@warning</li>
                 }
             </ul>
-        }
-    </section>
-
-    @if (job.Artifacts.Contains("preview.png"))
-    {
-        <section class="card">
-            <h2>Превью</h2>
-            <img class="preview" src="@ArtifactEndpoints.UrlFor(job.JobId, "preview.png")" alt="Превью плана посадок" />
         </section>
     }
 
-    <section class="card">
+    <section class="panel">
         <h2>Файлы результата</h2>
         <ul class="artifacts">
-            @foreach (var artifact in job.Artifacts)
+            @foreach (var artifact in drawings.Concat(reports))
             {
-                <li><a href="@ArtifactEndpoints.UrlFor(job.JobId, artifact)">@artifact</a></li>
+                <li><a class="mono" href="@ArtifactEndpoints.UrlFor(job.JobId, artifact)">@artifact</a></li>
             }
         </ul>
     </section>
