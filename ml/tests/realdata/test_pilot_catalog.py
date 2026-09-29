@@ -17,7 +17,7 @@ def test_every_listed_drawing_exists(knowledge_root: Path, pilot_objects_root: P
         f"{item.object_id}: {path}"
         for item in catalog.objects
         for path in (item.input_path, item.reference_path)
-        if not (pilot_objects_root / path).is_file()
+        if path is not None and not (pilot_objects_root / path).is_file()
     ]
     assert missing == []
 

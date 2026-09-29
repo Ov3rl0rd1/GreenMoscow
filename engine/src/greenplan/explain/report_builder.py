@@ -154,7 +154,8 @@ def density_warnings(
     notes = (terms.density_exceeded(exceeded),) if exceeded else ()
     expected, planned = plan.expected_trees, plan.planned_trees
     if expected is not None and planned is not None and planned > expected:
-        notes = (*notes, terms.tree_floor(expected, planned, plan.limits.max_trees))
+        placed = counts["trees"][0]
+        notes = (*notes, terms.tree_floor(expected, planned, plan.limits.max_trees, placed))
     return notes
 
 

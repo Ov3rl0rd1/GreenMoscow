@@ -62,6 +62,9 @@ def test_density_excess_is_reported_with_counts(knowledge_root: Path) -> None:
 
 def test_raised_tree_count_is_explained(knowledge_root: Path) -> None:
     terms = ExplanationTerms.from_file(knowledge_root / "rules" / "explanation_terms.yaml")
-    text = terms.tree_floor(19, 82, 274)
+    text = terms.tree_floor(19, 82, 274, 82)
     assert "около 19 деревьев" in text
-    assert "до 274" in text and "поднято до 82" in text
+    assert "до 274" in text and "поднята до 82" in text
+    assert "позволили" not in text
+    short = terms.tree_floor(3, 94, 314, 15)
+    assert "поднята до 94" in short and "позволили поставить только 15" in short

@@ -45,9 +45,11 @@ def test_share_is_zero_without_plantings() -> None:
 
 def test_pilot_catalogue_reads_every_object(knowledge_root: Path) -> None:
     catalog = PilotCatalog.from_file(knowledge_root / "dataset" / "pilot_objects.yaml")
-    assert len(catalog.objects) == 12
+    assert len(catalog.objects) == 19
     assert catalog.dataset_root.endswith("Пилотный проект 20 улиц")
-    assert all(item.input_path and item.reference_path for item in catalog.objects)
+    assert all(item.input_path for item in catalog.objects)
+    assert all(item.reference_path for item in catalog.objects if item.level != "C")
+    assert all(item.reference_path is None for item in catalog.objects if item.level == "C")
 
 
 def test_catalogue_filters_objects_by_level(knowledge_root: Path) -> None:
