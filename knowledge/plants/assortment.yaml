@@ -175,7 +175,7 @@ species:
     height_m: 25.0
     block_candidates: ["Дуб"]
     street_suitable: false
-    notes_ru: "Не путать с дубом красным (Quercus rubra) — III группа 369-ПП по вторичным источникам."
+    notes_ru: "Не путать с дубом красным (Quercus rubra) — группа III перечня 369-ПП."
 
   - key: sorbus_aucuparia
     official_names: ["Рябина обыкновенная (формы и сорта)"]

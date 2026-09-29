@@ -133,7 +133,7 @@ def test_overhead_line_explains_crown_edge_and_assumed_voltage(
     text = explanation.explanation_ru
     assert explanation.status == REJECTED
     assert "до края кроны — 1 м при требуемых 3 м" in text
-    assert "ПУЭ, 7-е изд., таблица 2.5.21" in text
+    assert "ПУЭ, 7-е изд., п. 2.5.217, таблица 2.5.21" in text
     assert "принято 10 кВ" in text
     assert unexplained_numbers(explanation) == set()
 
