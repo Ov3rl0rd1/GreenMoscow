@@ -2,6 +2,7 @@ from dataclasses import replace
 
 from greenplan.domain.norms import (
     CONDITIONAL_MEASURE,
+    CROWN_EDGE_MEASUREMENT,
     DISTANCE_RULE,
     GEOMETRY_MEASUREMENT,
     NO_ACTIVATIONS,
@@ -65,7 +66,7 @@ class RequirementResolver:
             for rule in self._evaluated_rules
             if rule.rule_type == DISTANCE_RULE
             and rule.applies_to(obstacle_kind, target)
-            and rule.distance_for(target) is None
+            and self._base_distance(rule, target) is None
         )
 
     def max_requirement_distance_m(self, crown_diameter_m: float) -> float:
@@ -73,7 +74,9 @@ class RequirementResolver:
         if key not in self._max_distance_cache:
             self._max_distance_cache[key] = max(
                 (
-                    self._base_distance(rule, target) + self._crown_increment(rule, target, crown_diameter_m)
+                    self._base_distance(rule, target)
+                    + self._crown_increment(rule, target, crown_diameter_m)
+                    + crown_edge_radius(rule, crown_diameter_m)
                     for rule in self._evaluated_rules
                     for target in rule.targets
                     if self._base_distance(rule, target) is not None
@@ -83,11 +86,11 @@ class RequirementResolver:
         return self._max_distance_cache[key]
 
     def _base_distance(self, rule: NormRule, target: str) -> float | None:
+        if rule.zone_by_voltage:
+            return self._zone_for_voltage(rule)
         if rule.rule_type == DISTANCE_RULE:
             return rule.distance_for(target)
-        if rule.zone_m is not None:
-            return rule.zone_m
-        return self._zone_for_voltage(rule)
+        return rule.zone_m
 
     def _zone_for_voltage(self, rule: NormRule) -> float | None:
         applicable = [
@@ -101,6 +104,7 @@ class RequirementResolver:
             or rule.severity != PROHIBITIVE
             or target != TREE
             or not rule.crown_increment
+            or rule.measures_to_crown_edge
         ):
             return 0.0
         return max(0.0, (crown_diameter_m - self._repository.defaults.crown_base_diameter_m) / 2)
@@ -156,13 +160,25 @@ class RequirementResolver:
             rule_type=rule.rule_type,
             distance_m=base_distance + increment,
             base_distance_m=base_distance,
-            measurement_mode=MEASUREMENT_BY_MEASURED_FROM.get(rule.measured_from, GEOMETRY_MEASUREMENT),
+            measurement_mode=measurement_mode(rule),
             source_refs=rule.source_refs,
             competing=rule.competing,
             crown_increment_m=increment,
             condition_ru=rule.condition_ru,
             is_assumption=rule.is_assumption,
+            crown_radius_m=crown_edge_radius(rule, crown_diameter_m),
+            voltage_kv=self._unknown_overhead_voltage_kv if rule.zone_by_voltage else None,
         )
+
+
+def measurement_mode(rule: NormRule) -> str:
+    if rule.measures_to_crown_edge:
+        return CROWN_EDGE_MEASUREMENT
+    return MEASUREMENT_BY_MEASURED_FROM.get(rule.measured_from, GEOMETRY_MEASUREMENT)
+
+
+def crown_edge_radius(rule: NormRule, crown_diameter_m: float) -> float:
+    return crown_diameter_m / 2 if rule.measures_to_crown_edge else 0.0
 
 
 def normalize_species_name(name: str | None) -> str:

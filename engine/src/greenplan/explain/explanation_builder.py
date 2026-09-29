@@ -185,6 +185,7 @@ class ExplanationBuilder:
                 CompetingView(self._citations.view(item.source_ref), item.distance_m)
                 for item in requirement.competing
             ),
+            assumed_voltage_kv=requirement.voltage_kv,
         )
 
     def _crown_rule_citations(self, crown_increment_m: float):

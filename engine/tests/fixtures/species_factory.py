@@ -13,6 +13,7 @@ def species(
     usage: int = 0,
     crown_class: str | None = None,
     street_suitability: str = STREET_SUITABLE,
+    invasive_status: str | None = None,
 ) -> Species:
     return Species(
         key=key,
@@ -25,6 +26,7 @@ def species(
         heating_min_axis_m=heating_min_axis_m,
         street_suitability=street_suitability,
         reference_usage_total=usage,
+        invasive_status=invasive_status,
     )
 
 

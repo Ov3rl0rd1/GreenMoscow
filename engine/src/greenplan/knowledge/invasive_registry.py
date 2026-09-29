@@ -11,7 +11,13 @@ ALLOWED = "allowed"
 ALLOWED_WITH_CONTROL = "allowed_with_control"
 CONDITIONAL = "conditional"
 EXCLUDED = "excluded"
-STATUS_BY_POLICY = {"exclude": EXCLUDED, "exclude_with_warning": EXCLUDED, "conditional": CONDITIONAL}
+STATUS_BY_POLICY = {
+    "exclude": EXCLUDED,
+    "exclude_with_warning": EXCLUDED,
+    "conditional": CONDITIONAL,
+    "allow_with_control": ALLOWED_WITH_CONTROL,
+}
+STATUS_PRIORITY = (EXCLUDED, CONDITIONAL, ALLOWED_WITH_CONTROL)
 CONFLICTING_VERIFICATION = "conflicting"
 UNVERIFIED_CONFLICT_POLICY = "unverified_conflict"
 FEDERAL_CENTRAL_POLICY = "federal_77_central"
@@ -59,7 +65,8 @@ class InvasiveRegistry:
             )
         if not matched:
             return InvasiveVerdict(ALLOWED)
-        status = EXCLUDED if any(listing.status == EXCLUDED for listing in matched) else CONDITIONAL
+        found = {listing.status for listing in matched}
+        status = next(status for status in STATUS_PRIORITY if status in found)
         return InvasiveVerdict(
             status,
             tuple(sorted({listing.source_ref for listing in matched})),

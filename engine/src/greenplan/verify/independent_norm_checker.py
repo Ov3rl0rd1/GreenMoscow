@@ -61,6 +61,7 @@ class IndependentNormChecker:
         self._largest_rule_distance_m = max(
             (self._base_distance(rule) or 0.0 for rule in self._rules), default=0.0
         )
+        self._measures_to_crown_edge = any(rule.measures_to_crown_edge for rule in self._rules)
 
     def violations(self, plants: Sequence[PlacedPlant], site: SiteModel) -> list[VerificationViolation]:
         obstacles = site.obstacles
@@ -82,7 +83,7 @@ class IndependentNormChecker:
                 required = self._required_distance(rule, plant)
                 if required is None:
                     continue
-                actual = self._measured_distance(plant, obstacle, rule.measured_from)
+                actual = self._measured_distance(plant, obstacle, rule)
                 if actual + self._tolerance_m >= required:
                     continue
                 minimum = self._root_barrier_minimum(rule, plant, required)
@@ -120,10 +121,16 @@ class IndependentNormChecker:
         return self._reduced_distance_m
 
     def _search_radius_m(self, plant: PlacedPlant) -> float:
-        return self._largest_rule_distance_m + self._crown_increment_m(plant) + self._search_margin_m
+        crown_edge = plant.crown_diameter_m / 2 if self._measures_to_crown_edge else 0.0
+        return (
+            self._largest_rule_distance_m
+            + self._crown_increment_m(plant)
+            + crown_edge
+            + self._search_margin_m
+        )
 
     def _required_distance(self, rule: NormRule, plant: PlacedPlant) -> float | None:
-        if rule.rule_type == ZONE_RULE:
+        if rule.rule_type == ZONE_RULE or rule.zone_by_voltage:
             return self._base_distance(rule)
         table_distance = rule.distance_for(plant.plant_type)
         if table_distance is None:
@@ -133,21 +140,24 @@ class IndependentNormChecker:
         return table_distance
 
     def _base_distance(self, rule: NormRule) -> float | None:
+        if rule.zone_by_voltage:
+            return next((zone for max_kv, zone in rule.zone_by_voltage if self._voltage_kv <= max_kv), None)
         if rule.rule_type == DISTANCE_RULE:
             return max(
                 (distance for _target, distance in rule.distances if distance is not None), default=None
             )
-        if rule.zone_m is not None:
-            return rule.zone_m
-        return next((zone for max_kv, zone in rule.zone_by_voltage if self._voltage_kv <= max_kv), None)
+        return rule.zone_m
 
     def _crown_increment_m(self, plant: PlacedPlant) -> float:
         if plant.plant_type != TREE:
             return 0.0
         return max(0.0, (plant.crown_diameter_m - self._defaults.crown_base_diameter_m) / 2)
 
-    def _measured_distance(self, plant: PlacedPlant, obstacle: Obstacle, measured_from: str) -> float:
+    def _measured_distance(self, plant: PlacedPlant, obstacle: Obstacle, rule: NormRule) -> float:
         axis_distance = plant.position.distance(obstacle.geometry)
+        if rule.measures_to_crown_edge:
+            return axis_distance - plant.crown_diameter_m / 2
+        measured_from = rule.measured_from
         if measured_from == MEASURED_FROM_NETWORK_SURFACE:
             return (
                 axis_distance

@@ -25,6 +25,7 @@ def rule_payload(rule: NormRule, policy: CitationPolicy) -> dict[str, Any]:
         "zone_m": rule.zone_m,
         "zone_by_voltage_kv": [{"max_kv": max_kv, "zone_m": zone} for max_kv, zone in rule.zone_by_voltage],
         "measured_from": rule.measured_from,
+        "measured_to": rule.measured_to,
         "species_ru": list(rule.species_ru),
         "condition_ru": rule.condition_ru,
         "is_assumption": rule.is_assumption,

@@ -3,87 +3,81 @@
 # Два источника:
 #  1) Постановление Правительства Москвы от 03.03.2026 № 369-ПП «О мерах по регулированию
 #     распространения и численности инвазивных растений на территории города Москвы».
-#     Утверждены: Перечень инвазивных видов растений (4 группы) и Порядок осуществления мер.
-#     Постановлением внесены изменения в 743-ПП, 616-ПП, 296-ПП (обзор КонсультантПлюс
-#     от 12.03.2026 — research/norms-texts/PPM_369-PP_consultant_review_20260312.txt).
-#     ОФИЦИАЛЬНЫЙ ТЕКСТ ПЕРЕЧНЯ НЕ ПОЛУЧЕН: mos.ru и КонсультантПлюс отдают
-#     JS-заглушки, в Гаранте — только обзор. Состав групп ниже собран из вторичных источников.
+#     Приложение 1 — Перечень инвазивных видов растений (4 группы), приложение 2 — Порядок
+#     осуществления мер. Официальный текст сверен 29.09.2026 (КонсультантПлюс, сохранён 29.09.2026).
+#     Порядок: группы I, II, IV — запрет высадки (пп. 2.4, 3.1, 4.1, 6.1); группа III — высадка
+#     не допускается на ООЗТ и природных территориях (п. 5.2), на иных территориях зелёного фонда
+#     допускается при мерах по недопущению распространения (п. 5.3).
 #  2) Приказ Минприроды России от 13.02.2026 № 77 — федеральный перечень опасных видов
 #     инвазивных (чужеродных) растений для ООПТ федерального значения. Текст получен
 #     (research/norms-texts/Prikaz_MPR_77_2026_federal_invasive_list.txt).
 #
-# verification:
-#   verified     — видно в официальном тексте
-#   secondary    — только во вторичном источнике (новости/статьи)
-#   conflicting  — источники расходятся
+# latin — имя для сопоставления с ассортиментом; latin_official — как в тексте постановления.
 
 meta:
-  version: "0.2.0"
-  updated: "2026-09-15"
+  version: "0.3.0"
+  updated: "2026-09-29"
   generator_policy:
     group_I:   exclude
     group_II:  exclude
-    group_III: exclude_with_warning   # «запретят высаживать на зелёных территориях» (ecoportal)
-    group_IV:  exclude                # травянистые, в ассортимент не входят
+    group_III: allow_with_control
+    group_IV:  exclude
     federal_77_central: exclude
-    unverified_conflict: conditional  # показывать как «условно допустимо, проверить по 369-ПП»
+    unverified_conflict: conditional  # вид помечен в ассортименте как спорный — «условно, проверить по 369-ПП»
 
 moscow_369pp:
   source_ref: ppm369_invasive
   groups:
     I:
-      description_ru: "наиболее вредоносные; удаление в течение 3 лет (по ecoportal)"
-      verification: secondary
+      description_ru: "запрет высадки и закупки, полное удаление в течение календарного года (пп. 2.4, 3.1, 3.2 Порядка)"
+      verification: verified
       species:
-        - {ru: "Айлант высочайший",        latin: "Ailanthus altissima"}
-        - {ru: "Борщевик Сосновского",     latin: "Heracleum sosnowskyi"}
-        - {ru: "Золотарник канадский",     latin: "Solidago canadensis"}
-        - {ru: "Золотарник гигантский",    latin: "Solidago gigantea"}
-        - {ru: "Люпин многолистный",       latin: "Lupinus polyphyllus"}
-        - {ru: "Рейнутрия (виды)",         latin: "Reynoutria spp."}
+        - {ru: "Айлант высочайший",        latin: "Ailanthus altissima",   latin_official: "Ailanthus altissima (Mill.) Swingle"}
+        - {ru: "Борщевик Сосновского",     latin: "Heracleum sosnowskyi",  latin_official: "Heracleum sosnowskyi Manden"}
+        - {ru: "Золотарник канадский",     latin: "Solidago canadensis",   latin_official: "Solidago canadensis, gigantea"}
+        - {ru: "Золотарник гигантский",    latin: "Solidago gigantea",     latin_official: "Solidago canadensis, gigantea"}
+        - {ru: "Люпин многолистный",       latin: "Lupinus polyphyllus",   latin_official: "Lupinus polyphyllus Lindl."}
+        - {ru: "Рейнутрия",                latin: "Reynoutria spp.",       latin_official: "Reynoutria ssp."}
     II:
-      description_ru: "клён ясенелистный; удаление в течение 10 лет"
-      verification: secondary
+      description_ru: "все меры п. 2 Порядка, включая запрет высадки; поэтапное удаление за 10 лет (пп. 4.1, 4.4)"
+      verification: verified
       species:
-        - {ru: "Клён ясенелистный (американский)", latin: "Acer negundo"}
+        - {ru: "Клён ясенелистный",        latin: "Acer negundo",          latin_official: "Acer negundo L."}
     III:
-      description_ru: "8 видов деревьев и 6 видов кустарников; запрет высадки на зелёных территориях (по ecoportal)"
-      verification: conflicting
-      note_ru: >-
-        Полный состав не установлен. v2b.ru перечисляет аморфу кустарниковую, девичий виноград,
-        дёрен белый, дуб красный, иргу колосистую и ольхолистную, облепиху крушиновидную,
-        орех маньчжурский, черёмуху виргинскую, ясень пенсильванский «и некоторые другие».
-        ecoportal упоминает дуб красный, розу морщинистую и облепиху.
-        Разрешено 23.09.2026 официальной таблицей ассортимента ДПиООС: дёрен белый,
-        роза морщинистая, девичий виноград, дуб красный, ирга колосистая, аморфа, черёмуха
-        виргинская, орех маньчжурский стоят в основном ассортименте с примечанием [1] «разрешён на
-        всех территориях, кроме ООЗТ и ПТ, с контролем распространения (п. 5 ПП №369-ПП)». Движок
-        для видов с [1] выдаёт статус allowed_with_control (species/territory_policy.py).
+      description_ru: >-
+        высадка не допускается на ООЗТ и природных территориях (п. 5.2 Порядка); на иных территориях
+        зелёного фонда допускается при мерах по недопущению распространения (п. 5.3)
+      verification: verified
       species:
-        - {ru: "Аморфа кустарниковая",     latin: "Amorpha fruticosa",        form: shrub, sources: [v2b]}
-        - {ru: "Девичий виноград",         latin: "Parthenocissus spp.",      form: liana, sources: [v2b], in_customer_symbols: true}
-        - {ru: "Дёрен белый",              latin: "Cornus alba",              form: shrub, sources: [v2b], in_customer_symbols: true, used_in_pilot_projects: true,
-           conflict_ru: "массово используется в проектах пилота июля–сентября 2026 (Олимпийская 1 099 шт., Багрицкого 137, Старый Гай — 3 сорта). Вопрос экспертам."}
-        - {ru: "Дуб красный",              latin: "Quercus rubra",            form: tree,  sources: [v2b, ecoportal]}
-        - {ru: "Ирга колосистая",          latin: "Amelanchier spicata",      form: shrub, sources: [v2b], in_customer_symbols: true, note_ru: "в библиотеке знаков блок «Ирга» без уточнения вида"}
-        - {ru: "Ирга ольхолистная",        latin: "Amelanchier alnifolia",    form: shrub, sources: [v2b]}
-        - {ru: "Облепиха крушиновидная",   latin: "Hippophae rhamnoides",     form: shrub, sources: [v2b, ecoportal]}
-        - {ru: "Орех маньчжурский",        latin: "Juglans mandshurica",      form: tree,  sources: [v2b]}
-        - {ru: "Роза морщинистая",         latin: "Rosa rugosa",              form: shrub, sources: [ecoportal], in_customer_symbols: true,
-           note_ru: "в федеральном перечне Приказа МПР № 77 — только для Северо-Западного ФО"}
-        - {ru: "Черёмуха виргинская",      latin: "Prunus virginiana",        form: tree,  sources: [v2b]}
-        - {ru: "Ясень пенсильванский",     latin: "Fraxinus pennsylvanica",   form: tree,  sources: [v2b]}
+        - {ru: "Аморфа кустарниковая",     latin: "Amorpha fruticosa",       latin_official: "Amorpha fruticosa L."}
+        - {ru: "Девичий виноград",         latin: "Parthenocissus inserta",  latin_official: "Parthenocissus inserta (A. Kern.) Fritsch"}
+        - {ru: "Дёрен белый",              latin: "Cornus alba",             latin_official: "Cornus albus L."}
+        - {ru: "Дуб красный",              latin: "Quercus rubra",           latin_official: "Quercus rubra L."}
+        - {ru: "Ирга колосистая",          latin: "Amelanchier spicata",     latin_official: "Amelanchier spicata Decne"}
+        - {ru: "Ирга ольхолистная",        latin: "Amelanchier alnifolia",   latin_official: "Amelanchier alnifolia (Nutt.) Nutt. ex M. Roem"}
+        - {ru: "Облепиха крушиновидная",   latin: "Hippophae rhamnoides",    latin_official: "Hippophae rhamnoides L"}
+        - {ru: "Орех маньчжурский",        latin: "Juglans mandshurica",     latin_official: "Juglans mandshurica Maxim."}
+        - {ru: "Пузыреплодник калинолистный", latin: "Physocarpus opulifolius", latin_official: "Physocarpus opulifolius Maxim."}
+        - {ru: "Робиния псевдоакация (белая акация)", latin: "Robinia pseudoacacia", latin_official: "Robinia pseudoacacia L."}
+        - {ru: "Роза морщинистая (шиповник морщинистый)", latin: "Rosa rugosa", latin_official: "Rosa rugosa Thunb"}
+        - {ru: "Рябинник рябинолистный",   latin: "Sorbaria sorbifolia",     latin_official: "Sorbaria sorbifolia (L.) A. Braun"}
+        - {ru: "Черёмуха виргинская",      latin: "Prunus virginiana",       latin_official: "Prunus virginiana L."}
+        - {ru: "Ясень пенсильванский",     latin: "Fraxinus pennsylvanica",  latin_official: "Fraxinus pennsylvanica Marshall"}
     IV:
-      description_ru: "11 травянистых видов; сокращение численности"
-      verification: secondary
+      description_ru: "запрет высадки и закупки (пп. 2.3, 2.4, 2.6, 6.1 Порядка); травянистые, в ассортимент не входят"
+      verification: verified
       species:
-        - {ru: "Белокопытник гибридный",    latin: "Petasites hybridus"}
-        - {ru: "Вероника нитевидная",       latin: "Veronica filiformis"}
-        - {ru: "Мелколепестник канадский",  latin: "Erigeron canadensis"}
-        - {ru: "Череда олиственная",        latin: "Bidens frondosa"}
-        - {ru: "Элодея канадская",          latin: "Elodea canadensis"}
-        - {ru: "Прилипало пристающее",      latin: "Lappula squarrosa"}
-        - {ru: "Недотрога мелкоцветковая",  latin: "Impatiens parviflora"}
+        - {ru: "Белокопытник гибридный",    latin: "Petasites hybridus",     latin_official: "Petasites hybridus (L.) G. Gaertn., B. Mey. & Scherb."}
+        - {ru: "Вероника нитевидная",       latin: "Veronica filiformis",    latin_official: "Veronica filiformis Sm."}
+        - {ru: "Мелколепестник канадский",  latin: "Erigeron canadensis",    latin_official: "Erigeron canadensis L."}
+        - {ru: "Недотрога железконосная",   latin: "Impatiens glandulifera", latin_official: "Impatiens glandulifera Royle"}
+        - {ru: "Недотрога мелкоцветковая",  latin: "Impatiens parviflora",   latin_official: "Impatiens parviflora DC."}
+        - {ru: "Подсолнечник клубневой (топинамбур)", latin: "Helianthus tuberosus", latin_official: "Helianthus tuberosus L."}
+        - {ru: "Прилипало пристающее",      latin: "Adenocaulon adhaerescens", latin_official: "Adenocaulon adhaerescens Maxim."}
+        - {ru: "Цицания широколистная",     latin: "Zizania latifolia",      latin_official: "Zizania latifolia (Griseb.) Hance ex F. Muell."}
+        - {ru: "Череда олиственная",        latin: "Bidens frondosa",        latin_official: "Bidens frondosa L"}
+        - {ru: "Элодея канадская",          latin: "Elodea canadensis",      latin_official: "Elodea canadensis Michx"}
+        - {ru: "Эхиноцистис лопастной",     latin: "Echinocystis lobata",    latin_official: "Echinocystis lobata (Michx.) Torr. & A. Gray"}
 
 federal_mpr_77_2026:
   source_ref: mpr77_invasive
@@ -104,12 +98,13 @@ federal_mpr_77_2026:
     - {ru: "Лох узколистный",      latin: "Elaeagnus angustifolia", district: "Южный ФО"}
     - {ru: "Аморфа кустарниковая", latin: "Amorpha fruticosa", district: "Южный ФО"}
 
-# Что в библиотеке знаков заказчика и в ассортименте генератора попадает под фильтр
+# Что в библиотеке знаков заказчика и в ассортименте генератора попадает под перечень 369-ПП
 customer_assortment_impact:
-  - {symbol_block: "Дерен белый",               status: conflicting_group_III}
-  - {symbol_block: "Дерен белый Сибирика",       status: conflicting_group_III}
-  - {symbol_block: "Роза морщинистая Alba",      status: conflicting_group_III}
-  - {symbol_block: "Девичий виноград",           status: conflicting_group_III}
-  - {symbol_block: "Ирга",                       status: check_species, note_ru: "колосистая и ольхолистная — в III группе; другие виды ирги — нет"}
-  - {symbol_block: "Акация (Робиния)",           status: not_listed_in_available_sources}
+  - {symbol_block: "Дерен белый",               status: group_III_allowed_with_control}
+  - {symbol_block: "Дерен белый Сибирика",       status: group_III_allowed_with_control}
+  - {symbol_block: "Роза морщинистая Alba",      status: group_III_allowed_with_control}
+  - {symbol_block: "Девичий виноград",           status: group_III_if_inserta, note_ru: "в перечне — только Parthenocissus inserta"}
+  - {symbol_block: "Ирга",                       status: check_species, note_ru: "колосистая и ольхолистная — группа III; другие виды ирги в перечень не входят"}
+  - {symbol_block: "Акация (Робиния)",           status: group_III_allowed_with_control}
+  - {symbol_block: "Пузыреплодник калинолистный", status: group_III_allowed_with_control}
   - {symbol_block: "Лох",                        status: federal_south_only}

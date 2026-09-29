@@ -20,6 +20,7 @@ UPPER_BOUND = "upper"
 LOWER_BOUND = "lower"
 METERS_IN_KILOMETER = 1000.0
 SQUARE_METERS_IN_HECTARE = 10_000.0
+SHRUB_ROW_GAP_KEY = "shrub_row_strip_increment_m"
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,6 +38,7 @@ class PlantingLimits:
     density_measure: float
     density_unit: str
     rule_ids: tuple[str, ...]
+    shrub_row_gap_m: float = 0.0
 
 
 class PlantingLimitsResolver:
@@ -47,7 +49,8 @@ class PlantingLimitsResolver:
     def resolve(self, site: SiteModel, bounds: SpacingBounds | None = None) -> PlantingLimits:
         settings = self._settings
         sides = bounds or SpacingBounds()
-        spacing = self._repository.rule(settings.spacing_rule_id).parameters["spacing_m"]
+        spacing_rule = self._repository.rule(settings.spacing_rule_id).parameters
+        spacing = spacing_rule["spacing_m"]
         density = self._repository.rule(settings.density_rule_id).parameters
         unit = _density_unit(density["per"], settings.density_context)
         measure = _density_measure(site, unit, settings.street_piece_gap_m)
@@ -62,6 +65,9 @@ class PlantingLimitsResolver:
             density_measure=measure,
             density_unit=unit,
             rule_ids=(settings.spacing_rule_id, settings.density_rule_id),
+            shrub_row_gap_m=bound_of(
+                spacing_rule.get(SHRUB_ROW_GAP_KEY, 0.0), sides.shrub or settings.range_bound
+            ),
         )
 
 

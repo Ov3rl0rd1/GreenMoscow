@@ -96,7 +96,12 @@ class ExplanationTextRenderer:
         else:
             condition = f"; {clearance.condition_ru}" if clearance.condition_ru else ""
             core = f"Точка в {obstacle.zone_ru}: {distance} при ширине зоны {required}{condition}{cite}."
-        return core + self._crown_note(clearance, crown_diameter_m, ledger) + _radius_note(clearance)
+        return (
+            core
+            + self._crown_note(clearance, crown_diameter_m, ledger)
+            + _radius_note(clearance)
+            + _voltage_note(clearance)
+        )
 
     def _crown_note(self, clearance: ClearanceView, crown_diameter_m: float, ledger: CitationLedger) -> str:
         if clearance.crown_increment_m <= 0:
@@ -184,6 +189,15 @@ def _radius_note(clearance: ClearanceView) -> str:
     if not clearance.assumed_outer_radius:
         return ""
     return " Диаметр сети на подоснове не подписан — принят консервативный по умолчанию (допущение решения)."
+
+
+def _voltage_note(clearance: ClearanceView) -> str:
+    if clearance.assumed_voltage_kv is None:
+        return ""
+    return (
+        f" Напряжение ВЛ на чертеже не подписано — принято {format_number(clearance.assumed_voltage_kv)} кВ "
+        "(допущение решения, задаётся в параметрах расчёта)."
+    )
 
 
 def _barrier_minimum_note(clearance: ClearanceView) -> str:

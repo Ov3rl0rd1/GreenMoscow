@@ -21,6 +21,7 @@ NO_ACTIVATIONS: frozenset[str] = frozenset()
 SURFACE_MEASUREMENT = "network_surface"
 STRUCTURE_EDGE_MEASUREMENT = "structure_edge"
 GEOMETRY_MEASUREMENT = "geometry"
+CROWN_EDGE_MEASUREMENT = "crown_edge"
 
 VERIFIED_STATUSES = frozenset({"verified", "verified_partial"})
 
@@ -69,6 +70,7 @@ class NormRule:
     activation: str = ""
     root_barrier: bool = False
     crown_increment: bool = True
+    measured_to: str = ""
     parameters: dict[str, Any] = field(default_factory=dict)
 
     def distance_for(self, target: str) -> float | None:
@@ -79,6 +81,10 @@ class NormRule:
 
     def applies_to(self, obstacle_kind: str, target: str) -> bool:
         return obstacle_kind in self.obstacles and target in self.targets
+
+    @property
+    def measures_to_crown_edge(self) -> bool:
+        return self.measured_to == CROWN_EDGE_MEASUREMENT
 
 
 @dataclass(frozen=True, slots=True)
@@ -96,6 +102,8 @@ class Requirement:
     crown_increment_m: float
     condition_ru: str
     is_assumption: bool
+    crown_radius_m: float = 0.0
+    voltage_kv: float | None = None
 
     @property
     def is_zone(self) -> bool:

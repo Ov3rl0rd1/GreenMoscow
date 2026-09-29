@@ -296,10 +296,19 @@ rules:
   - id: pue_overhead_to_tree
     obstacle: overhead_line
     target: tree
+    measured_from: outer_conductor
+    measured_to: crown_edge            # табл. 2.5.21 — «между проводами ВЛ и кронами деревьев»
     severity: prohibitive
-    source_ref: pue
-    verification: needs_check
-    note_ru: "прим. 2 к табл. 9.1 отсылает к ПУЭ; текст ПУЭ не сверен, числового отступа нет — под ВЛ подбираются низкорослые породы"
+    source_refs: [sp42_t9_1_note2, pue_p2_4_8, pue_t2_5_21]
+    distance_by_voltage_kv:
+      - {max_kv: 1,   distance_m: 1.0, note_ru: "п. 2.4.8: неизолированные провода — 1 м, изолированные — 0,5 м, СИП — 0,3 м; тип провода по чертежу не известен — принято наибольшее"}
+      - {max_kv: 20,  distance_m: 3.0}
+      - {max_kv: 110, distance_m: 4.0}
+      - {max_kv: 220, distance_m: 5.0}
+      - {max_kv: 500, distance_m: 6.0}
+      - {max_kv: 750, distance_m: 7.0}
+    verification: verified
+    note_ru: "прим. 2 к табл. 9.1 СП 42 отсылает к ПУЭ; главы 2.4 и 2.5 ПУЭ сверены 29.09.2026. Напряжение ВЛ по чертежу не известно — принимается design.unknown_overhead_voltage_kv (по умолчанию 10 кВ)"
 
   - id: pp578_comm_zone
     activation: protection_zones
@@ -520,6 +529,7 @@ rules:
       shrub_single_row_medium_low: [0.3, 0.4]
       tree_group: [5.0, 7.0]
       shrub_group: 0.3
+    shrub_row_strip_increment_m: [1.5, 2.0]   # примечание к табл. 3.6.2: на каждый дополнительный ряд кустарника
     severity: advisory                 # «ориентировочные»
     source_ref: ppm743_p3_6_4_t3_6_2
 

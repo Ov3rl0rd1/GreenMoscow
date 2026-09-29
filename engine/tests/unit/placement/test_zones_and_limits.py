@@ -89,6 +89,7 @@ def test_street_limits_come_from_norms(toolkit: NormsToolkit) -> None:
     assert limits.shrub_spacing_m == pytest.approx(1.0)
     assert limits.density_unit == PER_KILOMETER
     assert (limits.max_trees, limits.max_shrubs) == (18, 72)
+    assert limits.shrub_row_gap_m == pytest.approx(2.0)
 
 
 def test_lower_spacing_bound_keeps_the_density_cap(toolkit: NormsToolkit) -> None:
@@ -96,6 +97,7 @@ def test_lower_spacing_bound_keeps_the_density_cap(toolkit: NormsToolkit) -> Non
     limits = resolver.resolve(street_site(), SpacingBounds(LOWER_BOUND, LOWER_BOUND))
     assert limits.tree_spacing_m == pytest.approx(5.0)
     assert limits.shrub_spacing_m == pytest.approx(0.5)
+    assert limits.shrub_row_gap_m == pytest.approx(1.5)
     assert (limits.max_trees, limits.max_shrubs) == (18, 72)
 
 

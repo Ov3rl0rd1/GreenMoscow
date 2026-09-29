@@ -99,6 +99,15 @@ def test_rounding_of_exported_coordinates_is_tolerated() -> None:
     assert violations == []
 
 
+def test_overhead_line_distance_is_checked_to_the_crown_edge(checker: IndependentNormChecker) -> None:
+    site = open_site((network("overhead_line", [(-50, 0), (50, 0)]),))
+    violations = checker.violations([plant("T-1", 0, 5.0, crown=6.0)], site)
+    assert [(item.code, item.actual_m, item.required_m) for item in violations] == [
+        ("pue_overhead_to_tree", 2.0, 3.0)
+    ]
+    assert checker.violations([plant("T-2", 0, 6.1, crown=6.0)], site) == []
+
+
 def test_protection_zone_is_not_checked_by_default(checker: IndependentNormChecker) -> None:
     assert checker.violations([plant("T-1", 0, 1.8)], gas_site()) == []
 

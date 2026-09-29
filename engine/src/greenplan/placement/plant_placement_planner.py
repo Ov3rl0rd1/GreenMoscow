@@ -183,6 +183,7 @@ class PlantPlacementPlanner:
             profile.spacing_m,
             count,
             Companions(companions, self._companion_reach_m),
+            profile.row_gap_m,
         )
 
     def _select(

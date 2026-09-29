@@ -79,7 +79,7 @@ def test_verified_citation_carries_locator(policy: CitationPolicy) -> None:
     assert view.text_ru.startswith("СП 42.13330.2016, таблица 9.1")
 
 
-@pytest.mark.parametrize("key", ["pue", "ppm369_invasive", "sp396_1325800"])
+@pytest.mark.parametrize("key", ["pue", "gost21_204", "sp396_1325800"])
 def test_unverified_citation_has_no_locator(policy: CitationPolicy, key: str) -> None:
     view = policy.view(key)
     assert view.locator is None
@@ -123,6 +123,19 @@ def test_crown_increment_is_explained_with_note_reference(
 def test_assumed_network_radius_is_disclosed(toolkit: NormsToolkit, builder: ExplanationBuilder) -> None:
     text = builder.for_decision(tree_decision(toolkit, gas_site(None), 0, 3.0)).explanation_ru
     assert "не подписан" in text
+
+
+def test_overhead_line_explains_crown_edge_and_assumed_voltage(
+    toolkit: NormsToolkit, builder: ExplanationBuilder
+) -> None:
+    site = open_site((network("overhead_line", [(-50, 0), (50, 0)]),))
+    explanation = builder.for_decision(tree_decision(toolkit, site, 0, 4.0, crown=6.0))
+    text = explanation.explanation_ru
+    assert explanation.status == REJECTED
+    assert "до края кроны — 1 м при требуемых 3 м" in text
+    assert "ПУЭ, 7-е изд., таблица 2.5.21" in text
+    assert "принято 10 кВ" in text
+    assert unexplained_numbers(explanation) == set()
 
 
 def test_existing_tree_violation_is_marked_as_assumption(
@@ -181,7 +194,8 @@ def test_species_reasons_and_invasive_check_are_explained(
     text = builder.for_assignment(assignment).explanation_ru
     assert "Порода: Рябина обыкновенная." in text
     assert "623-ПП / МГСН 1.02-02, п. 4.10.4" in text
-    assert "не входит в известные перечни инвазивных растений" in text
+    assert "не входит в перечень инвазивных растений города Москвы" in text
+    assert "369-ПП, приложение 1" in text
 
 
 @pytest.mark.parametrize(
@@ -199,6 +213,7 @@ def test_species_reasons_and_invasive_check_are_explained(
             5.0,
         ),
         (lambda: open_site((point_obstacle("lighting_pole", 0, 0),)), 3.3, 0, 5.0),
+        (lambda: open_site((network("overhead_line", [(-50, 0), (50, 0)]),)), 0, 6.2, 5.0),
         (
             lambda: open_site((), existing_trees=(ExistingTree(Point(0, 0), "keep", "dendro", "dendro"),)),
             2.7,

@@ -23,8 +23,16 @@
 greenplan-ml build-dataset --dataset-root <датасет> --output <каталог> [--levels A]
 greenplan-ml train         --dataset <каталог> --output <прогон> [--profile rtx3050]
 greenplan-ml export        --checkpoint <прогон>/model.pt --output <модель.onnx>
+greenplan-ml calibrate     --dataset <каталог> --model <модель.onnx> --objects <id ...> --output <модель.onnx>
 greenplan-ml evaluate      --dataset <каталог> --model <модель.onnx> --output <отчёты>
+greenplan-ml similarity    --dataset <каталог> --runs имя=<прогон batch> ... --output <отчёты>
+greenplan-ml figures       --dataset <каталог> --runs "Заголовок=<прогон batch>" ... --output <картинки>
+greenplan-ml audit-reference --dataset-root <датасет> --output <отчёты> [--only <id ...>]
 ```
+
+`similarity` сравнивает итоговые планы движка после всех норм с проектными решениями, `figures`
+рисует эталон рядом с планами, `audit-reference` проверяет сами проектные решения теми же нормами.
+Результаты на датасете — в корневом README и в TRAINING.md (шаги 6–7).
 
 ## Тесты
 

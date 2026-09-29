@@ -236,6 +236,7 @@ class CompositionPlanner:
         spacing_m: float,
         budget: int,
         companions: Companions | None = None,
+        row_gap_m: float = 0.0,
     ) -> ComposedPlanting:
         settings = self._settings
         layout = PlantLayout(field, trial, target, max(settings.shrub_group_gap_m, spacing_m))
@@ -250,6 +251,7 @@ class CompositionPlanner:
             HEDGE,
             settings.hedge_band_rows,
             companions,
+            row_gap_m,
         )
         self._shrub_groups(layout, field, spacing_m, budget)
         relaxed = field.relaxed_field()
@@ -269,6 +271,7 @@ class CompositionPlanner:
         kind: str,
         band_rows: Sequence[int] = (1,),
         companions: Companions | None = None,
+        row_gap_m: float = 0.0,
     ) -> None:
         settings = self._settings
         step = max(line_spacing_m, min_spacing_m * LINE_SPACING_MARGIN)
@@ -281,7 +284,16 @@ class CompositionPlanner:
                 return
             companion = companions.near(run.points[len(run.points) // 2]) if companions else ""
             if self._band(
-                layout, field, run, step, min_spacing_m, min_size, remaining, kind, band_rows, companion
+                layout,
+                field,
+                run,
+                (step, row_gap_m),
+                min_spacing_m,
+                min_size,
+                remaining,
+                kind,
+                band_rows,
+                companion,
             ):
                 continue
             window = best_window(field, run.points, remaining)
@@ -297,7 +309,7 @@ class CompositionPlanner:
         layout: PlantLayout,
         field: CompositionField,
         run: LinePoints,
-        step: float,
+        pitch: tuple[float, float],
         min_spacing_m: float,
         min_size: int,
         remaining: int,
@@ -305,12 +317,13 @@ class CompositionPlanner:
         band_rows: Sequence[int],
         companion: str = "",
     ) -> bool:
+        step, row_gap_m = pitch
         for rows in (rows for rows in band_rows if rows > 1):
             window = best_window(field, run.points, remaining // rows)
             side = inward_side(field, window, step)
             if len(window) < min_size or side is None:
                 continue
-            points = band_points(window, rows, step, side)
+            points = band_points(window, rows, step, side, row_gap_m)
             needed = max(min_size * rows, ceil(len(points) * self._settings.hedge_band_min_filled_share))
             if layout.feasible(points, min_spacing_m, open_cells=True) < needed:
                 continue

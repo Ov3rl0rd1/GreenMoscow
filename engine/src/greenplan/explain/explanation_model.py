@@ -39,6 +39,7 @@ class ClearanceView:
     citations: tuple[CitationView, ...]
     crown_rule_citations: tuple[CitationView, ...]
     competing: tuple[CompetingView, ...]
+    assumed_voltage_kv: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

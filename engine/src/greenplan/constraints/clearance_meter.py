@@ -2,7 +2,13 @@ from dataclasses import dataclass
 
 from shapely.geometry import Point
 
-from greenplan.domain.norms import STRUCTURE_EDGE_MEASUREMENT, SURFACE_MEASUREMENT, NormsDefaults, Requirement
+from greenplan.domain.norms import (
+    CROWN_EDGE_MEASUREMENT,
+    STRUCTURE_EDGE_MEASUREMENT,
+    SURFACE_MEASUREMENT,
+    NormsDefaults,
+    Requirement,
+)
 from greenplan.domain.obstacle_kinds import HEATING_NETWORK
 from greenplan.domain.site import Obstacle
 
@@ -35,6 +41,8 @@ class ClearanceMeter:
             return radius + self.trunk_radius_m(), assumed
         if requirement.measurement_mode == STRUCTURE_EDGE_MEASUREMENT:
             return self._outer_radius(obstacle)
+        if requirement.measurement_mode == CROWN_EDGE_MEASUREMENT:
+            return requirement.crown_radius_m, False
         return 0.0, False
 
     def _outer_radius(self, obstacle: Obstacle) -> tuple[float, bool]:

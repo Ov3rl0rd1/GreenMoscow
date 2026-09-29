@@ -94,7 +94,15 @@ def test_conflicting_invasive_species_is_not_offered_by_default(
 ) -> None:
     site = open_site(())
     plant_catalog = catalog(
-        species("cornus_alba", "shrub", 2.0, 2.5, name_ru="Дёрен белый", latin="Cornus alba")
+        species(
+            "disputed",
+            "shrub",
+            2.0,
+            2.5,
+            name_ru="Спорный вид",
+            latin="Syringa vulgaris",
+            invasive_status="conflicting_local_list",
+        )
     )
     outcome = assign(toolkit, registry, site, plant_catalog, [planned(toolkit, site, SHRUB, 0, 0)])
     assert outcome.assignments == ()
@@ -107,7 +115,15 @@ def test_conflicting_invasive_species_can_be_offered_as_conditional(
 ) -> None:
     site = open_site(())
     plant_catalog = catalog(
-        species("cornus_alba", "shrub", 2.0, 2.5, name_ru="Дёрен белый", latin="Cornus alba")
+        species(
+            "disputed",
+            "shrub",
+            2.0,
+            2.5,
+            name_ru="Спорный вид",
+            latin="Syringa vulgaris",
+            invasive_status="conflicting_local_list",
+        )
     )
     settings = SpeciesSettings(allow_conditional_species=True)
     outcome = assign(toolkit, registry, site, plant_catalog, [planned(toolkit, site, SHRUB, 0, 0)], settings)

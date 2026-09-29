@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from typing import Any
 
 from greenplan.domain.norms import (
@@ -10,6 +9,7 @@ from greenplan.domain.norms import (
 )
 
 ASSUMPTION_STATUS = "assumption"
+VOLTAGE_TABLES = (("zone_by_voltage_kv", "zone_m"), ("distance_by_voltage_kv", "distance_m"))
 
 
 def parse_norm_rule(entry: dict[str, Any]) -> NormRule:
@@ -22,7 +22,7 @@ def parse_norm_rule(entry: dict[str, Any]) -> NormRule:
         severity=entry.get("severity", "advisory"),
         distances=_distances(entry.get("distance_m"), targets),
         zone_m=_optional_float(entry.get("zone_m")),
-        zone_by_voltage=_zones_by_voltage(entry.get("zone_by_voltage_kv", ())),
+        zone_by_voltage=_by_voltage(entry),
         measured_from=entry.get("measured_from", ""),
         source_refs=_source_refs(entry),
         competing=tuple(_competing(item) for item in entry.get("competing", []) or []),
@@ -33,6 +33,7 @@ def parse_norm_rule(entry: dict[str, Any]) -> NormRule:
         activation=entry.get("activation", ""),
         root_barrier=bool(entry.get("root_barrier", False)),
         crown_increment=bool(entry.get("crown_increment", True)),
+        measured_to=entry.get("measured_to", ""),
         parameters=dict(entry),
     )
 
@@ -59,8 +60,14 @@ def _distances(raw: Any, targets: tuple[str, ...]) -> tuple[tuple[str, float | N
     return tuple((target, _optional_float(raw)) for target in targets)
 
 
-def _zones_by_voltage(entries: Iterable[dict[str, Any]]) -> tuple[tuple[float, float], ...]:
-    return tuple(sorted((float(item["max_kv"]), float(item["zone_m"])) for item in entries))
+def _by_voltage(entry: dict[str, Any]) -> tuple[tuple[float, float], ...]:
+    return tuple(
+        sorted(
+            (float(item["max_kv"]), float(item[value_key]))
+            for table_key, value_key in VOLTAGE_TABLES
+            for item in entry.get(table_key, ()) or ()
+        )
+    )
 
 
 def _source_refs(entry: dict[str, Any]) -> tuple[str, ...]:

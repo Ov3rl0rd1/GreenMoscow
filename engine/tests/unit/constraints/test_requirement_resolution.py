@@ -79,6 +79,19 @@ def test_unknown_overhead_voltage_uses_configured_class(zone_toolkit: NormsToolk
     assert distances[CONDITIONAL] == pytest.approx(10.0)
 
 
+def test_overhead_line_distance_is_measured_to_the_crown_edge(toolkit: NormsToolkit) -> None:
+    line = network("overhead_line", [(0, 0), (10, 0)])
+    requirement = next(
+        item for item in toolkit.resolver.resolve("overhead_line", TREE, 6.0) if item.severity == PROHIBITIVE
+    )
+    assert requirement.distance_m == pytest.approx(3.0)
+    assert requirement.crown_increment_m == 0.0
+    assert toolkit.meter.measure(Point(5, 5.0), line, requirement).actual_m == pytest.approx(2.0)
+    assert toolkit.meter.geometry_offset_m(line, requirement) == pytest.approx(6.0)
+    assert toolkit.resolver.max_requirement_distance_m(6.0) >= 6.0
+    assert requirement.voltage_kv == pytest.approx(10.0)
+
+
 def test_surface_measurement_subtracts_pipe_and_trunk_radii(toolkit: NormsToolkit) -> None:
     gas = network("gas_pipeline", [(0, 0), (10, 0)], outer_radius_m=0.11)
     requirement = next(

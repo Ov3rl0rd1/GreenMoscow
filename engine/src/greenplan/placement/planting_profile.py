@@ -16,3 +16,4 @@ class PlantingProfile:
     composed: bool = False
     respects_density_cap: bool = True
     min_count_share: float = 0.0
+    row_gap_m: float = 0.0

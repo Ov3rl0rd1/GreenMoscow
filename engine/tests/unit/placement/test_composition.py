@@ -88,6 +88,12 @@ def test_band_adds_staggered_rows_on_the_chosen_side() -> None:
     assert min(first.distance(second) for first, second in combinations(band, 2)) >= 1.0 - 1e-9
 
 
+def test_band_rows_keep_the_normative_strip_increment() -> None:
+    line = [Point(x, 0.0) for x in range(10)]
+    band = band_points(line, 3, 1.0, 1.0, 2.0)
+    assert sorted({round(point.y, 6) for point in band}) == [0.0, 2.0, 4.0]
+
+
 def test_trees_form_a_row_along_the_road_then_groups_within_budget() -> None:
     composed = CompositionPlanner(CompositionSettings()).compose_trees(
         lawn_field(), accept_all(TREE), TREE, 5.0, 30

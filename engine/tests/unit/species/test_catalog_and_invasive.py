@@ -1,9 +1,17 @@
 from pathlib import Path
 
 import pytest
+import yaml
 
 from greenplan.domain.norms import SHRUB, TREE
-from greenplan.knowledge.invasive_registry import ALLOWED, CONDITIONAL, EXCLUDED, InvasiveRegistry, latin_key
+from greenplan.knowledge.invasive_registry import (
+    ALLOWED,
+    ALLOWED_WITH_CONTROL,
+    CONDITIONAL,
+    EXCLUDED,
+    InvasiveRegistry,
+    latin_key,
+)
 from greenplan.knowledge.plant_catalog import LIMITED_STREET_SUITABILITY, NOT_STREET_SUITABLE, PlantCatalog
 
 from fixtures.species_factory import species
@@ -50,13 +58,28 @@ def test_latin_keys_use_genus_and_species_or_genus_for_spp() -> None:
     assert latin_key("Reynoutria bohemica / R. japonica") == "reynoutria bohemica"
 
 
-def test_conflicting_group_three_species_are_conditional(
+def test_group_three_species_are_allowed_with_spread_control(
     registry: InvasiveRegistry, real_catalog: PlantCatalog
 ) -> None:
     verdict = registry.verdict(real_catalog.get("cornus_alba"))
-    assert verdict.status == CONDITIONAL
+    assert verdict.status == ALLOWED_WITH_CONTROL
     assert "ppm369_invasive" in verdict.source_refs
-    assert registry.verdict(real_catalog.get("rosa_rugosa")).status == CONDITIONAL
+    assert verdict.groups == ("369-ПП:III",)
+    for key in ("rosa_rugosa", "physocarpus_opulifolius"):
+        assert registry.verdict(real_catalog.get(key)).status == ALLOWED_WITH_CONTROL
+
+
+def test_species_marked_as_disputed_in_the_assortment_stays_conditional(registry: InvasiveRegistry) -> None:
+    disputed = species("disputed", latin="Syringa vulgaris", invasive_status="conflicting_local_list")
+    assert registry.verdict(disputed).status == CONDITIONAL
+
+
+def test_moscow_list_matches_the_official_appendix(knowledge_root: Path) -> None:
+    content = yaml.safe_load((knowledge_root / "plants" / "invasive_moscow.yaml").read_text(encoding="utf-8"))
+    groups = content["moscow_369pp"]["groups"]
+    sizes = {name: len(data["species"]) for name, data in groups.items()}
+    assert sizes == {"I": 6, "II": 1, "III": 14, "IV": 11}
+    assert all(data["verification"] == "verified" for data in groups.values())
 
 
 def test_unlisted_species_are_allowed(registry: InvasiveRegistry, real_catalog: PlantCatalog) -> None:

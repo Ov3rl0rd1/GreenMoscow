@@ -127,8 +127,10 @@ def mass_offsets(radius_m: float, spacing_m: float, rotation: float) -> tuple[tu
     return tuple(offsets)
 
 
-def band_points(points: Sequence[Point], rows: int, step_m: float, side: float) -> list[Point]:
-    gap = step_m * sqrt(3) / 2
+def band_points(
+    points: Sequence[Point], rows: int, step_m: float, side: float, row_gap_m: float = 0.0
+) -> list[Point]:
+    gap = max(step_m * sqrt(3) / 2, row_gap_m)
     result = list(points)
     for index, point in enumerate(points):
         tx, ty = tangent_at(points, index)
