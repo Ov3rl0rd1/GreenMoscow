@@ -19,6 +19,17 @@ public sealed class TimelineTests
             StageTimings = new Dictionary<string, double> { ["read_drawings"] = 9.14, ["recognize_site"] = 0.7 },
         };
 
+    [Fact]
+    public void MissingBenefitIsLeftOutInsteadOfADash()
+    {
+        var summary = new JobSummaryView(new Dictionary<string, JsonElement>
+        {
+            ["benefits"] = JsonSerializer.SerializeToElement(new { street_front_share = 0.137, sidewalk_shade_share = (double?)null, open_lawn_share = 0.874 }),
+        });
+
+        Assert.Equal("проезжая часть отделена посадками на 14 % фронта; открытый газон — 87 %", summary.BenefitText());
+    }
+
     [Theory]
     [InlineData(12.34, "12,3 с")]
     [InlineData(9.0, "9 с")]

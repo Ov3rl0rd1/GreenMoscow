@@ -166,15 +166,23 @@ public sealed class JobSummaryView(IReadOnlyDictionary<string, JsonElement> summ
 
     public string? BenefitText()
     {
-        var front = Percent("street_front_share");
-        var shade = Percent("sidewalk_shade_share");
-        var open = Percent("open_lawn_share");
-        if (front is null && shade is null && open is null)
+        var parts = new List<string>();
+        if (Percent("street_front_share") is { } front)
         {
-            return null;
+            parts.Add($"проезжая часть отделена посадками на {front} фронта");
         }
 
-        return $"проезжая часть отделена посадками на {front ?? "—"} фронта; тротуары под кронами — {shade ?? "—"}; открытый газон — {open ?? "—"}";
+        if (Percent("sidewalk_shade_share") is { } shade)
+        {
+            parts.Add($"тротуары под кронами — {shade}");
+        }
+
+        if (Percent("open_lawn_share") is { } open)
+        {
+            parts.Add($"открытый газон — {open}");
+        }
+
+        return parts.Count > 0 ? string.Join("; ", parts) : null;
     }
 
     private string? Percent(string key) =>
