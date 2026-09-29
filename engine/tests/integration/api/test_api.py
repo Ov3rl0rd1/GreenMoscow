@@ -139,6 +139,20 @@ def test_zip_upload_picks_the_main_drawing_or_takes_the_given_one(
     assert client.get(f"{JOBS}/{guessed.json()['job_id']}").json()["status"] == SUCCEEDED
 
 
+def test_main_drawing_can_be_given_by_file_name_only(
+    client: TestClient, drawing_bytes: bytes, tmp_path: Path
+) -> None:
+    extra = create_document()
+    add_line(extra, "Борт", (0, 0), (1, 0))
+    extra_bytes = save_document(extra, tmp_path / "extra.dxf").read_bytes()
+    archive = zipped({"объект/главный.dxf": drawing_bytes, "объект/ссылки/Борт.dxf": extra_bytes})
+    given = submit(client, {"drawing": ("объект.zip", archive)}, {"main_file": "борт.dxf"})
+    missing = submit(client, {"drawing": ("объект.zip", archive)}, {"main_file": "нет.dxf"})
+    assert given.status_code == 202
+    assert given.json()["main_file"] == "объект/ссылки/Борт.dxf"
+    assert missing.status_code == 400
+
+
 def dotnet_multipart(file_name: str, content: bytes) -> tuple[bytes, dict[str, str]]:
     boundary = "dotnet-boundary"
     encoded = base64.b64encode(file_name.encode("utf-8")).decode("ascii")

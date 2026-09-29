@@ -27,9 +27,7 @@ class UploadStorage:
 
     def resolve_main(self, directory: Path, drawings: list[Path], main_file: str | None) -> Path:
         if main_file:
-            candidate = (directory / main_file).resolve()
-            if not candidate.is_relative_to(directory.resolve()) or not candidate.is_file():
-                raise InvalidUploadError(f"main_file not found in upload: {main_file}")
+            candidate = given_main(directory, drawings, main_file)
             if candidate.suffix.lower() not in DRAWING_SUFFIXES:
                 raise InvalidUploadError(f"main_file must be a .dxf or .dwg drawing: {main_file}")
             return candidate
@@ -51,6 +49,19 @@ class UploadStorage:
                     target.write_bytes(archive.read(member))
         except zipfile.BadZipFile as error:
             raise InvalidUploadError(f"broken zip archive: {error}") from error
+
+
+def given_main(directory: Path, drawings: list[Path], main_file: str) -> Path:
+    candidate = (directory / main_file).resolve()
+    if not candidate.is_relative_to(directory.resolve()):
+        raise InvalidUploadError(f"main_file not found in upload: {main_file}")
+    if candidate.is_file():
+        return candidate
+    name = Path(main_file).name.casefold()
+    named = [path for path in drawings if path.name.casefold() == name]
+    if len(named) == 1:
+        return named[0].resolve()
+    raise InvalidUploadError(f"main_file not found in upload: {main_file}")
 
 
 def is_archive(file_name: str) -> bool:
