@@ -71,7 +71,7 @@ try {
         $response = Invoke-WebRequest $webUrl -TimeoutSec 10
         if ($response.StatusCode -eq 200) { $response } else { $null }
     } 'веб-интерфейс ответит' $TimeoutSeconds
-    if ($page.Content -notmatch 'GreenPlan') { throw 'Веб-интерфейс вернул неожиданную страницу' }
+    if ($page.Content -notmatch 'GreenMoscow') { throw 'Веб-интерфейс вернул неожиданную страницу' }
 
     Write-Output 'Docker-смоук пройден: движок, расчёт, артефакты и веб-интерфейс работают'
 } finally {

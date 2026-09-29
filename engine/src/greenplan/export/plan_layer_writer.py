@@ -236,7 +236,7 @@ class PlanLayerWriter:
         layer = self._layer(document, (settings.meta_layer_stem,), settings.meta_color)
         summary = report.summary
         lines = (
-            f"GreenPlan {report.engine_version}",
+            f"GreenMoscow {report.engine_version}",
             report.title,
             f"Сформировано: {generated_at}",
             f"Деревьев: {summary.trees}; кустарников: {summary.shrubs}; "

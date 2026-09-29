@@ -22,7 +22,7 @@ from greenplan.knowledge.norms_repository import NormsRepository
 from greenplan.knowledge.territory_catalog import TerritoryCatalog
 
 API_PREFIX = "/api/v1"
-API_TITLE = "GreenPlan API"
+API_TITLE = "GreenMoscow API"
 API_DESCRIPTION = (
     "Автоматическое проектирование озеленения с учётом подземных коммуникаций: загрузка чертежа, "
     "расчёт посадок на отдельных слоях DXF, объяснения со ссылками на нормы, независимая проверка."

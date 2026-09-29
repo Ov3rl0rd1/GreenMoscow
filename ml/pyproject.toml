@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "greenplan-ml"
 version = "0.1.0"
-description = "Heatmap model that proposes planting spots for the GreenPlan engine"
+description = "Heatmap model that proposes planting spots for the GreenMoscow engine"
 requires-python = ">=3.11"
 dependencies = [
   "greenplan",
